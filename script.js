@@ -1271,7 +1271,6 @@ function displayProductsOnHomepage() {
 const SUPABASE_URL = 'https://ebkgbaetsgtzordvkcvf.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVia2diYWV0c2d0em9yZHZrY3ZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxMjAzMTMsImV4cCI6MjA1NzY5NjMxM30.fype9g6RIKCYHJvXJN8b_kFFnkehACo3inpXa382GgI';
 let supabase;
-let isAdmin = false;
 
 // Initialize Supabase client
 function initSupabase() {
