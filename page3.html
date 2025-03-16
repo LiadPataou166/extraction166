@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Instraction - חנות מקצועית | עמוד 3</title>
+    <meta name="description" content="חנות מקצועית ומובילה עם מוצרים איכותיים במחירים אטרקטיביים. הצטרפו למועדון ה-VIP וקבלו הטבות בלעדיות.">
+    <meta name="keywords" content="doctor instraction, מוצרים מקצועיים, מועדון VIP, משלוחים מהירים">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="/api/placeholder/32/32" type="image/png">
+    
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Doctor Instraction",
+        "url": "https://www.doctorinstraction.com",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://www.doctorinstraction.com/search?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+        }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Doctor Instraction",
+        "url": "https://www.doctorinstraction.com",
+        "logo": "https://www.doctorinstraction.com/images/logo.png",
+        "sameAs": [
+            "https://www.facebook.com/doctorinstraction",
+            "https://www.instagram.com/doctorinstraction",
+            "https://t.me/doctorinstraction"
+        ]
+    }
+    </script>
+    
+    <!-- CSS Libraries -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-top">
+                <div class="logo">
+                    <img src="/api/placeholder/48/48" alt="Doctor Instraction Logo">
+                    <h1>Doctor Instraction</h1>
+                </div>
+                <div class="header-actions">
+                    <form class="search-form">
+                        <input type="text" placeholder="חיפוש מוצרים...">
+                        <button type="submit"><i class="fas fa-search"></i></button>
+                    </form>
+                    <div class="header-icons">
+                        <a href="#" class="header-icon wishlist-icon">
+                            <i class="fas fa-heart"></i>
+                            <span class="badge">0</span>
+                        </a>
+                        <a href="#" class="header-icon cart-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="badge">0</span>
+                        </a>
+                        <div class="header-icon user-dropdown">
+                            <i class="fas fa-user"></i>
+                            <span class="vip-badge">VIP</span>
+                            
+                            <div class="user-menu">
+                                <div class="user-menu-item">
+                                    <a href="#" class="user-menu-link"><i class="fas fa-tachometer-alt"></i> לוח בקרה</a>
+                                </div>
+                                <div class="user-menu-item">
+                                    <a href="#" class="user-menu-link"><i class="fas fa-user-edit"></i> פרופיל</a>
+                                </div>
+                                <div class="user-menu-item">
+                                    <a href="#" class="user-menu-link"><i class="fas fa-heart"></i> מוצרים שאהבתי</a>
+                                </div>
+                                <div class="user-menu-item">
+                                    <a href="#" class="user-menu-link"><i class="fas fa-shopping-cart"></i> עגלת קניות</a>
+                                </div>
+                                <div class="user-menu-item">
+                                    <a href="#" class="user-menu-link"><i class="fas fa-gem"></i> חברות VIP</a>
+                                </div>
+                                <div class="user-menu-item">
+                                    <a href="#" class="user-menu-link"><i class="fas fa-sign-out-alt"></i> התנתק</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="header-bottom">
+                <nav>
+                    <ul>
+                        <li><a href="index.html" class="active">דף הבית</a></li>
+                        <li><a href="#">קטגוריות</a></li>
+                        <li><a href="#">חנות</a></li>
+                        <li><a href="#">מבצעים</a></li>
+                        <li><a href="#">מועדון VIP</a></li>
+                        <li><a href="#">בלוג</a></li>
+                        <li><a href="#">צור קשר</a></li>
+                    </ul>
+                </nav>
+                <button class="mobile-menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Products Section -->
+        <section class="products">
+            <div class="container">
+                <h2 class="section-title">המוצרים שלנו - עמוד 3</h2>
+                
+                <div class="product-controls">
+                    <div class="product-filters">
+                        <button class="filter-btn active">הכל</button>
+                        <button class="filter-btn">חדש</button>
+                        <button class="filter-btn">פופולרי</button>
+                        <button class="filter-btn">מבצעים</button>
+                        <button class="filter-btn">VIP בלבד</button>
+                    </div>
+                </div>
+                
+                <div class="products-grid">
+                    <!-- Product 1 -->
+                    <div class="product-card">
+                        <div class="product-badge sale">מבצע</div>
+                        <div class="product-img">
+                            <img src="/api/placeholder/300/300" alt="Product 17">
+                        </div>
+                        <div class="product-actions">
+                            <div class="product-action-btn">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                            <div class="product-action-btn">
+                                <i class="fas fa-eye"></i>
+                            </div>
+                            <div class="product-action-btn">
+                                <i class="fas fa-exchange-alt"></i>
+                            </div>
+                        </div>
+                        <div class="product-content">
+                            <div class="product-category">קטגוריה 1</div>
+                            <h3 class="product-title">מוצר 17</h3>
+                            <div class="product-rating">
+                                <div class="rating-stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <div class="rating-count">(54)</div>
+                            </div>
+                            <div class="product-price">
+                                <div class="current-price">₪189.99</div>
+                                <div class="old-price">₪229.99</div>
+                                <div class="price-discount">-18%</div>
+                            </div>
+                            <button class="add-to-cart">הוסף לסל</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Product 2 -->
+                    <div class="product-card">
+                        <div class="product-badge vip">VIP</div>
+                        <div class="product-img">
+                            <img src="/api/placeholder/300/300" alt="Product 18">
+                        </div>
+                        <div class="product-actions">
+                            <div class="product-action-btn">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                            <div class="product-action-btn">
+                                <i class="fas fa-eye"></i>
+                            </div>
+                            <div class="product-action-btn">
+                                <i class="fas fa-exchange-alt"></i>
+                            </div>
+                        </div>
+                        <div class="product-content">
+                            <div class="product-category">קטגוריה 2</div>
+                            <h3 class="product-title">מוצר 18</h3>
+                            <div class="product-rating">
+                                <div class="rating-stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                </div>
+                                <div class="rating-count">(28)</div>
+                            </div>
+                            <div class="product-price">
+                                <div class="current-price">₪399.99</div>
+                            </div>
+                            <button class="add-to-cart">הוסף לסל</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Product 3 -->
+                    <div class="product-card">
+                        <div class="product-badge hot">חם</div>
+                        <div class="product-img">
+                            <img src="/api/placeholder/300/300" alt="Product 19">
+                        </div>
+                        <div class="product-actions">
+                            <div class="product-action-btn">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                            <div class="product-action-btn">
+                                <i class="fas fa-eye"></i>
+                            </div>
+                            <div class="product-action-btn">
+                                <i class="fas fa-exchange-alt"></i>
+                            </div>
+                        </div>
+                        <div class="product-content">
+                            <div class="product-category">קטגוריה 3</div>
+                            <h3 class="product-title">מוצר 19</h3>
+                            <div class="product-rating">
+                                <div class="rating-stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-alt"></i>
+                                    <i class="far fa-star"></i>
+                                </div>
+                                <div class="rating-count">(17)</div>
+                            </div>
+                            <div class="product-price">
+                                <div class="current-price">₪149.99</div>
+                                <div class="old-price">₪179.99</div>
+                                <div class="price-discount">-17%</div>
+                            </div>
+                            <button class="add-to-cart">הוסף לסל</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Product 4 -->
+                    <div class="product-card">
+                        <div class="product-badge new">חדש</div>
+                        <div class="product-img">
+                            <img src="/api/placeholder/300/300" alt="Product 20">
+                        </div>
+                        <div class="product-actions">
+                            <div class="product-action-btn">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                            <div class="product-action-btn">
+                                <i class="fas fa-eye"></i>
+                            </div>
+                            <div class="product-action-btn">
+                                <i class="fas fa-exchange-alt"></i>
+                            </div>
+                        </div>
+                        <div class="product-content">
+                            <div class="product-category">קטגוריה 1</div>
+                            <h3 class="product-title">מוצר 20</h3>
+                            <div class="product-rating">
+                                <div class="rating-stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <div class="rating-count">(63)</div>
+                            </div>
+                            <div class="product-price">
+                                <div class="current-price">₪299.99</div>
+                            </div>
+                            <button class="add-to-cart">הוסף לסל</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Product 5 -->
+                    <div class="product-card">
+                        <div class="product-img">
+                            <img src="/api/placeholder/300/300" alt="Product 21">
+                        </div>
+                        <div class="product-actions">
+                            <div class="product-action-btn">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                            <div class="product-action-btn">
+                                <i class="fas fa-eye"></i>
+                            </div>
+                            <div class="product-action-btn">
+                                <i class="fas fa-exchange-alt"></i>
+                            </div>
+                        </div>
+                        <div class="product-content">
+                            <div class="product-category">קטגוריה 2</div>
+                            <h3 class="product-title">מוצר 21</h3>
+                            <div class="product-rating">
+                                <div class="rating-stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                </div>
+                                <div class="rating-count">(7)</div>
+                            </div>
+                            <div class="product-price">
+                                <div class="current-price">₪79.99</div>
+                            </div>
+                            <button class="add-to-cart">הוסף לסל</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Product 6 -->
+                    <div class="product-card">
+                        <div class="product-badge sale">מבצע</div>
+                        <div class="product-img">
+                            <img src="/api/placeholder/300/300" alt="Product 22">
+                        </div>
+                        <div class="product-actions">
+                            <div class="product-action-btn">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                            <div class="product-action-btn">
+                                <i class="fas fa-eye"></i>
+                            </div>
+                            <div class="product-action-btn">
+                                <i class="fas fa-exchange-alt"></i>
+                            </div>
+                        </div>
+                        <div class="product-content">
+                            <div class="product-category">קטגוריה 3</div>
+                            <h3 class="product-title">מוצר 22</h3>
+                            <div class="product-rating">
+                                <div class="rating-stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-alt"></i>
+                                </div>
+                                <div class="rating-count">(39)</div>
+                            </div>
+                            <div class="product-price">
+                                <div class="current-price">₪129.99</div>
+                                <div class="old-price">₪159.99</div>
+                                <div class="price-discount">-19%</div>
+                            </div>
+                            <button class="add-to-cart">הוסף לסל</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Product 7 -->
+                    <div class="product-card">
+                        <div class="product-badge vip">VIP</div>
+                        <div class="product-img">
+                            <img src="/api/placeholder/300/300" alt="Product 23">
+                        </div>
+                        <div class="product-actions">
+                            <div class="product-action-btn">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                            <div class="product-action-btn">
+                                <i class="fas fa-eye"></i>
+                            </div>
+                            <div class="product-action-btn">
+                                <i class="fas fa-exchange-alt"></i>
+                            </div>
+                        </div>
+                        <div class="product-content">
+                            <div class="product-category">קטגוריה 1</div>
+                            <h3 class="product-title">מוצר 23</h3>
+                            <div class="product-rating">
+                                <div class="rating-stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                </div>
+                                <div class="rating-count">(31)</div>
+                            </div>
+                            <div class="product-price">
+                                <div class="current-price">₪349.99</div>
+                                <div class="old-price">₪399.99</div>
+                                <div class="price-discount">-13%</div>
+                            </div>
+                            <button class="add-to-cart">הוסף לסל</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Product 8 -->
+                    <div class="product-card">
+                        <div class="product-badge hot">חם</div>
+                        <div class="product-img">
+                            <img src="/api/placeholder/300/300" alt="Product 24">
+                        </div>
+                        <div class="product-actions">
+                            <div class="product-action-btn">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                            <div class="product-action-btn">
+                                <i class="fas fa-eye"></i>
+                            </div>
+                            <div class="product-action-btn">
+                                <i class="fas fa-exchange-alt"></i>
+                            </div>
+                        </div>
+                        <div class="product-content">
+                            <div class="product-category">קטגוריה 2</div>
+                            <h3 class="product-title">מוצר 24</h3>
+                            <div class="product-rating">
+                                <div class="rating-stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <div class="rating-count">(47)</div>
+                            </div>
+                            <div class="product-price">
+                                <div class="current-price">₪259.99</div>
+                                <div class="old-price">₪289.99</div>
+                                <div class="price-discount">-10%</div>
+                            </div>
+                            <button class="add-to-cart">הוסף לסל</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pagination -->
+                <div class="pagination">
+                    <ul class="pagination-list">
+                        <li class="pagination-item">
+                            <a href="index.html" class="pagination-link">1</a>
+                        </li>
+                        <li class="pagination-item">
+                            <a href="page2.html" class="pagination-link">2</a>
+                        </li>
+                        <li class="pagination-item">
+                            <a href="page3.html" class="pagination-link active">3</a>
+                        </li>
+                        <li class="pagination-item">
+                            <a href="#" class="pagination-link pagination-next disabled">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <div class="footer-widgets">
+                <div class="footer-widget about-widget">
+                    <h3 class="footer-widget-title">אודות</h3>
+                    <p>Doctor Instraction הינה חנות מקצועית המספקת מוצרים באיכות גבוהה. אנחנו מחויבים לשירות לקוחות מעולה ומתן חווית קנייה ייחודית.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-telegram-plane"></i></a>
+                    </div>
+                </div>
+                <div class="footer-widget links-widget">
+                    <h3 class="footer-widget-title">קישורים מהירים</h3>
+                    <ul>
+                        <li><a href="#"><i class="fas fa-chevron-left"></i> דף הבית</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-left"></i> אודות</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-left"></i> החנות שלנו</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-left"></i> מועדון VIP</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-left"></i> בלוג</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-left"></i> צור קשר</a></li>
+                    </ul>
+                </div>
+                <div class="footer-widget contact-widget">
+                    <h3 class="footer-widget-title">צור קשר</h3>
+                    <ul>
+                        <li><i class="fas fa-map-marker-alt"></i> <span>רחוב הראשי 123, תל אביב</span></li>
+                        <li><i class="fas fa-phone-alt"></i> <span>03-1234567</span></li>
+                        <li><i class="fas fa-envelope"></i> <span>info@doctorinstraction.com</span></li>
+                        <li><i class="far fa-clock"></i> <span>א-ה: 9:00-20:00, ו: 9:00-14:00</span></li>
+                    </ul>
+                </div>
+                <div class="footer-widget gallery-widget">
+                    <h3 class="footer-widget-title">גלריה</h3>
+                    <div class="gallery-grid">
+                        <div class="gallery-item">
+                            <img src="/api/placeholder/80/80" alt="Gallery 1">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="/api/placeholder/80/80" alt="Gallery 2">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="/api/placeholder/80/80" alt="Gallery 3">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="/api/placeholder/80/80" alt="Gallery 4">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="/api/placeholder/80/80" alt="Gallery 5">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="/api/placeholder/80/80" alt="Gallery 6">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="copyright">
+                    &copy; 2023 <a href="#">Doctor Instraction</a>. כל הזכויות שמורות.
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- Chat Widget -->
+    <div class="chat-widget">
+        <button class="chat-button">
+            <i class="fas fa-comments"></i>
+            <span>צ'אט</span>
+        </button>
+    </div>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html> 
