@@ -1172,6 +1172,11 @@ function openAdminPanel() {
     console.log('Opening admin panel...');
     $('#admin-panel').addClass('active');
     loadAdminPanelData();
+    
+    // Update category dropdown in add product form
+    setTimeout(() => {
+        updateCategoryDropdown();
+    }, 300);
 }
 
 // Function to close admin panel
@@ -1257,133 +1262,267 @@ async function loadAdminPanelData() {
 // Function to load products data
 async function loadProductsData() {
     try {
-        // For now, using demo data
-        // In real implementation, fetch from Supabase
+        // Get real products from product manager
+        const products = productManager.getAllProducts();
         const productListBody = $('#product-list-body');
-        productListBody.html(`
-            <tr>
-                <td><img src="/api/placeholder/50/50" alt="מוצר 1" width="50"></td>
-                <td>מוצר לדוגמה 1</td>
-                <td>קטגוריה 1</td>
-                <td>₪149.99</td>
-                <td>25</td>
-                <td>
-                    <button class="action-btn edit-btn" data-id="1"><i class="fas fa-edit"></i></button>
-                    <button class="action-btn delete-btn" data-id="1"><i class="fas fa-trash"></i></button>
-                </td>
-            </tr>
-            <tr>
-                <td><img src="/api/placeholder/50/50" alt="מוצר 2" width="50"></td>
-                <td>מוצר לדוגמה 2</td>
-                <td>קטגוריה 2</td>
-                <td>₪89.99</td>
-                <td>15</td>
-                <td>
-                    <button class="action-btn edit-btn" data-id="2"><i class="fas fa-edit"></i></button>
-                    <button class="action-btn delete-btn" data-id="2"><i class="fas fa-trash"></i></button>
-                </td>
-            </tr>
-        `);
+        
+        if (products.length === 0) {
+            productListBody.html(`
+                <tr>
+                    <td colspan="6" class="text-center">אין מוצרים להצגה</td>
+                </tr>
+            `);
+            return;
+        }
+        
+        let productsHTML = '';
+        
+        products.forEach(product => {
+            productsHTML += `
+                <tr>
+                    <td><img src="${product.image || '/api/placeholder/50/50'}" alt="${product.name}" width="50"></td>
+                    <td>${product.name}</td>
+                    <td>${product.category || 'ללא קטגוריה'}</td>
+                    <td>₪${product.price}</td>
+                    <td>${product.stock || 0}</td>
+                    <td>
+                        <button class="action-btn edit-btn" data-id="${product.id}"><i class="fas fa-edit"></i></button>
+                        <button class="action-btn delete-btn" data-id="${product.id}"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `;
+        });
+        
+        productListBody.html(productsHTML);
     } catch (error) {
         console.error('Error loading products data:', error);
-        throw error;
+        showNotification('שגיאה בטעינת נתוני המוצרים', 'error');
     }
 }
 
 // Function to load categories data
 async function loadCategoriesData() {
     try {
-        // For now, using demo data
+        // Get real categories from product manager
+        const categories = productManager.getAllCategories();
         const categoryListBody = $('#category-list-body');
-        categoryListBody.html(`
-            <tr>
-                <td>קטגוריה 1</td>
-                <td>24</td>
-                <td>
-                    <button class="action-btn edit-btn" data-id="1"><i class="fas fa-edit"></i></button>
-                    <button class="action-btn delete-btn" data-id="1"><i class="fas fa-trash"></i></button>
-                </td>
-            </tr>
-            <tr>
-                <td>קטגוריה 2</td>
-                <td>18</td>
-                <td>
-                    <button class="action-btn edit-btn" data-id="2"><i class="fas fa-edit"></i></button>
-                    <button class="action-btn delete-btn" data-id="2"><i class="fas fa-trash"></i></button>
-                </td>
-            </tr>
-        `);
+        
+        if (categories.length === 0) {
+            categoryListBody.html(`
+                <tr>
+                    <td colspan="3" class="text-center">אין קטגוריות להצגה</td>
+                </tr>
+            `);
+            return;
+        }
+        
+        let categoriesHTML = '';
+        
+        categories.forEach((category, index) => {
+            // Count products in this category
+            const productsInCategory = productManager.filterProducts({ category: category }).length;
+            
+            categoriesHTML += `
+                <tr>
+                    <td>${category}</td>
+                    <td>${productsInCategory}</td>
+                    <td>
+                        <button class="action-btn edit-btn" data-id="${index}"><i class="fas fa-edit"></i></button>
+                        <button class="action-btn delete-btn" data-id="${index}"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `;
+        });
+        
+        categoryListBody.html(categoriesHTML);
     } catch (error) {
         console.error('Error loading categories data:', error);
-        throw error;
+        showNotification('שגיאה בטעינת נתוני הקטגוריות', 'error');
     }
 }
 
 // Function to load users data
 async function loadUsersData() {
     try {
-        // For now, using demo data
+        // Get real members from membership manager
+        const members = membershipManager.members;
         const userListBody = $('#user-list-body');
-        userListBody.html(`
-            <tr>
-                <td>לקוח לדוגמה</td>
-                <td>customer@example.com</td>
-                <td>רגיל</td>
-                <td>2025-03-15</td>
-                <td>
-                    <button class="action-btn edit-btn" data-id="1"><i class="fas fa-edit"></i></button>
-                    <button class="action-btn delete-btn" data-id="1"><i class="fas fa-trash"></i></button>
-                </td>
-            </tr>
-            <tr>
-                <td>מנהל</td>
-                <td>${ADMIN_EMAIL}</td>
-                <td>מנהל</td>
-                <td>2025-03-10</td>
-                <td>
-                    <button class="action-btn edit-btn" data-id="2"><i class="fas fa-edit"></i></button>
-                    <button class="action-btn delete-btn" data-id="2"><i class="fas fa-trash"></i></button>
-                </td>
-            </tr>
-        `);
+        
+        // Try to get Supabase users if available
+        let supabaseUsers = [];
+        if (supabase) {
+            try {
+                const { data, error } = await supabase.auth.admin.listUsers();
+                if (!error && data) {
+                    supabaseUsers = data.users || [];
+                }
+            } catch (error) {
+                console.log('Unable to fetch Supabase users (requires admin access):', error);
+            }
+        }
+        
+        // Combine users from Supabase and local membership
+        let combinedUsers = [];
+        
+        // First add the admin
+        combinedUsers.push({
+            name: 'מנהל',
+            email: ADMIN_EMAIL,
+            type: 'מנהל',
+            joinDate: new Date(),
+            id: 'admin'
+        });
+        
+        // Then add members from membership manager
+        members.forEach(member => {
+            if (member.email !== ADMIN_EMAIL) {
+                combinedUsers.push({
+                    name: member.name || 'לקוח רשום',
+                    email: member.email,
+                    type: member.isVIP ? 'VIP' : 'רגיל',
+                    joinDate: member.joinDate || new Date(),
+                    id: member.id
+                });
+            }
+        });
+        
+        // Add additional supabase users if not already in the list
+        if (supabaseUsers.length > 0) {
+            supabaseUsers.forEach(user => {
+                const exists = combinedUsers.some(existingUser => existingUser.email === user.email);
+                if (!exists) {
+                    combinedUsers.push({
+                        name: user.user_metadata?.full_name || user.email.split('@')[0],
+                        email: user.email,
+                        type: 'רגיל',
+                        joinDate: new Date(user.created_at),
+                        id: user.id
+                    });
+                }
+            });
+        }
+        
+        if (combinedUsers.length === 0) {
+            userListBody.html(`
+                <tr>
+                    <td colspan="5" class="text-center">אין משתמשים להצגה</td>
+                </tr>
+            `);
+            return;
+        }
+        
+        let usersHTML = '';
+        
+        combinedUsers.forEach(user => {
+            const formattedDate = new Date(user.joinDate).toLocaleDateString('he-IL');
+            usersHTML += `
+                <tr>
+                    <td>${user.name}</td>
+                    <td>${user.email}</td>
+                    <td>${user.type}</td>
+                    <td>${formattedDate}</td>
+                    <td>
+                        <button class="action-btn edit-btn" data-id="${user.id}"><i class="fas fa-edit"></i></button>
+                        <button class="action-btn delete-btn" data-id="${user.id}"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `;
+        });
+        
+        userListBody.html(usersHTML);
     } catch (error) {
         console.error('Error loading users data:', error);
-        throw error;
+        showNotification('שגיאה בטעינת נתוני המשתמשים', 'error');
     }
 }
 
 // Function to load orders data
 async function loadOrdersData() {
     try {
-        // For now, using demo data
+        // Get orders from localStorage
+        let orders = [];
+        const storedOrders = localStorage.getItem('orders');
+        if (storedOrders) {
+            orders = JSON.parse(storedOrders);
+        }
+        
         const orderListBody = $('#order-list-body');
-        orderListBody.html(`
-            <tr>
-                <td>#1001</td>
-                <td>לקוח לדוגמה</td>
-                <td>2025-03-18</td>
-                <td>₪299.98</td>
-                <td><span class="status-badge completed">הושלם</span></td>
-                <td>
-                    <button class="action-btn view-btn" data-id="1001"><i class="fas fa-eye"></i></button>
-                    <button class="action-btn delete-btn" data-id="1001"><i class="fas fa-trash"></i></button>
-                </td>
-            </tr>
-            <tr>
-                <td>#1002</td>
-                <td>לקוח לדוגמה 2</td>
-                <td>2025-03-17</td>
-                <td>₪149.99</td>
-                <td><span class="status-badge pending">בטיפול</span></td>
-                <td>
-                    <button class="action-btn view-btn" data-id="1002"><i class="fas fa-eye"></i></button>
-                    <button class="action-btn delete-btn" data-id="1002"><i class="fas fa-trash"></i></button>
-                </td>
-            </tr>
-        `);
+        
+        if (orders.length === 0) {
+            // If no orders, show a placeholder row with sample data
+            orderListBody.html(`
+                <tr>
+                    <td colspan="6" class="text-center">אין הזמנות להצגה</td>
+                </tr>
+            `);
+            
+            // Create sample order in localStorage if needed for testing
+            if (!localStorage.getItem('orders')) {
+                const sampleOrders = [
+                    {
+                        id: 'ORD' + Date.now(),
+                        customer: {
+                            name: 'לקוח לדוגמה',
+                            email: ADMIN_EMAIL
+                        },
+                        date: new Date(),
+                        total: 299.99,
+                        status: 'בטיפול',
+                        items: [
+                            {
+                                productId: 'sample1',
+                                name: 'מוצר לדוגמה',
+                                price: 149.99,
+                                quantity: 2
+                            }
+                        ]
+                    }
+                ];
+                localStorage.setItem('orders', JSON.stringify(sampleOrders));
+            }
+            
+            return;
+        }
+        
+        let ordersHTML = '';
+        
+        orders.forEach(order => {
+            const formattedDate = new Date(order.date).toLocaleDateString('he-IL');
+            const statusClass = getStatusClass(order.status);
+            
+            ordersHTML += `
+                <tr>
+                    <td>#${order.id}</td>
+                    <td>${order.customer?.name || 'לקוח'}</td>
+                    <td>${formattedDate}</td>
+                    <td>₪${order.total.toFixed(2)}</td>
+                    <td><span class="status-badge ${statusClass}">${order.status}</span></td>
+                    <td>
+                        <button class="action-btn view-btn" data-id="${order.id}"><i class="fas fa-eye"></i></button>
+                        <button class="action-btn delete-btn" data-id="${order.id}"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `;
+        });
+        
+        orderListBody.html(ordersHTML);
     } catch (error) {
         console.error('Error loading orders data:', error);
-        throw error;
+        showNotification('שגיאה בטעינת נתוני ההזמנות', 'error');
+    }
+}
+
+// Helper function to get status class
+function getStatusClass(status) {
+    switch(status) {
+        case 'הושלם':
+            return 'completed';
+        case 'בטיפול':
+            return 'pending';
+        case 'בוטל':
+            return 'cancelled';
+        default:
+            return 'pending';
     }
 }
 
@@ -2082,32 +2221,37 @@ $(document).ready(function() {
         // Get form data
         const productName = $('#product-name').val();
         const productCategory = $('#product-category').val();
-        const productPrice = $('#product-price').val();
-        const productOldPrice = $('#product-old-price').val();
-        const productStock = $('#product-stock').val();
+        const productPrice = parseFloat($('#product-price').val());
+        const productOldPrice = $('#product-old-price').val() ? parseFloat($('#product-old-price').val()) : null;
+        const productStock = parseInt($('#product-stock').val());
         const productDescription = $('#product-description').val();
         const productBadge = $('#product-badge').val();
         
-        // In a real implementation, you would also handle the image upload
+        // Create product object
+        const newProduct = {
+            name: productName,
+            category: productCategory,
+            price: productPrice,
+            oldPrice: productOldPrice,
+            stock: productStock,
+            description: productDescription,
+            badge: productBadge,
+            image: '/api/placeholder/100/100', // Placeholder for now
+            createdAt: new Date()
+        };
         
-        // For now, just show a success message
+        // Add to product manager
+        const productId = productManager.addProduct(newProduct);
+        
+        // Show success notification
         showNotification('המוצר נוסף בהצלחה!', 'success');
         closeAddProductModal();
         
-        // Add a new row to the product list
-        $('#product-list-body').prepend(`
-            <tr>
-                <td><img src="/api/placeholder/50/50" alt="${productName}" width="50"></td>
-                <td>${productName}</td>
-                <td>קטגוריה ${productCategory}</td>
-                <td>₪${productPrice}</td>
-                <td>${productStock}</td>
-                <td>
-                    <button class="action-btn edit-btn" data-id="new"><i class="fas fa-edit"></i></button>
-                    <button class="action-btn delete-btn" data-id="new"><i class="fas fa-trash"></i></button>
-                </td>
-            </tr>
-        `);
+        // Reload product list
+        loadProductsData();
+        
+        // Clear form
+        $('#add-product-form')[0].reset();
     });
     
     // Save site settings form
@@ -2125,11 +2269,64 @@ $(document).ready(function() {
     // Delete product button
     $(document).on('click', '.delete-btn', function() {
         const id = $(this).data('id');
-        if (confirm('האם אתה בטוח שברצונך למחוק פריט זה?')) {
-            // In a real implementation, you would delete from the database
-            $(this).closest('tr').fadeOut(300, function() {
-                $(this).remove();
-            });
+        const itemType = determineItemType($(this));
+        
+        if (confirm(`האם אתה בטוח שברצונך למחוק ${itemType === 'product' ? 'מוצר' : itemType === 'category' ? 'קטגוריה' : itemType === 'user' ? 'משתמש' : 'פריט'} זה?`)) {
+            
+            // Handle different item types
+            switch(itemType) {
+                case 'product':
+                    // Delete product from product manager
+                    productManager.deleteProduct(id);
+                    // Reload product list
+                    loadProductsData();
+                    break;
+                    
+                case 'category':
+                    // Get current categories
+                    const categories = productManager.getAllCategories();
+                    // Remove the category
+                    const newCategories = categories.filter((cat, index) => index.toString() !== id.toString());
+                    // Update localStorage
+                    localStorage.setItem('categories', JSON.stringify(newCategories));
+                    // Reload categories
+                    loadCategoriesData();
+                    // Update category dropdown
+                    updateCategoryDropdown();
+                    break;
+                    
+                case 'user':
+                    // Cannot delete the admin user
+                    if (id === 'admin') {
+                        showNotification('לא ניתן למחוק את חשבון המנהל', 'error');
+                        return;
+                    }
+                    // Remove user from membership manager if exists
+                    const memberIndex = membershipManager.members.findIndex(m => m.id === id);
+                    if (memberIndex !== -1) {
+                        membershipManager.members.splice(memberIndex, 1);
+                        membershipManager.saveMembers();
+                    }
+                    // Reload users
+                    loadUsersData();
+                    break;
+                    
+                case 'order':
+                    // Get current orders
+                    let orders = [];
+                    const storedOrders = localStorage.getItem('orders');
+                    if (storedOrders) {
+                        orders = JSON.parse(storedOrders);
+                    }
+                    // Remove the order
+                    const newOrders = orders.filter(order => order.id !== id);
+                    // Update localStorage
+                    localStorage.setItem('orders', JSON.stringify(newOrders));
+                    // Reload orders
+                    loadOrdersData();
+                    break;
+            }
+            
             showNotification('הפריט נמחק בהצלחה', 'success');
         }
     });
@@ -2158,20 +2355,34 @@ $(document).ready(function() {
     // Add category button (placeholder functionality)
     $(document).on('click', '#add-category-btn', function() {
         const categoryName = prompt('הזן שם קטגוריה:');
-        if (categoryName) {
-            $('#category-list-body').prepend(`
-                <tr>
-                    <td>${categoryName}</td>
-                    <td>0</td>
-                    <td>
-                        <button class="action-btn edit-btn" data-id="new"><i class="fas fa-edit"></i></button>
-                        <button class="action-btn delete-btn" data-id="new"><i class="fas fa-trash"></i></button>
-                    </td>
-                </tr>
-            `);
+        if (categoryName && categoryName.trim()) {
+            // Add category to product manager
+            productManager.addCategory(categoryName.trim());
+            
+            // Show success notification
             showNotification('הקטגוריה נוספה בהצלחה', 'success');
+            
+            // Reload categories
+            loadCategoriesData();
+            
+            // Update category dropdown in the add product form
+            updateCategoryDropdown();
         }
     });
+    
+    // Function to update category dropdown in the add product form
+    function updateCategoryDropdown() {
+        const categories = productManager.getAllCategories();
+        const categorySelect = $('#product-category');
+        
+        // Clear current options (keep the default option)
+        categorySelect.find('option:not(:first)').remove();
+        
+        // Add categories as options
+        categories.forEach((category, index) => {
+            categorySelect.append(`<option value="${category}">${category}</option>`);
+        });
+    }
     
     // Check for admin on page load
     checkUserAuth();
@@ -2205,3 +2416,21 @@ $(document).ready(function() {
     // Run admin check
     checkAdminStatus();
 });
+
+// Helper function to determine which item type is being deleted
+function determineItemType(buttonElement) {
+    // Check which table contains this button
+    const $row = buttonElement.closest('tr');
+    
+    if ($row.closest('#product-list-body').length) {
+        return 'product';
+    } else if ($row.closest('#category-list-body').length) {
+        return 'category';
+    } else if ($row.closest('#user-list-body').length) {
+        return 'user';
+    } else if ($row.closest('#order-list-body').length) {
+        return 'order';
+    }
+    
+    return 'unknown';
+}
