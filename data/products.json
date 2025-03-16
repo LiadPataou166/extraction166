@@ -10,5 +10,17 @@
     "image": "https://via.placeholder.com/300x300?text=liad",
     "createdAt": "2025-03-16T14:31:20.540Z",
     "id": "m8bqhfx8s1jja638gwj"
+  },
+  {
+    "name": "dss",
+    "category": "ds",
+    "price": 1,
+    "oldPrice": 1,
+    "stock": 1,
+    "badge": "new",
+    "description": "1",
+    "image": "https://via.placeholder.com/300x300?text=dss",
+    "createdAt": "2025-03-16T14:35:36.598Z",
+    "id": "m8bqmxhyupuei0wv8q"
   }
 ]
