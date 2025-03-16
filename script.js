@@ -453,6 +453,34 @@ $(document).ready(function(){
 
     // Add this to your document ready function
     console.log('Looking for products grid:', $('.products-grid').length ? 'Found' : 'Not found');
+
+    // Initialize ProductManager and load products for homepage
+    if ($('.products-grid').length > 0) {
+        console.log('Found products grid on homepage, initializing ProductManager...');
+        
+        // Initialize ProductManager if it doesn't exist
+        if (typeof productManager === 'undefined' || !productManager) {
+            console.log('Creating ProductManager for homepage...');
+            window.productManager = new ProductManager();
+            
+            // Load products from GitHub and display on homepage
+            productManager.loadProductsFromGitHub().then(success => {
+                if (success) {
+                    console.log('Successfully loaded products for homepage display');
+                    displayProductsOnHomepage();
+                } else {
+                    console.error('Failed to load products for homepage');
+                    $('.products-grid').html('<div class="error">שגיאה בטעינת מוצרים</div>');
+                }
+            }).catch(error => {
+                console.error('Error loading products for homepage:', error);
+            });
+        } else {
+            // ProductManager exists, just display products
+            console.log('ProductManager already exists, displaying products on homepage');
+            displayProductsOnHomepage();
+        }
+    }
 });
 
 // Auth Helper Functions
@@ -1434,4 +1462,64 @@ function deleteProduct(productId) {
             }
         });
     }
+}
+
+// Add these helper functions for displaying products
+function getRatingStars(rating) {
+    let starsHTML = '';
+    for (let i = 1; i <= 5; i++) {
+        if (i <= rating) {
+            starsHTML += '<i class="fas fa-star"></i>';
+        } else if (i - 0.5 <= rating) {
+            starsHTML += '<i class="fas fa-star-half-alt"></i>';
+        } else {
+            starsHTML += '<i class="far fa-star"></i>';
+        }
+    }
+    return starsHTML;
+}
+
+function getBadgeText(badge) {
+    const badges = {
+        'new': 'חדש',
+        'sale': 'מבצע',
+        'hot': 'חם',
+        'out-of-stock': 'אזל מהמלאי'
+    };
+    
+    return badges[badge] || badge;
+}
+
+// Add this function to initialize product cards after they are displayed
+function initializeProductCards() {
+    // Product Image Hover Effect
+    $('.product-card').hover(
+        function(){
+            $(this).find('.product-actions').css('opacity', '1');
+        },
+        function(){
+            $(this).find('.product-actions').css('opacity', '0');
+        }
+    );
+    
+    // Add to Cart Button
+    $('.add-to-cart').on('click', function(e){
+        e.preventDefault();
+        
+        // Add to cart animation/logic
+        $(this).html('<i class="fas fa-check"></i> נוסף לסל');
+        setTimeout(() => {
+            $(this).html('הוסף לסל');
+        }, 2000);
+        
+        // Update cart count
+        let currentCount = parseInt($('.header-icon .badge').eq(1).text() || '0');
+        $('.header-icon .badge').eq(1).text(currentCount + 1);
+    });
+    
+    // Quick view and wishlist buttons
+    $('.quick-view-btn, .wishlist-btn').on('click', function(e) {
+        e.preventDefault();
+        // Add your quick view or wishlist functionality here
+    });
 }
