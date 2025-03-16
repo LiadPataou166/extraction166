@@ -248,7 +248,7 @@ $(document).ready(function(){
             showAuthError('register', error.message || 'הרשמה נכשלה. אנא נסה שוב מאוחר יותר.');
         } finally {
             // Reset button state
-            $('#register-submit').prop('disabled', false).text('הרשמה');
+            $('#register-submit').prop('disabled', false).text('הרשם');
         }
     });
     
@@ -1162,3 +1162,973 @@ async function checkEmailAllowed(email) {
         return true; // Fallback to allow if the service is unavailable
     }
 }
+
+// Admin Panel System
+// Check if user is admin when logged in
+let isAdmin = false;
+const ADMIN_EMAIL = 'liad1111@gmail.com';
+
+// Function to show admin panel
+function openAdminPanel() {
+    $('#admin-panel').addClass('active');
+    loadAdminPanelData();
+}
+
+// Function to close admin panel
+function closeAdminPanel() {
+    $('#admin-panel').removeClass('active');
+}
+
+// Function to load data for admin panel
+async function loadAdminPanelData() {
+    try {
+        // Load products data
+        await loadProductsData();
+        
+        // Load categories data
+        await loadCategoriesData();
+        
+        // Load users data
+        await loadUsersData();
+        
+        // Load orders data
+        await loadOrdersData();
+    } catch (error) {
+        console.error('Error loading admin data:', error);
+        showNotification('שגיאה בטעינת נתוני הניהול', 'error');
+    }
+}
+
+// Function to load products data
+async function loadProductsData() {
+    try {
+        // For now, using demo data
+        // In real implementation, fetch from Supabase
+        const productListBody = $('#product-list-body');
+        productListBody.html(`
+            <tr>
+                <td><img src="/api/placeholder/50/50" alt="מוצר 1" width="50"></td>
+                <td>מוצר לדוגמה 1</td>
+                <td>קטגוריה 1</td>
+                <td>₪149.99</td>
+                <td>25</td>
+                <td>
+                    <button class="action-btn edit-btn" data-id="1"><i class="fas fa-edit"></i></button>
+                    <button class="action-btn delete-btn" data-id="1"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+            <tr>
+                <td><img src="/api/placeholder/50/50" alt="מוצר 2" width="50"></td>
+                <td>מוצר לדוגמה 2</td>
+                <td>קטגוריה 2</td>
+                <td>₪89.99</td>
+                <td>15</td>
+                <td>
+                    <button class="action-btn edit-btn" data-id="2"><i class="fas fa-edit"></i></button>
+                    <button class="action-btn delete-btn" data-id="2"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+        `);
+    } catch (error) {
+        console.error('Error loading products data:', error);
+        throw error;
+    }
+}
+
+// Function to load categories data
+async function loadCategoriesData() {
+    try {
+        // For now, using demo data
+        const categoryListBody = $('#category-list-body');
+        categoryListBody.html(`
+            <tr>
+                <td>קטגוריה 1</td>
+                <td>24</td>
+                <td>
+                    <button class="action-btn edit-btn" data-id="1"><i class="fas fa-edit"></i></button>
+                    <button class="action-btn delete-btn" data-id="1"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+            <tr>
+                <td>קטגוריה 2</td>
+                <td>18</td>
+                <td>
+                    <button class="action-btn edit-btn" data-id="2"><i class="fas fa-edit"></i></button>
+                    <button class="action-btn delete-btn" data-id="2"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+        `);
+    } catch (error) {
+        console.error('Error loading categories data:', error);
+        throw error;
+    }
+}
+
+// Function to load users data
+async function loadUsersData() {
+    try {
+        // For now, using demo data
+        const userListBody = $('#user-list-body');
+        userListBody.html(`
+            <tr>
+                <td>לקוח לדוגמה</td>
+                <td>customer@example.com</td>
+                <td>רגיל</td>
+                <td>2025-03-15</td>
+                <td>
+                    <button class="action-btn edit-btn" data-id="1"><i class="fas fa-edit"></i></button>
+                    <button class="action-btn delete-btn" data-id="1"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+            <tr>
+                <td>מנהל</td>
+                <td>${ADMIN_EMAIL}</td>
+                <td>מנהל</td>
+                <td>2025-03-10</td>
+                <td>
+                    <button class="action-btn edit-btn" data-id="2"><i class="fas fa-edit"></i></button>
+                    <button class="action-btn delete-btn" data-id="2"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+        `);
+    } catch (error) {
+        console.error('Error loading users data:', error);
+        throw error;
+    }
+}
+
+// Function to load orders data
+async function loadOrdersData() {
+    try {
+        // For now, using demo data
+        const orderListBody = $('#order-list-body');
+        orderListBody.html(`
+            <tr>
+                <td>#1001</td>
+                <td>לקוח לדוגמה</td>
+                <td>2025-03-18</td>
+                <td>₪299.98</td>
+                <td><span class="status-badge completed">הושלם</span></td>
+                <td>
+                    <button class="action-btn view-btn" data-id="1001"><i class="fas fa-eye"></i></button>
+                    <button class="action-btn delete-btn" data-id="1001"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+            <tr>
+                <td>#1002</td>
+                <td>לקוח לדוגמה 2</td>
+                <td>2025-03-17</td>
+                <td>₪149.99</td>
+                <td><span class="status-badge pending">בטיפול</span></td>
+                <td>
+                    <button class="action-btn view-btn" data-id="1002"><i class="fas fa-eye"></i></button>
+                    <button class="action-btn delete-btn" data-id="1002"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+        `);
+    } catch (error) {
+        console.error('Error loading orders data:', error);
+        throw error;
+    }
+}
+
+// Function to open add product modal
+function openAddProductModal() {
+    $('#add-product-modal').addClass('active');
+}
+
+// Function to close add product modal
+function closeAddProductModal() {
+    $('#add-product-modal').removeClass('active');
+}
+
+// Add admin panel HTML to the DOM if it doesn't exist
+function addAdminPanelToDOM() {
+    // Check if admin panel already exists
+    if ($('#admin-panel').length > 0) return;
+    
+    const adminPanelHTML = `
+    <!-- Admin Panel -->
+    <div id="admin-panel" class="admin-panel">
+        <div class="admin-panel-bg"></div>
+        <div class="admin-panel-container">
+            <div class="admin-panel-header">
+                <h2>פאנל ניהול</h2>
+                <button class="close-admin-panel">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="admin-panel-sidebar">
+                <ul>
+                    <li class="admin-menu-item active" data-target="product-management">ניהול מוצרים</li>
+                    <li class="admin-menu-item" data-target="category-management">ניהול קטגוריות</li>
+                    <li class="admin-menu-item" data-target="user-management">ניהול משתמשים</li>
+                    <li class="admin-menu-item" data-target="order-management">ניהול הזמנות</li>
+                    <li class="admin-menu-item" data-target="site-settings">הגדרות אתר</li>
+                </ul>
+            </div>
+            
+            <div class="admin-panel-content">
+                <!-- Product Management -->
+                <div id="product-management" class="admin-tab active">
+                    <h3>ניהול מוצרים</h3>
+                    
+                    <div class="admin-actions">
+                        <button id="add-product-btn" class="admin-btn">הוסף מוצר חדש</button>
+                        <input type="text" id="product-search" placeholder="חפש מוצרים...">
+                    </div>
+                    
+                    <div class="product-list">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>תמונה</th>
+                                    <th>שם המוצר</th>
+                                    <th>קטגוריה</th>
+                                    <th>מחיר</th>
+                                    <th>מלאי</th>
+                                    <th>פעולות</th>
+                                </tr>
+                            </thead>
+                            <tbody id="product-list-body">
+                                <!-- Products will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Category Management -->
+                <div id="category-management" class="admin-tab">
+                    <h3>ניהול קטגוריות</h3>
+                    
+                    <div class="admin-actions">
+                        <button id="add-category-btn" class="admin-btn">הוסף קטגוריה חדשה</button>
+                    </div>
+                    
+                    <div class="category-list">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>שם הקטגוריה</th>
+                                    <th>מספר מוצרים</th>
+                                    <th>פעולות</th>
+                                </tr>
+                            </thead>
+                            <tbody id="category-list-body">
+                                <!-- Categories will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- User Management -->
+                <div id="user-management" class="admin-tab">
+                    <h3>ניהול משתמשים</h3>
+                    
+                    <div class="user-list">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>שם</th>
+                                    <th>אימייל</th>
+                                    <th>סוג חשבון</th>
+                                    <th>תאריך הרשמה</th>
+                                    <th>פעולות</th>
+                                </tr>
+                            </thead>
+                            <tbody id="user-list-body">
+                                <!-- Users will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Order Management -->
+                <div id="order-management" class="admin-tab">
+                    <h3>ניהול הזמנות</h3>
+                    
+                    <div class="order-list">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>מספר הזמנה</th>
+                                    <th>לקוח</th>
+                                    <th>תאריך</th>
+                                    <th>סכום</th>
+                                    <th>סטטוס</th>
+                                    <th>פעולות</th>
+                                </tr>
+                            </thead>
+                            <tbody id="order-list-body">
+                                <!-- Orders will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Site Settings -->
+                <div id="site-settings" class="admin-tab">
+                    <h3>הגדרות אתר</h3>
+                    
+                    <form id="site-settings-form">
+                        <div class="form-group">
+                            <label for="site-title">כותרת האתר</label>
+                            <input type="text" id="site-title" value="Doctor Instraction - חנות מקצועית">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="site-description">תיאור האתר</label>
+                            <textarea id="site-description">חנות מקצועית ומובילה עם מוצרים איכותיים במחירים אטרקטיביים. הצטרפו למועדון ה-VIP וקבלו הטבות בלעדיות.</textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="site-logo">לוגו האתר</label>
+                            <div class="logo-preview">
+                                <img src="/api/placeholder/40/40" alt="Site Logo">
+                            </div>
+                            <input type="file" id="site-logo">
+                        </div>
+                        
+                        <button type="submit" class="admin-btn">שמור שינויים</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Product Modal -->
+    <div id="add-product-modal" class="admin-modal">
+        <div class="admin-modal-bg"></div>
+        <div class="admin-modal-container">
+            <div class="admin-modal-header">
+                <h3>הוסף מוצר חדש</h3>
+                <button class="close-admin-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form id="add-product-form">
+                <div class="form-group">
+                    <label for="product-name">שם המוצר</label>
+                    <input type="text" id="product-name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="product-category">קטגוריה</label>
+                    <select id="product-category" required>
+                        <option value="">בחר קטגוריה</option>
+                        <option value="1">קטגוריה 1</option>
+                        <option value="2">קטגוריה 2</option>
+                        <option value="3">קטגוריה 3</option>
+                        <option value="4">קטגוריה 4</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="product-price">מחיר</label>
+                    <input type="number" id="product-price" step="0.01" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="product-old-price">מחיר קודם (אופציונלי)</label>
+                    <input type="number" id="product-old-price" step="0.01">
+                </div>
+                
+                <div class="form-group">
+                    <label for="product-stock">מלאי</label>
+                    <input type="number" id="product-stock" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="product-description">תיאור</label>
+                    <textarea id="product-description" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="product-image">תמונה</label>
+                    <input type="file" id="product-image" accept="image/*" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="product-badge">תג (אופציונלי)</label>
+                    <select id="product-badge">
+                        <option value="">ללא תג</option>
+                        <option value="new">חדש</option>
+                        <option value="hot">מבצע</option>
+                        <option value="sale">מכירה</option>
+                        <option value="vip">VIP</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="admin-btn">הוסף מוצר</button>
+            </form>
+        </div>
+    </div>
+    `;
+    
+    $('body').append(adminPanelHTML);
+    
+    // Add CSS for admin panel
+    const adminPanelCSS = `
+    <style>
+        /* Admin Panel Styles */
+        .admin-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 3000;
+            display: none;
+        }
+
+        .admin-panel.active {
+            display: block;
+        }
+
+        .admin-panel-bg {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+
+        .admin-panel-container {
+            position: absolute;
+            top: 50%;
+            right: 50%;
+            transform: translate(50%, -50%);
+            width: 90%;
+            max-width: 1200px;
+            height: 80%;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .admin-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: #2c3e50;
+            color: #fff;
+        }
+
+        .admin-panel-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .close-admin-panel {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .admin-panel-sidebar {
+            width: 220px;
+            background-color: #34495e;
+            color: #fff;
+            position: absolute;
+            top: 63px;
+            right: 0;
+            bottom: 0;
+            overflow-y: auto;
+        }
+
+        .admin-panel-sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .admin-panel-sidebar .admin-menu-item {
+            padding: 15px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: background-color 0.3s;
+        }
+
+        .admin-panel-sidebar .admin-menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .admin-panel-sidebar .admin-menu-item.active {
+            background-color: #3498db;
+        }
+
+        .admin-panel-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            margin-right: 220px;
+        }
+
+        .admin-tab {
+            display: none;
+        }
+
+        .admin-tab.active {
+            display: block;
+        }
+
+        .admin-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .admin-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .admin-btn:hover {
+            background-color: #2980b9;
+        }
+
+        .admin-panel table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .admin-panel th, .admin-panel td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: right;
+        }
+
+        .admin-panel th {
+            background-color: #f5f5f5;
+            font-weight: 600;
+        }
+
+        .admin-panel tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .admin-panel tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: #3498db;
+            margin-right: 5px;
+            cursor: pointer;
+        }
+
+        .delete-btn {
+            color: #e74c3c;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group input[type="file"],
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .logo-preview {
+            margin-bottom: 10px;
+        }
+
+        .logo-preview img {
+            max-width: 100px;
+            height: auto;
+        }
+
+        /* Admin Modal */
+        .admin-modal {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 3100;
+            display: none;
+        }
+
+        .admin-modal.active {
+            display: block;
+        }
+
+        .admin-modal-bg {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .admin-modal-container {
+            position: absolute;
+            top: 50%;
+            right: 50%;
+            transform: translate(50%, -50%);
+            width: 90%;
+            max-width: 600px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .admin-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: #2c3e50;
+            color: #fff;
+        }
+
+        .admin-modal-header h3 {
+            margin: 0;
+        }
+
+        .close-admin-modal {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .admin-modal form {
+            padding: 20px;
+        }
+        
+        /* Status badges for orders */
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .status-badge.completed {
+            background-color: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+        }
+        
+        .status-badge.pending {
+            background-color: rgba(243, 156, 18, 0.2);
+            color: #f39c12;
+        }
+        
+        .status-badge.cancelled {
+            background-color: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+        }
+    </style>
+    `;
+    
+    $('head').append(adminPanelCSS);
+}
+
+// Add admin menu item to the navigation
+function addAdminMenuItemToNav() {
+    // Check if admin menu item already exists
+    if ($('#admin-menu-item').length > 0) return;
+    
+    // Add admin menu item to navigation
+    $('nav ul').append('<li id="admin-menu-item" style="display: none;"><a href="#" class="admin-panel-btn">פאנל ניהול</a></li>');
+}
+
+// Override updateUserUI function to include admin check
+const originalUpdateUserUI = updateUserUI;
+updateUserUI = function(userData) {
+    // Call the original function
+    originalUpdateUserUI(userData);
+    
+    // Check if user is admin
+    if (userData && userData.email === ADMIN_EMAIL) {
+        isAdmin = true;
+        
+        // Make sure admin panel elements exist in DOM
+        addAdminPanelToDOM();
+        addAdminMenuItemToNav();
+        
+        // Show admin menu item
+        $('#admin-menu-item').show();
+        
+        // If this is first login as admin, show admin panel automatically
+        if (localStorage.getItem('adminPanelShown') !== 'true') {
+            openAdminPanel();
+            localStorage.setItem('adminPanelShown', 'true');
+        }
+    } else {
+        isAdmin = false;
+        $('#admin-menu-item').hide();
+    }
+};
+
+// Override login function to check for admin
+const originalLoginForm = $('#login-form').on('submit');
+$('#login-form').off('submit').on('submit', async function(e) {
+    e.preventDefault();
+    clearAuthErrors();
+    
+    const email = $('#login-email').val();
+    const password = $('#login-password').val();
+    
+    try {
+        const supabase = initSupabase();
+        if (!supabase) {
+            showAuthError('login', 'Unable to connect to authentication service');
+            return;
+        }
+        
+        // Show loading state
+        $('#login-submit').prop('disabled', true).text('מעבד...');
+        
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email: email,
+            password: password
+        });
+        
+        if (error) throw error;
+        
+        const userData = {
+            email: data.user.email,
+            name: data.user.user_metadata && data.user.user_metadata.full_name ? data.user.user_metadata.full_name : data.user.email.split('@')[0],
+            isVIP: data.user.user_metadata && data.user.user_metadata.isVIP ? data.user.user_metadata.isVIP : false
+        };
+        
+        showNotification('התחברת בהצלחה!', 'success');
+        hideAuthModal();
+        updateUserUI(userData);
+        
+        // Save user data to localStorage
+        localStorage.setItem('user', JSON.stringify(userData));
+        
+        // Check if user is admin
+        if (email === ADMIN_EMAIL) {
+            // Open admin panel automatically
+            setTimeout(() => {
+                openAdminPanel();
+            }, 500);
+        }
+        
+    } catch (error) {
+        console.error('Login error:', error);
+        showAuthError('login', error.message || 'Failed to login. Please check your credentials.');
+    } finally {
+        // Reset button state
+        $('#login-submit').prop('disabled', false).text('התחברות');
+    }
+});
+
+// Document ready event handlers for admin panel
+$(document).ready(function() {
+    // Add admin panel elements to DOM
+    addAdminPanelToDOM();
+    addAdminMenuItemToNav();
+    
+    // Admin panel tab switching
+    $(document).on('click', '.admin-menu-item', function() {
+        // Remove active class from all menu items and tabs
+        $('.admin-menu-item').removeClass('active');
+        $('.admin-tab').removeClass('active');
+        
+        // Add active class to clicked menu item
+        $(this).addClass('active');
+        
+        // Show corresponding tab
+        const targetTab = $(this).data('target');
+        $(`#${targetTab}`).addClass('active');
+    });
+    
+    // Admin panel open/close
+    $(document).on('click', '.admin-panel-btn', function(e) {
+        e.preventDefault();
+        openAdminPanel();
+    });
+    
+    $(document).on('click', '.close-admin-panel', function() {
+        closeAdminPanel();
+    });
+    
+    $(document).on('click', '.admin-panel-bg', function() {
+        closeAdminPanel();
+    });
+    
+    // Add product button
+    $(document).on('click', '#add-product-btn', function() {
+        openAddProductModal();
+    });
+    
+    // Close modal buttons
+    $(document).on('click', '.close-admin-modal', function() {
+        closeAddProductModal();
+    });
+    
+    $(document).on('click', '.admin-modal-bg', function() {
+        closeAddProductModal();
+    });
+    
+    // Add product form submission
+    $(document).on('submit', '#add-product-form', function(e) {
+        e.preventDefault();
+        
+        // Get form data
+        const productName = $('#product-name').val();
+        const productCategory = $('#product-category').val();
+        const productPrice = $('#product-price').val();
+        const productOldPrice = $('#product-old-price').val();
+        const productStock = $('#product-stock').val();
+        const productDescription = $('#product-description').val();
+        const productBadge = $('#product-badge').val();
+        
+        // In a real implementation, you would also handle the image upload
+        
+        // For now, just show a success message
+        showNotification('המוצר נוסף בהצלחה!', 'success');
+        closeAddProductModal();
+        
+        // Add a new row to the product list
+        $('#product-list-body').prepend(`
+            <tr>
+                <td><img src="/api/placeholder/50/50" alt="${productName}" width="50"></td>
+                <td>${productName}</td>
+                <td>קטגוריה ${productCategory}</td>
+                <td>₪${productPrice}</td>
+                <td>${productStock}</td>
+                <td>
+                    <button class="action-btn edit-btn" data-id="new"><i class="fas fa-edit"></i></button>
+                    <button class="action-btn delete-btn" data-id="new"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+        `);
+    });
+    
+    // Save site settings form
+    $(document).on('submit', '#site-settings-form', function(e) {
+        e.preventDefault();
+        
+        const siteTitle = $('#site-title').val();
+        const siteDescription = $('#site-description').val();
+        
+        // In a real implementation, you would save these settings to the database
+        
+        showNotification('הגדרות האתר נשמרו בהצלחה!', 'success');
+    });
+    
+    // Delete product button
+    $(document).on('click', '.delete-btn', function() {
+        const id = $(this).data('id');
+        if (confirm('האם אתה בטוח שברצונך למחוק פריט זה?')) {
+            // In a real implementation, you would delete from the database
+            $(this).closest('tr').fadeOut(300, function() {
+                $(this).remove();
+            });
+            showNotification('הפריט נמחק בהצלחה', 'success');
+        }
+    });
+    
+    // Edit product button (placeholder functionality)
+    $(document).on('click', '.edit-btn', function() {
+        const id = $(this).data('id');
+        showNotification('עריכת פריט #' + id + ' תהיה זמינה בקרוב', 'info');
+    });
+    
+    // Product search functionality
+    $(document).on('keyup', '#product-search', function() {
+        const searchTerm = $(this).val().toLowerCase();
+        $('#product-list-body tr').each(function() {
+            const productName = $(this).find('td:nth-child(2)').text().toLowerCase();
+            const productCategory = $(this).find('td:nth-child(3)').text().toLowerCase();
+            
+            if (productName.includes(searchTerm) || productCategory.includes(searchTerm)) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    });
+    
+    // Add category button (placeholder functionality)
+    $(document).on('click', '#add-category-btn', function() {
+        const categoryName = prompt('הזן שם קטגוריה:');
+        if (categoryName) {
+            $('#category-list-body').prepend(`
+                <tr>
+                    <td>${categoryName}</td>
+                    <td>0</td>
+                    <td>
+                        <button class="action-btn edit-btn" data-id="new"><i class="fas fa-edit"></i></button>
+                        <button class="action-btn delete-btn" data-id="new"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `);
+            showNotification('הקטגוריה נוספה בהצלחה', 'success');
+        }
+    });
+    
+    // Check login status on page load
+    const checkAdminStatus = async function() {
+        try {
+            if (!supabase) return;
+            
+            const { data, error } = await supabase.auth.getSession();
+            if (error) throw error;
+            
+            if (data && data.session) {
+                const user = data.session.user;
+                if (user.email === ADMIN_EMAIL) {
+                    // User is admin, make sure admin menu is shown
+                    isAdmin = true;
+                    $('#admin-menu-item').show();
+                }
+            }
+        } catch (error) {
+            console.error('Error checking admin status:', error);
+        }
+    };
+    
+    // Run admin check
+    checkAdminStatus();
+});
