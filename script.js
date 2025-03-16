@@ -1302,3 +1302,140 @@ function updateUserInterface(userInfo) {
         $('.admin-link').hide();
     }
 }
+
+// Create and initialize site manager
+const siteManager = new SiteManager();
+
+// Add a toggle button for the admin panel (shown only for admin users)
+function initAdminPanel() {
+    // Check if user is admin
+    const userInfo = JSON.parse(localStorage.getItem('currentUser'));
+    
+    if (userInfo && userInfo.isAdmin) {
+        if ($('#admin-panel-toggle').length === 0) {
+            // Create toggle button
+            const toggleButton = `
+            <div id="admin-panel-toggle" class="floating-admin-toggle">
+                <i class="fas fa-cog"></i>
+                <span>פאנל ניהול</span>
+            </div>
+            `;
+            
+            $('body').append(toggleButton);
+            
+            // Add CSS for toggle button
+            const toggleStyles = `
+            <style>
+                .floating-admin-toggle {
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    background-color: #2c3e50;
+                    color: white;
+                    padding: 10px 15px;
+                    border-radius: 50px;
+                    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+                    cursor: pointer;
+                    z-index: 999;
+                    display: flex;
+                    align-items: center;
+                    transition: all 0.3s ease;
+                }
+                
+                .floating-admin-toggle:hover {
+                    background-color: #34495e;
+                    transform: translateY(-3px);
+                }
+                
+                .floating-admin-toggle i {
+                    font-size: 18px;
+                    margin-left: 8px;
+                }
+                
+                .floating-admin-toggle span {
+                    font-weight: 500;
+                }
+                
+                .admin-notifications {
+                    position: fixed;
+                    top: 20px;
+                    left: 20px;
+                    z-index: 10000;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+                
+                .admin-notification {
+                    background-color: white;
+                    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+                    border-radius: 8px;
+                    padding: 12px 20px;
+                    margin-bottom: 10px;
+                    display: flex;
+                    align-items: center;
+                    transform: translateX(-100%);
+                    opacity: 0;
+                    transition: all 0.3s ease;
+                    max-width: 300px;
+                }
+                
+                .admin-notification.show {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                
+                .admin-notification i {
+                    margin-right: 10px;
+                    font-size: 18px;
+                }
+                
+                .admin-notification.success {
+                    border-left: 4px solid #28a745;
+                }
+                
+                .admin-notification.success i {
+                    color: #28a745;
+                }
+                
+                .admin-notification.error {
+                    border-left: 4px solid #dc3545;
+                }
+                
+                .admin-notification.error i {
+                    color: #dc3545;
+                }
+                
+                .admin-notification.warning {
+                    border-left: 4px solid #ffc107;
+                }
+                
+                .admin-notification.warning i {
+                    color: #ffc107;
+                }
+                
+                .admin-notification.info {
+                    border-left: 4px solid #17a2b8;
+                }
+                
+                .admin-notification.info i {
+                    color: #17a2b8;
+                }
+            </style>
+            `;
+            
+            $('head').append(toggleStyles);
+            
+            // Handle toggle button click
+            $('#admin-panel-toggle').on('click', function() {
+                siteManager.toggleAdminPanel();
+            });
+        }
+    }
+}
+
+// Call initAdminPanel when document is ready
+$(document).ready(function() {
+    // Initialize admin panel if user is admin
+    initAdminPanel();
+});
