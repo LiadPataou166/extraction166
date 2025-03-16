@@ -777,6 +777,19 @@ class ProductManager {
         const success = await this.saveProductsToGitHub();
         if (success) {
             showNotification('המוצר נשמר בהצלחה לשרת!', 'success');
+            
+            // Update products display on homepage
+            console.log('Calling displayProductsOnHomepage after adding product');
+            if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+                if (typeof displayProductsOnHomepage === 'function') {
+                    displayProductsOnHomepage();
+                } else {
+                    console.warn('displayProductsOnHomepage function not found');
+                }
+            } else {
+                console.log('Not on homepage, skipping displayProductsOnHomepage call');
+            }
+            
             return product.id;
         } else {
             showNotification('שגיאה בשמירת המוצר', 'error');
@@ -958,5 +971,77 @@ class ProductManager {
             console.error(`Error creating GitHub file ${path}:`, error);
             return false;
         }
+    }
+}
+
+// Function to display products on homepage
+function displayProductsOnHomepage() {
+    try {
+        console.log('Displaying products on homepage');
+        const products = productManager.getAllProducts();
+        console.log('Products to display:', products.length, products);
+        
+        // Find the products grid on homepage
+        const $productsGrid = $('.products-grid');
+        
+        if ($productsGrid.length === 0) {
+            console.warn('Products grid not found on homepage');
+            return;
+        }
+        
+        if (!products || products.length === 0) {
+            console.warn('No products to display');
+            $productsGrid.html(`<div class="empty-products">אין מוצרים להצגה</div>`);
+            return;
+        }
+        
+        let productsHTML = '';
+        
+        // Generate HTML for each product
+        products.forEach(product => {
+            console.log('Generating HTML for product:', product.name);
+            const isOnSale = product.oldPrice && product.oldPrice > product.price;
+            const salePercentage = isOnSale ? Math.round((1 - product.price / product.oldPrice) * 100) : 0;
+            const badge = product.badge || (isOnSale ? 'sale' : '');
+            
+            productsHTML += `
+                <div class="product-card" data-id="${product.id}">
+                    <div class="product-image">
+                        <img src="${product.image || 'https://via.placeholder.com/300x300?text=' + encodeURIComponent(product.name)}" alt="${product.name}">
+                        ${badge ? `<div class="product-badge ${badge}">${getBadgeText(badge)}</div>` : ''}
+                        <div class="product-actions">
+                            <button class="quick-view-btn"><i class="fas fa-eye"></i></button>
+                            <button class="wishlist-btn"><i class="far fa-heart"></i></button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-category">${product.category || 'כללי'}</div>
+                        <h3 class="product-title">${product.name}</h3>
+                        <div class="product-rating">
+                            ${getRatingStars(product.rating || 0)}
+                            <span class="rating-count">(${product.ratingCount || 0})</span>
+                        </div>
+                        <div class="product-price ${isOnSale ? 'sale' : ''}">
+                            ${isOnSale ? `<span class="old-price">₪${product.oldPrice.toFixed(2)}</span>` : ''}
+                            <span class="current-price">₪${product.price.toFixed(2)}</span>
+                            ${isOnSale ? `<span class="discount-badge">-${salePercentage}%</span>` : ''}
+                        </div>
+                        <button class="add-to-cart" data-id="${product.id}">הוסף לסל</button>
+                    </div>
+                </div>
+            `;
+        });
+        
+        // Update the products grid
+        console.log('Updating products grid with HTML');
+        $productsGrid.html(productsHTML);
+        
+        // Reinitialize product card event handlers
+        console.log('Initializing product cards');
+        initializeProductCards();
+        
+        console.log('Products displayed successfully');
+    } catch (error) {
+        console.error('Error displaying products on homepage:', error);
     }
 }
