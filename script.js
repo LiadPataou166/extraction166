@@ -136,6 +136,8 @@ $(document).ready(function(){
         const email = $('#login-email').val();
         const password = $('#login-password').val();
         
+        console.log('Login attempt:', email);
+        
         try {
             const supabase = initSupabase();
             if (!supabase) {
@@ -144,7 +146,7 @@ $(document).ready(function(){
             }
             
             // Show loading state
-            $('#login-submit').prop('disabled', true).text('Processing...');
+            $('#login-submit').prop('disabled', true).text('מעבד...');
             
             const { data, error } = await supabase.auth.signInWithPassword({
                 email: email,
@@ -159,9 +161,28 @@ $(document).ready(function(){
                 isVIP: data.user.user_metadata && data.user.user_metadata.isVIP ? data.user.user_metadata.isVIP : false
             };
             
-            showNotification('Login successful!', 'success');
+            console.log('Login successful for:', userData.email);
+            showNotification('התחברת בהצלחה!', 'success');
             hideAuthModal();
             updateUserUI(userData);
+            
+            // Save user data to localStorage
+            localStorage.setItem('user', JSON.stringify(userData));
+            
+            // Check if user is admin and open admin panel immediately
+            if (email === ADMIN_EMAIL) {
+                console.log('Admin user detected, opening admin panel...');
+                // Ensure admin panel exists in DOM
+                addAdminPanelToDOM();
+                isAdmin = true;
+                $('#admin-menu-item').show();
+                
+                // Open admin panel immediately
+                setTimeout(() => {
+                    console.log('Triggering admin panel open...');
+                    openAdminPanel();
+                }, 300);
+            }
             
         } catch (error) {
             console.error('Login error:', error);
@@ -524,7 +545,25 @@ function clearAuthErrors() {
 function checkUserLogin() {
     const userData = localStorage.getItem('user');
     if(userData) {
-        updateUserUI(JSON.parse(userData));
+        const parsedUserData = JSON.parse(userData);
+        updateUserUI(parsedUserData);
+        
+        // Also check if user is admin based on localStorage data
+        if(parsedUserData.email === ADMIN_EMAIL) {
+            console.log('Admin user detected from localStorage');
+            isAdmin = true;
+            $('#admin-menu-item').show();
+            
+            // If admin menu item doesn't exist, add it
+            addAdminPanelToDOM();
+            addAdminMenuItemToNav();
+            
+            // Auto-open panel for admin users:
+            setTimeout(() => {
+                console.log('Auto-opening admin panel for admin user from localStorage');
+                openAdminPanel();
+            }, 500);
+        }
     }
 }
 
@@ -1086,46 +1125,6 @@ function initSupabase() {
     }
 }
 
-// Check if user is authenticated with Supabase
-async function checkUserAuth() {
-    try {
-        if (supabase) {
-            supabase.auth.getSession().then(({ data, error }) => {
-                if (error) {
-                    console.error('Auth error:', error);
-                    return;
-                }
-                
-                if (data && data.session) {
-                    // User is logged in
-                    const user = data.session.user;
-                    const userData = {
-                        email: user.email,
-                        name: user.user_metadata && user.user_metadata.full_name ? user.user_metadata.full_name : user.email.split('@')[0],
-                        isVIP: user.user_metadata && user.user_metadata.isVIP ? user.user_metadata.isVIP : false
-                    };
-                    
-                    updateUserUI(userData);
-                } else {
-                    // Fallback to local storage check
-                    checkUserLogin();
-                }
-            }).catch(err => {
-                console.error('Error checking auth:', err);
-                // Fallback to local storage check
-                checkUserLogin();
-            });
-        } else {
-            // If Supabase is not available, fallback to local storage
-            checkUserLogin();
-        }
-    } catch (err) {
-        console.error('Error in checkUserAuth:', err);
-        // Fallback to local storage check
-        checkUserLogin();
-    }
-}
-
 // Add this function to detect network issues
 function checkNetworkConnection() {
     if (!navigator.onLine) {
@@ -1170,6 +1169,7 @@ const ADMIN_EMAIL = 'liad1111@gmail.com';
 
 // Function to show admin panel
 function openAdminPanel() {
+    console.log('Opening admin panel...');
     $('#admin-panel').addClass('active');
     loadAdminPanelData();
 }
@@ -1177,6 +1177,61 @@ function openAdminPanel() {
 // Function to close admin panel
 function closeAdminPanel() {
     $('#admin-panel').removeClass('active');
+}
+
+// Function to check if user is authenticated with Supabase
+async function checkUserAuth() {
+    try {
+        if (supabase) {
+            console.log('Checking user authentication status...');
+            supabase.auth.getSession().then(({ data, error }) => {
+                if (error) {
+                    console.error('Auth error:', error);
+                    return;
+                }
+                
+                if (data && data.session) {
+                    // User is logged in
+                    const user = data.session.user;
+                    console.log('User authenticated:', user.email);
+                    const userData = {
+                        email: user.email,
+                        name: user.user_metadata && user.user_metadata.full_name ? user.user_metadata.full_name : user.email.split('@')[0],
+                        isVIP: user.user_metadata && user.user_metadata.isVIP ? user.user_metadata.isVIP : false
+                    };
+                    
+                    updateUserUI(userData);
+                    
+                    // Check if user is admin
+                    if (user.email === ADMIN_EMAIL) {
+                        console.log('Admin user detected in checkUserAuth');
+                        isAdmin = true;
+                        $('#admin-menu-item').show();
+                        
+                        // Open admin panel automatically
+                        addAdminPanelToDOM();
+                        setTimeout(() => {
+                            openAdminPanel();
+                        }, 500);
+                    }
+                } else {
+                    // Fallback to local storage check
+                    checkUserLogin();
+                }
+            }).catch(err => {
+                console.error('Error checking auth:', err);
+                // Fallback to local storage check
+                checkUserLogin();
+            });
+        } else {
+            // If Supabase is not available, fallback to local storage
+            checkUserLogin();
+        }
+    } catch (err) {
+        console.error('Error in checkUserAuth:', err);
+        // Fallback to local storage check
+        checkUserLogin();
+    }
 }
 
 // Function to load data for admin panel
@@ -1915,6 +1970,8 @@ $('#login-form').off('submit').on('submit', async function(e) {
     const email = $('#login-email').val();
     const password = $('#login-password').val();
     
+    console.log('Login attempt:', email);
+    
     try {
         const supabase = initSupabase();
         if (!supabase) {
@@ -1938,6 +1995,7 @@ $('#login-form').off('submit').on('submit', async function(e) {
             isVIP: data.user.user_metadata && data.user.user_metadata.isVIP ? data.user.user_metadata.isVIP : false
         };
         
+        console.log('Login successful for:', userData.email);
         showNotification('התחברת בהצלחה!', 'success');
         hideAuthModal();
         updateUserUI(userData);
@@ -1945,12 +2003,19 @@ $('#login-form').off('submit').on('submit', async function(e) {
         // Save user data to localStorage
         localStorage.setItem('user', JSON.stringify(userData));
         
-        // Check if user is admin
+        // Check if user is admin and open admin panel immediately
         if (email === ADMIN_EMAIL) {
-            // Open admin panel automatically
+            console.log('Admin user detected, opening admin panel...');
+            // Ensure admin panel exists in DOM
+            addAdminPanelToDOM();
+            isAdmin = true;
+            $('#admin-menu-item').show();
+            
+            // Open admin panel immediately
             setTimeout(() => {
+                console.log('Triggering admin panel open...');
                 openAdminPanel();
-            }, 500);
+            }, 300);
         }
         
     } catch (error) {
@@ -2108,7 +2173,10 @@ $(document).ready(function() {
         }
     });
     
-    // Check login status on page load
+    // Check for admin on page load
+    checkUserAuth();
+    
+    // Check login status on page load also for admin
     const checkAdminStatus = async function() {
         try {
             if (!supabase) return;
@@ -2122,6 +2190,11 @@ $(document).ready(function() {
                     // User is admin, make sure admin menu is shown
                     isAdmin = true;
                     $('#admin-menu-item').show();
+                    
+                    // Open admin panel if user is already logged in as admin
+                    setTimeout(() => {
+                        openAdminPanel();
+                    }, 500);
                 }
             }
         } catch (error) {
