@@ -1296,7 +1296,7 @@ function initSupabase() {
     }
 }
 
-// Add this to the addAdminPanelToDOM function to include a categories tab
+// FIXED: Improved admin panel implementation with proper event handling
 function addAdminPanelToDOM() {
     // Check if admin panel already exists
     if (adminPanelInitialized || $('#admin-panel').length > 0) {
@@ -1322,14 +1322,14 @@ function addAdminPanelToDOM() {
                     <li class="admin-menu-item active" data-target="products-tab">
                         <i class="fas fa-box"></i> מוצרים
                     </li>
-                    <li class="admin-menu-item" data-target="categories-tab">
-                        <i class="fas fa-tags"></i> קטגוריות
-                    </li>
                     <li class="admin-menu-item" data-target="orders-tab">
                         <i class="fas fa-shopping-bag"></i> הזמנות
                     </li>
                     <li class="admin-menu-item" data-target="users-tab">
                         <i class="fas fa-users"></i> משתמשים
+                    </li>
+                    <li class="admin-menu-item" data-target="categories-tab">
+                        <i class="fas fa-tags"></i> קטגוריות
                     </li>
                     <li class="admin-menu-item" data-target="settings-tab">
                         <i class="fas fa-cog"></i> הגדרות
@@ -1363,6 +1363,14 @@ function addAdminPanelToDOM() {
                         </table>
                     </div>
                 </div>
+                <div id="orders-tab" class="admin-tab">
+                    <h3>ניהול הזמנות</h3>
+                    <p>פונקציונליות זו תהיה זמינה בקרוב.</p>
+                </div>
+                <div id="users-tab" class="admin-tab">
+                    <h3>ניהול משתמשים</h3>
+                    <p>פונקציונליות זו תהיה זמינה בקרוב.</p>
+                </div>
                 <div id="categories-tab" class="admin-tab">
                     <h3>ניהול קטגוריות</h3>
                     <div class="admin-actions">
@@ -1383,14 +1391,6 @@ function addAdminPanelToDOM() {
                             </tr>
                         </tbody>
                     </table>
-                </div>
-                <div id="orders-tab" class="admin-tab">
-                    <h3>ניהול הזמנות</h3>
-                    <p>פונקציונליות זו תהיה זמינה בקרוב.</p>
-                </div>
-                <div id="users-tab" class="admin-tab">
-                    <h3>ניהול משתמשים</h3>
-                    <p>פונקציונליות זו תהיה זמינה בקרוב.</p>
                 </div>
                 <div id="settings-tab" class="admin-tab">
                     <h3>הגדרות האתר</h3>
@@ -1426,7 +1426,7 @@ function addAdminPanelToDOM() {
     attachAdminPanelEventHandlers();
 }
 
-// Update attachAdminPanelEventHandlers to include category handlers
+// FIXED: Separate function for attaching event handlers to prevent duplication
 function attachAdminPanelEventHandlers() {
     console.log('Attaching admin panel event handlers');
     
@@ -1442,11 +1442,6 @@ function attachAdminPanelEventHandlers() {
         const target = $(this).data('target');
         $('.admin-tab').removeClass('active');
         $(`#${target}`).addClass('active');
-        
-        // Load data for the selected tab if needed
-        if (target === 'categories-tab') {
-            loadCategories();
-        }
     });
     
     // Add product button
@@ -1488,15 +1483,35 @@ function attachAdminPanelEventHandlers() {
             secondaryColor: secondaryColor
         }));
         
-        // Apply color changes immediately
-        document.documentElement.style.setProperty('--primary-color', primaryColor);
-        document.documentElement.style.setProperty('--secondary-color', secondaryColor);
-        
         showNotification('הגדרות נשמרו בהצלחה', 'success');
     });
 }
 
-// Update the function to open the admin panel to load categories
+// Helper function for admin panel
+function addAdminMenuItemToNav() {
+    // Check if admin menu item already exists
+    if ($('#admin-menu-item').length > 0) {
+        // Update the click handler
+        $('#admin-menu-item a').off('click').on('click', function(e) {
+            e.preventDefault();
+            openAdminPanel();
+            return false;
+        });
+        return; // Already exists
+    }
+    
+    // Admin menu item doesn't exist, add it
+    $('nav ul').append('<li id="admin-menu-item" style="display:none;"><a href="#" class="admin-panel-btn">פאנל ניהול</a></li>');
+    
+    // Add click handler to the admin panel button
+    $('.admin-panel-btn').off('click').on('click', function(e) {
+        e.preventDefault();
+        openAdminPanel();
+        return false;
+    });
+}
+
+// Function to open the admin panel
 function openAdminPanel() {
     console.log('Opening admin panel...');
     
@@ -1513,12 +1528,6 @@ function openAdminPanel() {
         window.productManager = new ProductManager();
     }
     
-    // Check if categoryManager exists and initialize it if needed
-    if (typeof categoryManager === 'undefined' || !categoryManager) {
-        console.log('Creating new CategoryManager instance...');
-        window.categoryManager = new CategoryManager();
-    }
-    
     // Clear any previous content and show loading state
     $('#products-table-body').html('<tr><td colspan="6" class="loading">טוען מוצרים...</td></tr>');
     
@@ -1528,287 +1537,10 @@ function openAdminPanel() {
         loadAndDisplayAdminProducts();
     }, 500);
     
-    // Pre-load categories but don't display until tab is selected
-    categoryManager.loadCategoriesFromGitHub();
+    // Also load categories
+    loadCategories();
 }
 
-// Update the showProductForm function to include categories
-function showProductForm(productId = null) {
-    let product = null;
-    
-    if (productId) {
-        // Edit existing product
-        product = productManager.getProduct(productId);
-        if (!product) {
-            showNotification('המוצר לא נמצא', 'error');
-            return;
-        }
-    }
-    
-    // Get categories for the dropdown
-    let categoryOptions = '<option value="כללי">כללי</option>';
-    
-    if (categoryManager && categoryManager.categories.length > 0) {
-        categoryManager.categories.forEach(category => {
-            const selected = product && product.category === category.name ? 'selected' : '';
-            categoryOptions += `<option value="${category.name}" ${selected}>${category.name}</option>`;
-        });
-    } else {
-        // Default categories if category manager is not initialized
-        const defaultCategories = ['אלקטרוניקה', 'אופנה', 'בית וגן', 'טיפוח ויופי'];
-        defaultCategories.forEach(category => {
-            const selected = product && product.category === category ? 'selected' : '';
-            categoryOptions += `<option value="${category}" ${selected}>${category}</option>`;
-        });
-    }
-    
-    // Create a form for adding/editing products using the admin modal style
-    const formHTML = `
-    <div id="product-form-modal" class="admin-modal active">
-        <div class="admin-modal-bg"></div>
-        <div class="admin-modal-container">
-            <div class="admin-modal-header">
-                <h3>${product ? 'עריכת מוצר' : 'הוספת מוצר חדש'}</h3>
-                <button class="close-admin-modal"><i class="fas fa-times"></i></button>
-            </div>
-            <form id="product-form">
-                <div class="form-group">
-                    <label for="product-name">שם המוצר</label>
-                    <input type="text" id="product-name" value="${product ? product.name : ''}" required>
-                </div>
-                <div class="form-group">
-                    <label for="product-price">מחיר</label>
-                    <input type="number" id="product-price" min="0" step="0.01" value="${product ? product.price : ''}" required>
-                </div>
-                <div class="form-group">
-                    <label for="product-old-price">מחיר קודם (למבצע)</label>
-                    <input type="number" id="product-old-price" min="0" step="0.01" value="${product && product.oldPrice ? product.oldPrice : ''}">
-                </div>
-                <div class="form-group">
-                    <label for="product-category">קטגוריה</label>
-                    <select id="product-category">
-                        ${categoryOptions}
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="product-stock">מלאי</label>
-                    <input type="number" id="product-stock" min="0" value="${product && product.stock ? product.stock : ''}">
-                </div>
-                <div class="form-group">
-                    <label for="product-image">תמונה (URL)</label>
-                    <input type="text" id="product-image" value="${product && product.image ? product.image : ''}">
-                </div>
-                <div class="form-group">
-                    <label for="product-description">תיאור</label>
-                    <textarea id="product-description">${product && product.description ? product.description : ''}</textarea>
-                </div>
-                <div class="form-group">
-                    <label for="product-badge">תגית</label>
-                    <select id="product-badge">
-                        <option value="" ${!product || !product.badge ? 'selected' : ''}>אין</option>
-                        <option value="new" ${product && product.badge === 'new' ? 'selected' : ''}>חדש</option>
-                        <option value="sale" ${product && product.badge === 'sale' ? 'selected' : ''}>מבצע</option>
-                        <option value="hot" ${product && product.badge === 'hot' ? 'selected' : ''}>חם</option>
-                        <option value="vip" ${product && product.badge === 'vip' ? 'selected' : ''}>VIP</option>
-                        <option value="out-of-stock" ${product && product.badge === 'out-of-stock' ? 'selected' : ''}>אזל מהמלאי</option>
-                    </select>
-                </div>
-                <div class="form-actions">
-                    <button type="submit" class="admin-btn">${product ? 'עדכן מוצר' : 'הוסף מוצר'}</button>
-                    <button type="button" class="admin-btn cancel-btn">ביטול</button>
-                </div>
-                ${product ? `<input type="hidden" id="product-id" value="${product.id}">` : ''}
-            </form>
-        </div>
-    </div>
-    `;
-    
-    // Add the form to the DOM
-    $('body').append(formHTML);
-    
-    // Add event listeners
-    $('.close-admin-modal, .cancel-btn').on('click', function() {
-        $('#product-form-modal').remove();
-    });
-    
-    $('#product-form').on('submit', async function(e) {
-        e.preventDefault();
-        
-        // Get form data
-        const formData = {
-            name: $('#product-name').val(),
-            price: parseFloat($('#product-price').val()),
-            oldPrice: $('#product-old-price').val() ? parseFloat($('#product-old-price').val()) : null,
-            category: $('#product-category').val(),
-            stock: $('#product-stock').val() ? parseInt($('#product-stock').val()) : null,
-            image: $('#product-image').val(),
-            description: $('#product-description').val(),
-            badge: $('#product-badge').val() || null,
-            rating: product ? product.rating || 0 : 0,
-            ratingCount: product ? product.ratingCount || 0 : 0
-        };
-        
-        try {
-            if (product) {
-                // Update existing product
-                const success = await productManager.updateProduct(product.id, formData);
-                if (success) {
-                    showNotification('המוצר עודכן בהצלחה', 'success');
-                    $('#product-form-modal').remove();
-                    displayProductsInAdminPanel();
-                    
-                    // Update category counts
-                    if (categoryManager) {
-                        categoryManager.updateCategoryCount(formData.category, productManager.getAllProducts());
-                    }
-                    
-                    // If on homepage, update the products display there too
-                    if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
-                        displayProductsOnHomepage();
-                        updateCategoryBubbles();
-                    }
-                }
-            } else {
-                // Add new product
-                const newProductId = await productManager.addProduct(formData);
-                if (newProductId) {
-                    showNotification('המוצר נוסף בהצלחה', 'success');
-                    $('#product-form-modal').remove();
-                    displayProductsInAdminPanel();
-                    
-                    // Update category counts
-                    if (categoryManager) {
-                        categoryManager.updateCategoryCount(formData.category, productManager.getAllProducts());
-                    }
-                    
-                    // If on homepage, update the products display there too
-                    if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
-                        displayProductsOnHomepage();
-                        updateCategoryBubbles();
-                    }
-                }
-            }
-        } catch (error) {
-            showNotification(`שגיאה: ${error.message}`, 'error');
-        }
-    });
-}
-
-// Update the homepage to use the new category bubbles layout
-$(document).ready(function() {
-    // Add the custom CSS for category bubbles
-    if ($('#category-style').length === 0) {
-        $('head').append(`
-            <style id="category-style">
-                .category-bubbles {
-                    padding: 5rem 0;
-                    text-align: center;
-                    position: relative;
-                }
-                
-                .bubbles-container {
-                    display: grid;
-                    grid-template-columns: repeat(2, 1fr);
-                    gap: 2.5rem;
-                    margin-top: 3rem;
-                    max-width: 900px;
-                    margin-left: auto;
-                    margin-right: auto;
-                }
-                
-                .category-bubble {
-                    width: 100%;
-                    aspect-ratio: 1/1;
-                    border-radius: 20px;
-                    background: rgba(30, 30, 30, 0.8);
-                    backdrop-filter: blur(10px);
-                    -webkit-backdrop-filter: blur(10px);
-                    border: 1px solid var(--glass-border);
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    cursor: pointer;
-                    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                    position: relative;
-                    overflow: hidden;
-                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-                }
-                
-                .category-bubble::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-                    opacity: 0.2;
-                    transition: var(--transition);
-                }
-                
-                .category-bubble:hover {
-                    transform: translateY(-10px);
-                    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4);
-                }
-                
-                .category-bubble:hover::before {
-                    opacity: 0.5;
-                }
-                
-                .bubble-icon {
-                    font-size: 4rem;
-                    margin-bottom: 1.5rem;
-                    color: var(--primary-color);
-                    transition: var(--transition);
-                    z-index: 1;
-                }
-                
-                .bubble-title {
-                    font-size: 2rem;
-                    font-weight: 600;
-                    color: white;
-                    z-index: 1;
-                    margin-bottom: 0.75rem;
-                }
-                
-                .bubble-count {
-                    font-size: 1.2rem;
-                    color: rgba(255, 255, 255, 0.8);
-                    margin-top: 0.5rem;
-                    z-index: 1;
-                }
-                
-                .category-bubble:hover .bubble-icon {
-                    transform: scale(1.2);
-                    color: var(--accent-color);
-                }
-                
-                /* Responsive adjustments */
-                @media (max-width: 768px) {
-                    .bubbles-container {
-                        grid-template-columns: 1fr;
-                        max-width: 450px;
-                    }
-                }
-            </style>
-        `);
-    }
-    
-    // Initialize category manager if we're on the homepage
-    if ($('.bubbles-container').length) {
-        if (!categoryManager) {
-            categoryManager = new CategoryManager();
-        }
-        
-        // Load categories and update bubbles
-        categoryManager.loadCategoriesFromGitHub().then(success => {
-            if (success) {
-                updateCategoryBubbles();
-            }
-        });
-    }
-});
 // Function to close the admin panel
 function closeAdminPanel() {
     $('#admin-panel').removeClass('active');
@@ -2473,665 +2205,4 @@ function initializeProductCards() {
         e.preventDefault();
         // Add your quick view or wishlist functionality here
     });
-
-// Category Management System
-class CategoryManager {
-    constructor() {
-        this.categories = [];
-        this.githubUser = null;
-        this.githubRepo = null;
-        this.githubToken = null;
-        this.initGitHubConfig();
-    }
-    
-    // Initialize GitHub configuration (reuse from ProductManager)
-    initGitHubConfig() {
-        // Default GitHub config - should be set to your actual GitHub username and repo
-        this.githubUser = "LiadPataou166"; 
-        this.githubRepo = "extraction166"; 
-        
-        // Try to get from localStorage if available
-        const storedConfig = localStorage.getItem('githubConfig');
-        if (storedConfig) {
-            try {
-                const config = JSON.parse(storedConfig);
-                this.githubUser = config.user || this.githubUser;
-                this.githubRepo = config.repo || this.githubRepo;
-                
-                // If token is stored, use it
-                this.githubToken = config.token || null;
-            } catch (e) {
-                console.error('Error parsing GitHub config:', e);
-            }
-        }
-        
-        console.log(`GitHub config for categories: ${this.githubUser}/${this.githubRepo}`);
-    }
-    
-    // Reuse GitHub token code from ProductManager
-    async ensureGitHubToken() {
-        if (!this.githubToken) {
-            const token = prompt("הכנס GitHub Personal Access Token עם הרשאות 'repo'", "");
-            if (token) {
-                this.githubToken = token;
-                
-                // Save token to localStorage for convenience
-                const saveToken = confirm("האם ברצונך לשמור את הטוקן לשימוש עתידי?");
-                if (saveToken) {
-                    try {
-                        const config = JSON.parse(localStorage.getItem('githubConfig') || '{}');
-                        config.token = token;
-                        localStorage.setItem('githubConfig', JSON.stringify(config));
-                    } catch (e) {
-                        console.error('Error saving GitHub token:', e);
-                    }
-                }
-                
-                return true;
-            }
-            return false;
-        }
-        return true;
-    }
-    
-    // Add new category
-    async addCategory(category) {
-        // Generate unique ID if not provided
-        category.id = category.id || Date.now().toString(36) + Math.random().toString(36).substr(2);
-        console.log('Adding category with ID:', category.id);
-        this.categories.push(category);
-        
-        // Save to GitHub
-        const success = await this.saveCategoriesToGitHub();
-        if (success) {
-            showNotification('הקטגוריה נשמרה בהצלחה!', 'success');
-            return category.id;
-        } else {
-            showNotification('שגיאה בשמירת הקטגוריה', 'error');
-            return null;
-        }
-    }
-    
-    // Update existing category
-    async updateCategory(categoryId, updatedData) {
-        const index = this.categories.findIndex(c => c.id === categoryId);
-        if (index !== -1) {
-            this.categories[index] = { ...this.categories[index], ...updatedData };
-            
-            // Save to GitHub
-            const success = await this.saveCategoriesToGitHub();
-            if (success) {
-                showNotification('הקטגוריה עודכנה בהצלחה!', 'success');
-                return true;
-            } else {
-                showNotification('שגיאה בעדכון הקטגוריה', 'error');
-                return false;
-            }
-        }
-        return false;
-    }
-    
-    // Delete category
-    async deleteCategory(categoryId) {
-        console.log('Deleting category with ID:', categoryId);
-        this.categories = this.categories.filter(c => c.id !== categoryId);
-        
-        // Save to GitHub
-        const success = await this.saveCategoriesToGitHub();
-        if (success) {
-            showNotification('הקטגוריה נמחקה בהצלחה!', 'success');
-            return true;
-        } else {
-            showNotification('שגיאה במחיקת הקטגוריה', 'error');
-            return false;
-        }
-    }
-    
-    // Get category by ID
-    getCategory(categoryId) {
-        return this.categories.find(c => c.id === categoryId);
-    }
-    
-    // Get all categories
-    getAllCategories() {
-        console.log('Getting all categories, count:', this.categories.length);
-        return this.categories;
-    }
-    
-    // Load categories from GitHub
-    async loadCategoriesFromGitHub() {
-        try {
-            console.log('Loading categories from GitHub...');
-            const apiUrl = `https://api.github.com/repos/${this.githubUser}/${this.githubRepo}/contents/data/categories.json`;
-            
-            // Show loading notification
-            showNotification('טוען קטגוריות מהשרת...', 'info');
-            
-            const response = await fetch(apiUrl);
-            if (!response.ok) {
-                console.warn(`GitHub API error (${response.status}): ${response.statusText}`);
-                if (response.status === 404) {
-                    // File doesn't exist, so create it with default categories
-                    console.log('Creating categories.json file on GitHub...');
-                    
-                    // Initialize with default categories
-                    this.categories = [
-                        { id: 'electronics', name: 'אלקטרוניקה', icon: 'fas fa-laptop', count: 42 },
-                        { id: 'fashion', name: 'אופנה', icon: 'fas fa-tshirt', count: 67 },
-                        { id: 'home', name: 'בית וגן', icon: 'fas fa-home', count: 53 },
-                        { id: 'beauty', name: 'טיפוח ויופי', icon: 'fas fa-spa', count: 38 }
-                    ];
-                    
-                    const created = await this.saveCategoriesToGitHub();
-                    if (created) {
-                        showNotification('קובץ קטגוריות חדש נוצר בהצלחה!', 'success');
-                        return true;
-                    } else {
-                        showNotification('שגיאה ביצירת קובץ קטגוריות', 'error');
-                        return false;
-                    }
-                }
-                throw new Error(`GitHub API error: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            // GitHub returns base64 encoded content - decode it properly for UTF-8
-            const content = this.base64ToUtf8(data.content);
-            this.categories = JSON.parse(content);
-            console.log('Loaded categories from GitHub, count:', this.categories.length);
-            
-            // Save to localStorage for backup
-            localStorage.setItem('categories', JSON.stringify(this.categories));
-            
-            showNotification('קטגוריות נטענו בהצלחה!', 'success');
-            return true;
-        } catch (error) {
-            console.error('Error loading categories from GitHub:', error);
-            
-            // Try to load from localStorage as fallback
-            const localData = localStorage.getItem('categories');
-            if (localData) {
-                try {
-                    this.categories = JSON.parse(localData);
-                    console.log(`Loaded ${this.categories.length} categories from localStorage fallback`);
-                    showNotification('קטגוריות נטענו מהגיבוי המקומי', 'warning');
-                } catch (e) {
-                    console.error('Error parsing categories from localStorage:', e);
-                    showNotification('שגיאה בטעינת קטגוריות', 'error');
-                }
-            } else {
-                showNotification('שגיאה בטעינת קטגוריות מהשרת', 'error');
-            }
-            
-            return false;
-        }
-    }
-    
-    // Save categories to GitHub
-    async saveCategoriesToGitHub() {
-        try {
-            console.log('Saving categories to GitHub...');
-            
-            // Check for GitHub token
-            const hasToken = await this.ensureGitHubToken();
-            if (!hasToken) {
-                showNotification('נדרש Token של GitHub כדי לשמור שינויים', 'error');
-                return false;
-            }
-            
-            // Prepare content to save
-            const content = JSON.stringify(this.categories, null, 2);
-            
-            // Check if data directory exists
-            const dataDirectoryExists = await this.checkGitHubPath('data');
-            
-            if (!dataDirectoryExists) {
-                // Create data directory first
-                const dirCreated = await this.createGitHubDirectory('data', 'Create data directory', this.githubToken);
-                if (!dirCreated) {
-                    throw new Error('Failed to create data directory');
-                }
-            }
-            
-            // Check if categories.json exists
-            const fileExists = await this.checkGitHubPath('data/categories.json');
-            
-            if (fileExists) {
-                // Update existing file
-                // Get the SHA of the existing file first
-                const sha = await this.getGitHubFileSha('data/categories.json');
-                
-                if (!sha) {
-                    throw new Error('Failed to get file SHA');
-                }
-                
-                // Update file with the SHA
-                const updated = await this.updateGitHubFile(
-                    'data/categories.json', 
-                    content, 
-                    'Update categories', 
-                    this.githubToken, 
-                    sha
-                );
-                
-                if (!updated) {
-                    throw new Error('Failed to update categories file');
-                }
-            } else {
-                // Create new file
-                const created = await this.createGitHubFile(
-                    'data/categories.json', 
-                    content, 
-                    'Add categories file', 
-                    this.githubToken
-                );
-                
-                if (!created) {
-                    throw new Error('Failed to create categories file');
-                }
-            }
-            
-            console.log('Categories saved to GitHub successfully');
-            // Save to localStorage as a backup
-            localStorage.setItem('categories', JSON.stringify(this.categories));
-            
-            return true;
-        } catch (error) {
-            console.error('Error saving categories to GitHub:', error);
-            showNotification(`שגיאה בשמירה ל-GitHub: ${error.message}`, 'error');
-            return false;
-        }
-    }
-    
-    // Helper functions for GitHub API (reused from ProductManager)
-    async checkGitHubPath(path) {
-        try {
-            const apiUrl = `https://api.github.com/repos/${this.githubUser}/${this.githubRepo}/contents/${path}`;
-            const response = await fetch(apiUrl);
-            return response.ok;
-        } catch (error) {
-            console.error(`Error checking GitHub path ${path}:`, error);
-            return false;
-        }
-    }
-    
-    async getGitHubFileSha(path) {
-        try {
-            const apiUrl = `https://api.github.com/repos/${this.githubUser}/${this.githubRepo}/contents/${path}`;
-            const response = await fetch(apiUrl);
-            
-            if (!response.ok) {
-                console.error(`Failed to get SHA for ${path}: ${response.status} ${response.statusText}`);
-                return null;
-            }
-            
-            const data = await response.json();
-            return data.sha;
-        } catch (error) {
-            console.error(`Error getting SHA for ${path}:`, error);
-            return null;
-        }
-    }
-    
-    async createGitHubFile(path, content, message, token) {
-        try {
-            const apiUrl = `https://api.github.com/repos/${this.githubUser}/${this.githubRepo}/contents/${path}`;
-            
-            // Convert content to base64
-            const base64Content = btoa(unescape(encodeURIComponent(content)));
-            
-            const response = await fetch(apiUrl, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `token ${token}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    message: message,
-                    content: base64Content,
-                    branch: 'main'
-                })
-            });
-            
-            if (!response.ok) {
-                const errorData = await response.json();
-                console.error(`GitHub API error (${response.status}): ${response.statusText}`, errorData);
-                return false;
-            }
-            
-            console.log(`Created GitHub file: ${path}`);
-            return true;
-        } catch (error) {
-            console.error(`Error creating GitHub file ${path}:`, error);
-            return false;
-        }
-    }
-    
-    async updateGitHubFile(path, content, message, token, sha) {
-        try {
-            const apiUrl = `https://api.github.com/repos/${this.githubUser}/${this.githubRepo}/contents/${path}`;
-            
-            // Convert content to base64
-            const base64Content = btoa(unescape(encodeURIComponent(content)));
-            
-            const response = await fetch(apiUrl, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `token ${token}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    message: message,
-                    content: base64Content,
-                    sha: sha,
-                    branch: 'main'
-                })
-            });
-            
-            if (!response.ok) {
-                const errorData = await response.json();
-                console.error(`GitHub API error (${response.status}): ${response.statusText}`, errorData);
-                return false;
-            }
-            
-            console.log(`Updated GitHub file: ${path}`);
-            return true;
-        } catch (error) {
-            console.error(`Error updating GitHub file ${path}:`, error);
-            return false;
-        }
-    }
-    
-    async createGitHubDirectory(path, message, token) {
-        try {
-            // In GitHub, you create a directory by creating a file inside it
-            const apiUrl = `https://api.github.com/repos/${this.githubUser}/${this.githubRepo}/contents/${path}/.gitkeep`;
-            
-            const response = await fetch(apiUrl, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `token ${token}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    message: message,
-                    content: 'Cg==', // Base64 for empty content
-                    branch: 'main'
-                })
-            });
-            
-            if (!response.ok) {
-                const errorData = await response.json();
-                console.error(`GitHub API error (${response.status}): ${response.statusText}`, errorData);
-                return false;
-            }
-            
-            console.log(`Created GitHub directory: ${path}`);
-            return true;
-        } catch (error) {
-            console.error(`Error creating GitHub directory ${path}:`, error);
-            return false;
-        }
-    }
-    
-    // This is a proper UTF-8 safe base64 decoder
-    base64ToUtf8(base64) {
-        const binaryString = atob(base64);
-        const bytes = new Uint8Array(binaryString.length);
-        for (let i = 0; i < binaryString.length; i++) {
-            bytes[i] = binaryString.charCodeAt(i);
-        }
-        return new TextDecoder().decode(bytes);
-    }
-    
-    // Get category count by updating from products
-    updateCategoryCount(categoryName, products) {
-        const count = products.filter(p => p.category === categoryName).length;
-        
-        const categoryIndex = this.categories.findIndex(c => c.name === categoryName);
-        if (categoryIndex !== -1) {
-            this.categories[categoryIndex].count = count;
-        }
-        
-        return count;
-    }
-    
-    // Update all category counts based on products
-    updateAllCategoryCounts(products) {
-        if (!products || !Array.isArray(products)) return;
-        
-        this.categories.forEach((category, index) => {
-            const count = products.filter(p => p.category === category.name).length;
-            this.categories[index].count = count;
-        });
-        
-        // Save updated counts
-        this.saveCategoriesToGitHub();
-    }
-}
-
-// Initialize the CategoryManager
-let categoryManager;
-
-// Function to load categories
-function loadCategories() {
-    console.log('Loading categories...');
-    
-    if (!categoryManager) {
-        categoryManager = new CategoryManager();
-    }
-    
-    $('#categories-table-body').html('<tr><td colspan="3" class="loading">טוען קטגוריות...</td></tr>');
-    
-    // Load categories from GitHub
-    categoryManager.loadCategoriesFromGitHub().then(success => {
-        if (success) {
-            displayCategories(categoryManager.getAllCategories());
-            updateCategoryBubbles();
-        } else {
-            $('#categories-table-body').html('<tr><td colspan="3" class="error">שגיאה בטעינת קטגוריות</td></tr>');
-        }
-    });
-}
-
-// Function to show category form
-function showCategoryForm(categoryId = null) {
-    // Find category if editing
-    let category = null;
-    if (categoryId) {
-        category = categoryManager.getCategory(categoryId);
-        if (!category) {
-            showNotification('הקטגוריה לא נמצאה', 'error');
-            return;
-        }
-    }
-    
-    // Create modal form
-    const formHTML = `
-    <div id="category-form-modal" class="admin-modal active">
-        <div class="admin-modal-bg"></div>
-        <div class="admin-modal-container">
-            <div class="admin-modal-header">
-                <h3>${category ? 'עריכת קטגוריה' : 'הוספת קטגוריה חדשה'}</h3>
-                <button class="close-admin-modal"><i class="fas fa-times"></i></button>
-            </div>
-            <form id="category-form">
-                <div class="form-group">
-                    <label for="category-name">שם הקטגוריה</label>
-                    <input type="text" id="category-name" value="${category ? category.name : ''}" required>
-                </div>
-                <div class="form-group">
-                    <label for="category-icon">אייקון</label>
-                    <select id="category-icon">
-                        <option value="fas fa-laptop" ${category && category.icon === 'fas fa-laptop' ? 'selected' : ''}>מחשב</option>
-                        <option value="fas fa-tshirt" ${category && category.icon === 'fas fa-tshirt' ? 'selected' : ''}>ביגוד</option>
-                        <option value="fas fa-home" ${category && category.icon === 'fas fa-home' ? 'selected' : ''}>בית</option>
-                        <option value="fas fa-spa" ${category && category.icon === 'fas fa-spa' ? 'selected' : ''}>טיפוח</option>
-                        <option value="fas fa-utensils" ${category && category.icon === 'fas fa-utensils' ? 'selected' : ''}>מטבח</option>
-                        <option value="fas fa-book" ${category && category.icon === 'fas fa-book' ? 'selected' : ''}>ספרים</option>
-                        <option value="fas fa-gamepad" ${category && category.icon === 'fas fa-gamepad' ? 'selected' : ''}>משחקים</option>
-                        <option value="fas fa-mobile-alt" ${category && category.icon === 'fas fa-mobile-alt' ? 'selected' : ''}>סלולר</option>
-                        <option value="fas fa-car" ${category && category.icon === 'fas fa-car' ? 'selected' : ''}>רכב</option>
-                        <option value="fas fa-baby" ${category && category.icon === 'fas fa-baby' ? 'selected' : ''}>תינוקות</option>
-                    </select>
-                </div>
-                <div class="form-actions">
-                    <button type="submit" class="admin-btn">${category ? 'עדכן קטגוריה' : 'הוסף קטגוריה'}</button>
-                    <button type="button" class="admin-btn cancel-btn">ביטול</button>
-                </div>
-                ${category ? `<input type="hidden" id="category-id" value="${category.id}">` : ''}
-            </form>
-        </div>
-    </div>
-    `;
-    
-    $('body').append(formHTML);
-    
-    // Attach event handlers
-    $('.close-admin-modal, .cancel-btn').on('click', function() {
-        $('#category-form-modal').remove();
-    });
-    
-    $('#category-form').on('submit', async function(e) {
-        e.preventDefault();
-        
-        const name = $('#category-name').val();
-        const icon = $('#category-icon').val();
-        
-        if (category) {
-            // Update existing category
-            await categoryManager.updateCategory(category.id, {
-                name: name,
-                icon: icon
-            });
-        } else {
-            // Add new category
-            await categoryManager.addCategory({
-                name: name,
-                icon: icon,
-                count: 0
-            });
-        }
-        
-        $('#category-form-modal').remove();
-        
-        // Reload categories
-        loadCategories();
-    });
-}
-
-// Function to display categories in the admin panel
-function displayCategories(categories) {
-    let categoriesHTML = '';
-    
-    if (!categories || categories.length === 0) {
-        categoriesHTML = '<tr><td colspan="3" class="empty">אין קטגוריות להצגה</td></tr>';
-    } else {
-        categories.forEach(category => {
-            categoriesHTML += `
-                <tr>
-                    <td>
-                        <i class="${category.icon}"></i> ${category.name}
-                    </td>
-                    <td>${category.count || 0}</td>
-                    <td>
-                        <button class="action-btn edit-category-btn" data-id="${category.id}">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="action-btn delete-btn delete-category-btn" data-id="${category.id}">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                    </td>
-                </tr>
-            `;
-        });
-    }
-    
-    $('#categories-table-body').html(categoriesHTML);
-    
-    // Attach handlers to the category action buttons
-    $('.edit-category-btn').off('click').on('click', function() {
-        const categoryId = $(this).data('id');
-        showCategoryForm(categoryId);
-    });
-    
-    $('.delete-category-btn').off('click').on('click', function() {
-        const categoryId = $(this).data('id');
-        const category = categoryManager.getCategory(categoryId);
-        if (category && confirm(`האם אתה בטוח שברצונך למחוק את הקטגוריה "${category.name}"?`)) {
-            categoryManager.deleteCategory(categoryId).then(success => {
-                if (success) {
-                    loadCategories();
-                }
-            });
-        }
-    });
-}
-
-// Function to update category bubbles on homepage
-function updateCategoryBubbles() {
-    const categories = categoryManager ? categoryManager.getAllCategories() : [];
-    if (!categories || categories.length === 0 || !$('.bubbles-container').length) return;
-    
-    // Display up to 4 categories in bubbles
-    const displayCategories = categories.slice(0, 4);
-    let bubblesHTML = '';
-    
-    displayCategories.forEach(category => {
-        bubblesHTML += `
-            <div class="category-bubble" data-category="${category.id || category.name.toLowerCase()}">
-                <div class="bubble-icon">
-                    <i class="${category.icon}"></i>
-                </div>
-                <h3 class="bubble-title">${category.name}</h3>
-                <p class="bubble-count">${category.count || 0} מוצרים</p>
-            </div>
-        `;
-    });
-    
-    $('.bubbles-container').html(bubblesHTML);
-    
-    // Reattach event handlers
-    $('.category-bubble').off('click').on('click', function() {
-        const category = $(this).data('category');
-        // Navigate to category page or filter products
-        window.location.href = `/category/${category}`;
-    });
-}
-
-// Update product form to use categories from CategoryManager
-function updateProductFormCategories() {
-    if (!categoryManager) return;
-    
-    const categories = categoryManager.getAllCategories();
-    if (!categories || categories.length === 0) return;
-    
-    let optionsHTML = '';
-    categories.forEach(category => {
-        optionsHTML += `<option value="${category.name}">${category.name}</option>`;
-    });
-    
-    // Update dropdown on product form if it exists
-    if ($('#product-category').length) {
-        const currentValue = $('#product-category').val();
-        $('#product-category').html(optionsHTML);
-        $('#product-category').val(currentValue);
-    }
-}
-
-// Initialize category manager and load categories when admin panel opens
-$(document).ready(function() {
-    // Initialize category manager
-    categoryManager = new CategoryManager();
-    
-    // Load categories when page loads (if on homepage)
-    if ($('.bubbles-container').length) {
-        categoryManager.loadCategoriesFromGitHub().then(success => {
-            if (success) {
-                updateCategoryBubbles();
-            }
-        });
-    }
-});
-
 }
