@@ -1045,3 +1045,32 @@ function displayProductsOnHomepage() {
         console.error('Error displaying products on homepage:', error);
     }
 }
+
+// Supabase configuration
+const SUPABASE_URL = 'https://ebkgbaetsgtzordvkcvf.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVia2diYWV0c2d0em9yZHZrY3ZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxMjAzMTMsImV4cCI6MjA1NzY5NjMxM30.fype9g6RIKCYHJvXJN8b_kFFnkehACo3inpXa382GgI';
+let supabase;
+
+// Initialize Supabase client
+function initSupabase() {
+    console.log('מנסה להתחבר ל-Supabase...');
+    
+    try {
+        // Check if Supabase is available (loaded through CDN)
+        if (typeof window.supabase !== 'undefined') {
+            // Create client using the Supabase library
+            const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            supabase = client; // Set the global variable
+            console.log('התחברות ל-Supabase בוצעה בהצלחה');
+            return client;
+        } else {
+            console.warn('ספריית Supabase לא נטענה. בדוק שקובץ ה-CDN נטען כראוי');
+            showNotification('שגיאה בהתחברות למסד הנתונים', 'error');
+            return null;
+        }
+    } catch (error) {
+        console.error('Failed to initialize Supabase client:', error);
+        showNotification('שגיאה בהתחברות למסד הנתונים', 'error');
+        return null;
+    }
+}
