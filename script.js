@@ -1,9 +1,15 @@
 // Admin Email Configuration
 const ADMIN_EMAIL = 'liad1111@gmail.com';
 let adminPanelInitialized = false; // Track if admin panel is initialized
+let isAdmin = false; // Global flag for admin status
 
 // Initialize Slick Carousel for Hero
 $(document).ready(function(){
+    console.log('Document ready - initializing...');
+    
+    // Initialize admin panel immediately if we need to show it
+    addAdminStyles();
+    
     // Hero Slider
     $('.hero').slick({
         rtl: true,
@@ -1303,51 +1309,112 @@ function addAdminPanelToDOM() {
     adminPanelInitialized = true;
     console.log('Adding admin panel to DOM');
     
+    // Create admin panel with the structure matching HTML/CSS
     const adminPanelHTML = `
     <div id="admin-panel" class="admin-panel">
-        <div class="admin-panel-header">
-            <h2>פאנל ניהול</h2>
-            <button id="close-admin-panel" class="close-btn"><i class="fas fa-times"></i></button>
-        </div>
-        <div class="admin-panel-content">
-            <div class="admin-tabs">
-                <button class="admin-tab-btn active" data-target="products-tab">מוצרים</button>
-                <button class="admin-tab-btn" data-target="orders-tab">הזמנות</button>
-                <button class="admin-tab-btn" data-target="users-tab">משתמשים</button>
-                <button class="admin-tab-btn" data-target="settings-tab">הגדרות</button>
+        <div class="admin-panel-bg"></div>
+        <div class="admin-panel-container">
+            <div class="admin-panel-header">
+                <h2>פאנל ניהול</h2>
+                <button id="close-admin-panel" class="close-admin-panel"><i class="fas fa-times"></i></button>
             </div>
-            <div class="admin-tab-content">
-                <div id="products-tab" class="admin-tab-pane active">
+            <div class="admin-panel-sidebar">
+                <ul>
+                    <li class="admin-menu-item active" data-target="products-tab">
+                        <i class="fas fa-box"></i> מוצרים
+                    </li>
+                    <li class="admin-menu-item" data-target="orders-tab">
+                        <i class="fas fa-shopping-bag"></i> הזמנות
+                    </li>
+                    <li class="admin-menu-item" data-target="users-tab">
+                        <i class="fas fa-users"></i> משתמשים
+                    </li>
+                    <li class="admin-menu-item" data-target="categories-tab">
+                        <i class="fas fa-tags"></i> קטגוריות
+                    </li>
+                    <li class="admin-menu-item" data-target="settings-tab">
+                        <i class="fas fa-cog"></i> הגדרות
+                    </li>
+                </ul>
+            </div>
+            <div class="admin-panel-content">
+                <div id="products-tab" class="admin-tab active">
+                    <h3>ניהול מוצרים</h3>
                     <div class="admin-actions">
-                        <button id="add-product-btn" class="btn btn-primary">הוסף מוצר חדש</button>
-                        <button id="refresh-products-btn" class="btn">רענן מוצרים</button>
+                        <button id="add-product-btn" class="admin-btn">הוסף מוצר חדש</button>
+                        <button id="refresh-products-btn" class="admin-btn">רענן מוצרים</button>
                     </div>
                     <div id="admin-products-grid" class="admin-products-grid">
-                        <!-- Products will be loaded here -->
-                        <div class="loading">טוען מוצרים...</div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>תמונה</th>
+                                    <th>שם מוצר</th>
+                                    <th>קטגוריה</th>
+                                    <th>מחיר</th>
+                                    <th>מלאי</th>
+                                    <th>פעולות</th>
+                                </tr>
+                            </thead>
+                            <tbody id="products-table-body">
+                                <tr>
+                                    <td colspan="6" class="loading">טוען מוצרים...</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-                <div id="orders-tab" class="admin-tab-pane">
+                <div id="orders-tab" class="admin-tab">
                     <h3>ניהול הזמנות</h3>
                     <p>פונקציונליות זו תהיה זמינה בקרוב.</p>
                 </div>
-                <div id="users-tab" class="admin-tab-pane">
+                <div id="users-tab" class="admin-tab">
                     <h3>ניהול משתמשים</h3>
                     <p>פונקציונליות זו תהיה זמינה בקרוב.</p>
                 </div>
-                <div id="settings-tab" class="admin-tab-pane">
-                    <h3>הגדרות האתר</h3>
-                    <div class="settings-form">
-                        <div class="form-group">
-                            <label>שם האתר</label>
-                            <input type="text" id="site-name" placeholder="שם האתר">
-                        </div>
-                        <div class="form-group">
-                            <label>לוגו האתר (URL)</label>
-                            <input type="text" id="site-logo" placeholder="כתובת תמונת הלוגו">
-                        </div>
-                        <button id="save-settings" class="btn btn-primary">שמור הגדרות</button>
+                <div id="categories-tab" class="admin-tab">
+                    <h3>ניהול קטגוריות</h3>
+                    <div class="admin-actions">
+                        <button id="add-category-btn" class="admin-btn">הוסף קטגוריה חדשה</button>
+                        <button id="refresh-categories-btn" class="admin-btn">רענן קטגוריות</button>
                     </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>שם קטגוריה</th>
+                                <th>מספר מוצרים</th>
+                                <th>פעולות</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categories-table-body">
+                            <tr>
+                                <td colspan="3" class="loading">טוען קטגוריות...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div id="settings-tab" class="admin-tab">
+                    <h3>הגדרות האתר</h3>
+                    <div class="form-group">
+                        <label>שם האתר</label>
+                        <input type="text" id="site-name" placeholder="שם האתר">
+                    </div>
+                    <div class="form-group">
+                        <label>לוגו האתר</label>
+                        <div class="logo-preview">
+                            <img src="/api/placeholder/100/40" alt="Site Logo Preview">
+                        </div>
+                        <input type="file" id="site-logo">
+                    </div>
+                    <div class="form-group">
+                        <label>צבע ראשי</label>
+                        <input type="color" id="primary-color" value="#3498db">
+                    </div>
+                    <div class="form-group">
+                        <label>צבע משני</label>
+                        <input type="color" id="secondary-color" value="#2ecc71">
+                    </div>
+                    <button id="save-settings" class="admin-btn">שמור הגדרות</button>
                 </div>
             </div>
         </div>
@@ -1367,14 +1434,14 @@ function attachAdminPanelEventHandlers() {
     // Close button
     $('#close-admin-panel').off('click').on('click', closeAdminPanel);
     
-    // Tab switching in admin panel
-    $('.admin-tab-btn').off('click').on('click', function() {
-        console.log('Tab clicked:', $(this).data('target'));
-        $('.admin-tab-btn').removeClass('active');
+    // Admin panel menu item clicking (sidebar)
+    $('.admin-menu-item').off('click').on('click', function() {
+        console.log('Admin menu item clicked:', $(this).data('target'));
+        $('.admin-menu-item').removeClass('active');
         $(this).addClass('active');
         
         const target = $(this).data('target');
-        $('.admin-tab-pane').removeClass('active');
+        $('.admin-tab').removeClass('active');
         $(`#${target}`).addClass('active');
     });
     
@@ -1390,17 +1457,31 @@ function attachAdminPanelEventHandlers() {
         loadAndDisplayAdminProducts();
     });
     
+    // Add category button
+    $('#add-category-btn').off('click').on('click', function() {
+        console.log('Add category button clicked');
+        showCategoryForm();
+    });
+    
+    // Refresh categories button
+    $('#refresh-categories-btn').off('click').on('click', function() {
+        console.log('Refresh categories button clicked');
+        loadCategories();
+    });
+    
     // Save settings button
     $('#save-settings').off('click').on('click', function() {
         console.log('Save settings button clicked');
         // Implement settings save functionality
         const siteName = $('#site-name').val();
-        const siteLogo = $('#site-logo').val();
+        const primaryColor = $('#primary-color').val();
+        const secondaryColor = $('#secondary-color').val();
         
         // Save settings to localStorage for now
         localStorage.setItem('siteSettings', JSON.stringify({
             name: siteName,
-            logo: siteLogo
+            primaryColor: primaryColor,
+            secondaryColor: secondaryColor
         }));
         
         showNotification('הגדרות נשמרו בהצלחה', 'success');
@@ -1411,11 +1492,24 @@ function attachAdminPanelEventHandlers() {
 function addAdminMenuItemToNav() {
     // Check if admin menu item already exists
     if ($('#admin-menu-item').length > 0) {
+        // Update the click handler
+        $('#admin-menu-item a').off('click').on('click', function(e) {
+            e.preventDefault();
+            openAdminPanel();
+            return false;
+        });
         return; // Already exists
     }
     
-    const adminMenuItem = `<li id="admin-menu-item" style="display:none;"><a href="#" onclick="openAdminPanel(); return false;">פאנל ניהול</a></li>`;
-    $('nav ul').append(adminMenuItem);
+    // Admin menu item doesn't exist, add it
+    $('nav ul').append('<li id="admin-menu-item" style="display:none;"><a href="#" class="admin-panel-btn">פאנל ניהול</a></li>');
+    
+    // Add click handler to the admin panel button
+    $('.admin-panel-btn').off('click').on('click', function(e) {
+        e.preventDefault();
+        openAdminPanel();
+        return false;
+    });
 }
 
 // Function to open the admin panel
@@ -1429,17 +1523,162 @@ function openAdminPanel() {
         window.productManager = new ProductManager();
     }
     
+    // Make sure admin panel elements exist and attach handlers
+    if (!adminPanelInitialized) {
+        addAdminPanelToDOM();
+    }
+    
     // Clear any previous content and show loading state
-    $('#admin-products-grid').html('<div class="loading">טוען מוצרים...</div>');
+    $('#products-table-body').html('<tr><td colspan="6" class="loading">טוען מוצרים...</td></tr>');
     
     // Load and display products in admin panel
     console.log('Loading products from GitHub...');
     loadAndDisplayAdminProducts();
+    
+    // Also load categories
+    loadCategories();
 }
 
 // Function to close the admin panel
 function closeAdminPanel() {
     $('#admin-panel').removeClass('active');
+}
+
+// Function to load categories
+function loadCategories() {
+    console.log('Loading categories...');
+    
+    // For now, we'll just display some sample categories
+    // In a real application, you would load them from your database or API
+    const sampleCategories = [
+        { name: 'אלקטרוניקה', count: 12 },
+        { name: 'אופנה', count: 24 },
+        { name: 'בית וגן', count: 8 },
+        { name: 'טיפוח ויופי', count: 15 }
+    ];
+    
+    // Display categories
+    displayCategories(sampleCategories);
+}
+
+// Function to display categories in the admin panel
+function displayCategories(categories) {
+    let categoriesHTML = '';
+    
+    if (categories.length === 0) {
+        categoriesHTML = '<tr><td colspan="3" class="empty">אין קטגוריות להצגה</td></tr>';
+    } else {
+        categories.forEach(category => {
+            categoriesHTML += `
+                <tr>
+                    <td>${category.name}</td>
+                    <td>${category.count}</td>
+                    <td>
+                        <button class="action-btn edit-category-btn" data-name="${category.name}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn delete-btn delete-category-btn" data-name="${category.name}">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+    
+    $('#categories-table-body').html(categoriesHTML);
+    
+    // Attach handlers to the category action buttons
+    $('.edit-category-btn').off('click').on('click', function() {
+        const categoryName = $(this).data('name');
+        editCategory(categoryName);
+    });
+    
+    $('.delete-category-btn').off('click').on('click', function() {
+        const categoryName = $(this).data('name');
+        if (confirm(`האם אתה בטוח שברצונך למחוק את הקטגוריה "${categoryName}"?`)) {
+            deleteCategory(categoryName);
+        }
+    });
+}
+
+// Function to show category form
+function showCategoryForm(categoryName = null) {
+    // Find category if editing
+    const category = categoryName ? { name: categoryName } : null;
+    
+    // Create modal form
+    const formHTML = `
+    <div id="category-form-modal" class="admin-modal active">
+        <div class="admin-modal-bg"></div>
+        <div class="admin-modal-container">
+            <div class="admin-modal-header">
+                <h3>${category ? 'עריכת קטגוריה' : 'הוספת קטגוריה חדשה'}</h3>
+                <button class="close-admin-modal"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="category-form">
+                <div class="form-group">
+                    <label for="category-name">שם הקטגוריה</label>
+                    <input type="text" id="category-name" value="${category ? category.name : ''}" required>
+                </div>
+                <div class="form-group">
+                    <label for="category-icon">אייקון</label>
+                    <select id="category-icon">
+                        <option value="fas fa-laptop">מחשב</option>
+                        <option value="fas fa-tshirt">ביגוד</option>
+                        <option value="fas fa-home">בית</option>
+                        <option value="fas fa-spa">טיפוח</option>
+                        <option value="fas fa-utensils">מטבח</option>
+                        <option value="fas fa-book">ספרים</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="admin-btn">${category ? 'עדכן קטגוריה' : 'הוסף קטגוריה'}</button>
+                    <button type="button" class="admin-btn cancel-btn">ביטול</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    `;
+    
+    $('body').append(formHTML);
+    
+    // Attach event handlers
+    $('.close-admin-modal, .cancel-btn').on('click', function() {
+        $('#category-form-modal').remove();
+    });
+    
+    $('#category-form').on('submit', function(e) {
+        e.preventDefault();
+        
+        const name = $('#category-name').val();
+        const icon = $('#category-icon').val();
+        
+        if (category) {
+            // Update existing category
+            showNotification(`הקטגוריה "${name}" עודכנה בהצלחה`, 'success');
+        } else {
+            // Add new category
+            showNotification(`הקטגוריה "${name}" נוספה בהצלחה`, 'success');
+        }
+        
+        $('#category-form-modal').remove();
+        
+        // Reload categories
+        loadCategories();
+    });
+}
+
+// Function to edit category
+function editCategory(categoryName) {
+    showCategoryForm(categoryName);
+}
+
+// Function to delete category
+function deleteCategory(categoryName) {
+    showNotification(`הקטגוריה "${categoryName}" נמחקה בהצלחה`, 'success');
+    // Reload categories
+    loadCategories();
 }
 
 // Add admin styles if not already in the document
@@ -1677,7 +1916,7 @@ function displayProductsInAdminPanel() {
     
     if (!products || products.length === 0) {
         console.warn('No products to display in admin panel');
-        $('#admin-products-grid').html('<div class="empty">אין מוצרים להצגה</div>');
+        $('#products-table-body').html('<tr><td colspan="6" class="empty">אין מוצרים להצגה</td></tr>');
         return;
     }
     
@@ -1686,30 +1925,38 @@ function displayProductsInAdminPanel() {
     products.forEach(product => {
         console.log('Adding product to HTML:', product.name);
         productsHTML += `
-            <div class="admin-product-card" data-id="${product.id}">
-                <img src="${product.image || 'https://via.placeholder.com/300x300?text=' + encodeURIComponent(product.name)}" 
-                     alt="${product.name}" class="admin-product-image">
-                <h4>${product.name}</h4>
-                <p>מחיר: ₪${product.price ? product.price.toFixed(2) : '0.00'}</p>
-                <div class="admin-product-actions">
-                    <button class="btn-edit-product" data-id="${product.id}">עריכה</button>
-                    <button class="btn-delete-product" data-id="${product.id}">מחיקה</button>
-                </div>
-            </div>
+            <tr data-id="${product.id}">
+                <td>
+                    <img src="${product.image || 'https://via.placeholder.com/50x50?text=' + encodeURIComponent(product.name)}" 
+                         alt="${product.name}" style="width: 50px; height: 50px; object-fit: cover;">
+                </td>
+                <td>${product.name}</td>
+                <td>${product.category || 'כללי'}</td>
+                <td>₪${product.price ? product.price.toFixed(2) : '0.00'}</td>
+                <td>${product.stock || 'בלתי מוגבל'}</td>
+                <td>
+                    <button class="action-btn edit-product-btn" data-id="${product.id}">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="action-btn delete-btn delete-product-btn" data-id="${product.id}">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </td>
+            </tr>
         `;
     });
     
-    console.log('Setting admin-products-grid HTML');
-    $('#admin-products-grid').html(productsHTML);
+    console.log('Setting products-table-body HTML');
+    $('#products-table-body').html(productsHTML);
     console.log('HTML set, attaching event handlers');
     
     // Attach event handlers to edit and delete buttons
-    $('.btn-edit-product').off('click').on('click', function() {
+    $('.edit-product-btn').off('click').on('click', function() {
         const productId = $(this).data('id');
         editProduct(productId);
     });
     
-    $('.btn-delete-product').off('click').on('click', function() {
+    $('.delete-product-btn').off('click').on('click', function() {
         const productId = $(this).data('id');
         if (confirm('האם אתה בטוח שברצונך למחוק מוצר זה?')) {
             deleteProduct(productId);
@@ -1719,11 +1966,8 @@ function displayProductsInAdminPanel() {
     console.log('Admin panel products display complete');
 }
 
-// FIXED: Improved product form
+// FIXED: Improved product form that matches the admin panel style
 function showProductForm(productId = null) {
-    // Make sure styles are added
-    addProductFormStyles();
-    
     let product = null;
     
     if (productId) {
@@ -1735,57 +1979,67 @@ function showProductForm(productId = null) {
         }
     }
     
-    // Create a form for adding/editing products
+    // Create a form for adding/editing products using the admin modal style
     const formHTML = `
-    <div id="product-form-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>${product ? 'עריכת מוצר' : 'הוספת מוצר חדש'}</h2>
-                <button class="close-modal"><i class="fas fa-times"></i></button>
+    <div id="product-form-modal" class="admin-modal active">
+        <div class="admin-modal-bg"></div>
+        <div class="admin-modal-container">
+            <div class="admin-modal-header">
+                <h3>${product ? 'עריכת מוצר' : 'הוספת מוצר חדש'}</h3>
+                <button class="close-admin-modal"><i class="fas fa-times"></i></button>
             </div>
-            <div class="modal-body">
-                <form id="product-form">
-                    <div class="form-group">
-                        <label for="product-name">שם המוצר</label>
-                        <input type="text" id="product-name" value="${product ? product.name : ''}" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="product-price">מחיר</label>
-                        <input type="number" id="product-price" min="0" step="0.01" value="${product ? product.price : ''}" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="product-old-price">מחיר קודם (למבצע)</label>
-                        <input type="number" id="product-old-price" min="0" step="0.01" value="${product && product.oldPrice ? product.oldPrice : ''}">
-                    </div>
-                    <div class="form-group">
-                        <label for="product-category">קטגוריה</label>
-                        <input type="text" id="product-category" value="${product && product.category ? product.category : ''}">
-                    </div>
-                    <div class="form-group">
-                        <label for="product-image">תמונה (URL)</label>
-                        <input type="text" id="product-image" value="${product && product.image ? product.image : ''}">
-                    </div>
-                    <div class="form-group">
-                        <label for="product-description">תיאור</label>
-                        <textarea id="product-description">${product && product.description ? product.description : ''}</textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="product-badge">תגית</label>
-                        <select id="product-badge">
-                            <option value="" ${!product || !product.badge ? 'selected' : ''}>אין</option>
-                            <option value="new" ${product && product.badge === 'new' ? 'selected' : ''}>חדש</option>
-                            <option value="sale" ${product && product.badge === 'sale' ? 'selected' : ''}>מבצע</option>
-                            <option value="hot" ${product && product.badge === 'hot' ? 'selected' : ''}>חם</option>
-                            <option value="out-of-stock" ${product && product.badge === 'out-of-stock' ? 'selected' : ''}>אזל מהמלאי</option>
-                        </select>
-                    </div>
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">${product ? 'עדכן מוצר' : 'הוסף מוצר'}</button>
-                        <button type="button" class="btn cancel-form">ביטול</button>
-                    </div>
-                    ${product ? `<input type="hidden" id="product-id" value="${product.id}">` : ''}
-                </form>
-            </div>
+            <form id="product-form">
+                <div class="form-group">
+                    <label for="product-name">שם המוצר</label>
+                    <input type="text" id="product-name" value="${product ? product.name : ''}" required>
+                </div>
+                <div class="form-group">
+                    <label for="product-price">מחיר</label>
+                    <input type="number" id="product-price" min="0" step="0.01" value="${product ? product.price : ''}" required>
+                </div>
+                <div class="form-group">
+                    <label for="product-old-price">מחיר קודם (למבצע)</label>
+                    <input type="number" id="product-old-price" min="0" step="0.01" value="${product && product.oldPrice ? product.oldPrice : ''}">
+                </div>
+                <div class="form-group">
+                    <label for="product-category">קטגוריה</label>
+                    <select id="product-category">
+                        <option value="אלקטרוניקה" ${product && product.category === 'אלקטרוניקה' ? 'selected' : ''}>אלקטרוניקה</option>
+                        <option value="אופנה" ${product && product.category === 'אופנה' ? 'selected' : ''}>אופנה</option>
+                        <option value="בית וגן" ${product && product.category === 'בית וגן' ? 'selected' : ''}>בית וגן</option>
+                        <option value="טיפוח ויופי" ${product && product.category === 'טיפוח ויופי' ? 'selected' : ''}>טיפוח ויופי</option>
+                        <option value="כללי" ${product && product.category === 'כללי' ? 'selected' : ''}>כללי</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="product-stock">מלאי</label>
+                    <input type="number" id="product-stock" min="0" value="${product && product.stock ? product.stock : ''}">
+                </div>
+                <div class="form-group">
+                    <label for="product-image">תמונה (URL)</label>
+                    <input type="text" id="product-image" value="${product && product.image ? product.image : ''}">
+                </div>
+                <div class="form-group">
+                    <label for="product-description">תיאור</label>
+                    <textarea id="product-description">${product && product.description ? product.description : ''}</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="product-badge">תגית</label>
+                    <select id="product-badge">
+                        <option value="" ${!product || !product.badge ? 'selected' : ''}>אין</option>
+                        <option value="new" ${product && product.badge === 'new' ? 'selected' : ''}>חדש</option>
+                        <option value="sale" ${product && product.badge === 'sale' ? 'selected' : ''}>מבצע</option>
+                        <option value="hot" ${product && product.badge === 'hot' ? 'selected' : ''}>חם</option>
+                        <option value="vip" ${product && product.badge === 'vip' ? 'selected' : ''}>VIP</option>
+                        <option value="out-of-stock" ${product && product.badge === 'out-of-stock' ? 'selected' : ''}>אזל מהמלאי</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="admin-btn">${product ? 'עדכן מוצר' : 'הוסף מוצר'}</button>
+                    <button type="button" class="admin-btn cancel-btn">ביטול</button>
+                </div>
+                ${product ? `<input type="hidden" id="product-id" value="${product.id}">` : ''}
+            </form>
         </div>
     </div>
     `;
@@ -1794,7 +2048,7 @@ function showProductForm(productId = null) {
     $('body').append(formHTML);
     
     // Add event listeners
-    $('.close-modal, .cancel-form').on('click', function() {
+    $('.close-admin-modal, .cancel-btn').on('click', function() {
         $('#product-form-modal').remove();
     });
     
@@ -1807,9 +2061,12 @@ function showProductForm(productId = null) {
             price: parseFloat($('#product-price').val()),
             oldPrice: $('#product-old-price').val() ? parseFloat($('#product-old-price').val()) : null,
             category: $('#product-category').val(),
+            stock: $('#product-stock').val() ? parseInt($('#product-stock').val()) : null,
             image: $('#product-image').val(),
             description: $('#product-description').val(),
-            badge: $('#product-badge').val()
+            badge: $('#product-badge').val() || null,
+            rating: product ? product.rating || 0 : 0,
+            ratingCount: product ? product.ratingCount || 0 : 0
         };
         
         try {
