@@ -450,6 +450,9 @@ $(document).ready(function(){
     } catch (err) {
         console.warn('Supabase initialization failed, proceeding without authentication:', err);
     }
+
+    // Add this to your document ready function
+    console.log('Looking for products grid:', $('.products-grid').length ? 'Found' : 'Not found');
 });
 
 // Auth Helper Functions
@@ -1043,6 +1046,9 @@ function displayProductsOnHomepage() {
         console.log('Initializing product cards');
         initializeProductCards();
         
+        // And add this to your displayProductsOnHomepage function
+        console.log('Products grid HTML after update:', $productsGrid.html());
+        
         console.log('Products displayed successfully');
     } catch (error) {
         console.error('Error displaying products on homepage:', error);
@@ -1075,5 +1081,304 @@ function initSupabase() {
         console.error('Failed to initialize Supabase client:', error);
         showNotification('שגיאה בהתחברות למסד הנתונים', 'error');
         return null;
+    }
+}
+
+function addAdminPanelToDOM() {
+    // Check if admin panel already exists
+    if ($('#admin-panel').length > 0) {
+        return; // Admin panel already exists, no need to add it again
+    }
+    
+    const adminPanelHTML = `
+    <div id="admin-panel" class="admin-panel">
+        <div class="admin-panel-header">
+            <h2>פאנל ניהול</h2>
+            <button id="close-admin-panel" class="close-btn"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="admin-panel-content">
+            <div class="admin-tabs">
+                <button class="admin-tab-btn active" data-target="products-tab">מוצרים</button>
+                <button class="admin-tab-btn" data-target="orders-tab">הזמנות</button>
+                <button class="admin-tab-btn" data-target="users-tab">משתמשים</button>
+                <button class="admin-tab-btn" data-target="settings-tab">הגדרות</button>
+            </div>
+            <div class="admin-tab-content">
+                <div id="products-tab" class="admin-tab-pane active">
+                    <div class="admin-actions">
+                        <button id="add-product-btn" class="btn btn-primary">הוסף מוצר חדש</button>
+                        <button id="refresh-products-btn" class="btn">רענן מוצרים</button>
+                    </div>
+                    <div id="admin-products-grid" class="admin-products-grid">
+                        <!-- Products will be loaded here -->
+                        <div class="loading">טוען מוצרים...</div>
+                    </div>
+                </div>
+                <div id="orders-tab" class="admin-tab-pane">
+                    <h3>ניהול הזמנות</h3>
+                    <p>פונקציונליות זו תהיה זמינה בקרוב.</p>
+                </div>
+                <div id="users-tab" class="admin-tab-pane">
+                    <h3>ניהול משתמשים</h3>
+                    <p>פונקציונליות זו תהיה זמינה בקרוב.</p>
+                </div>
+                <div id="settings-tab" class="admin-tab-pane">
+                    <h3>הגדרות האתר</h3>
+                    <div class="settings-form">
+                        <div class="form-group">
+                            <label>שם האתר</label>
+                            <input type="text" id="site-name" placeholder="שם האתר">
+                        </div>
+                        <div class="form-group">
+                            <label>לוגו האתר (URL)</label>
+                            <input type="text" id="site-logo" placeholder="כתובת תמונת הלוגו">
+                        </div>
+                        <button id="save-settings" class="btn btn-primary">שמור הגדרות</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    `;
+    
+    $('body').append(adminPanelHTML);
+    
+    // Attach event handlers for the admin panel
+    $('#close-admin-panel').on('click', closeAdminPanel);
+    
+    // Tab switching in admin panel
+    $('.admin-tab-btn').on('click', function() {
+        $('.admin-tab-btn').removeClass('active');
+        $(this).addClass('active');
+        
+        const target = $(this).data('target');
+        $('.admin-tab-pane').removeClass('active');
+        $(`#${target}`).addClass('active');
+    });
+    
+    // Add product button
+    $('#add-product-btn').on('click', function() {
+        // Implement your add product functionality here
+        showProductForm();
+    });
+    
+    // Refresh products button
+    $('#refresh-products-btn').on('click', function() {
+        loadAndDisplayAdminProducts();
+    });
+}
+
+// Helper function for admin panel (also needed)
+function addAdminMenuItemToNav() {
+    // Check if admin menu item already exists
+    if ($('#admin-menu-item').length > 0) {
+        return; // Already exists
+    }
+    
+    const adminMenuItem = `<li id="admin-menu-item" style="display:none;"><a href="#" onclick="openAdminPanel(); return false;">פאנל ניהול</a></li>`;
+    $('nav ul').append(adminMenuItem);
+}
+
+// Function to open the admin panel
+function openAdminPanel() {
+    $('#admin-panel').addClass('active');
+    // Load and display products in admin panel
+    loadAndDisplayAdminProducts();
+}
+
+// Function to close the admin panel
+function closeAdminPanel() {
+    $('#admin-panel').removeClass('active');
+}
+
+// Add admin styles if not already in the document
+function addAdminStyles() {
+    if ($('#admin-styles').length === 0) {
+        const adminStyles = `
+        <style id="admin-styles">
+            .admin-panel {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 90%;
+                max-width: 1000px;
+                height: 100vh;
+                background: white;
+                box-shadow: -5px 0 15px rgba(0,0,0,0.2);
+                z-index: 1000;
+                transition: right 0.3s ease;
+                overflow-y: auto;
+                padding: 20px;
+                direction: rtl;
+            }
+            
+            .admin-panel.active {
+                right: 0;
+            }
+            
+            .admin-panel-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+                border-bottom: 1px solid #eee;
+                padding-bottom: 10px;
+            }
+            
+            .admin-tabs {
+                display: flex;
+                margin-bottom: 20px;
+                border-bottom: 1px solid #eee;
+            }
+            
+            .admin-tab-btn {
+                padding: 10px 15px;
+                background: none;
+                border: none;
+                cursor: pointer;
+                margin-right: 5px;
+                border-bottom: 2px solid transparent;
+            }
+            
+            .admin-tab-btn.active {
+                border-bottom: 2px solid var(--primary-color);
+                font-weight: bold;
+            }
+            
+            .admin-tab-pane {
+                display: none;
+            }
+            
+            .admin-tab-pane.active {
+                display: block;
+            }
+            
+            .admin-actions {
+                margin-bottom: 20px;
+                display: flex;
+                gap: 10px;
+            }
+            
+            .admin-products-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 20px;
+            }
+            
+            .admin-product-card {
+                border: 1px solid #eee;
+                border-radius: 5px;
+                padding: 10px;
+                position: relative;
+            }
+            
+            .admin-product-image {
+                height: 150px;
+                width: 100%;
+                object-fit: cover;
+                margin-bottom: 10px;
+                border-radius: 3px;
+            }
+            
+            .admin-product-actions {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 10px;
+            }
+            
+            .loading {
+                text-align: center;
+                padding: 20px;
+                color: #888;
+            }
+        </style>
+        `;
+        $('head').append(adminStyles);
+    }
+}
+
+// Function to load and display products in admin panel
+function loadAndDisplayAdminProducts() {
+    // Check if productManager exists
+    if (typeof productManager !== 'undefined') {
+        $('#admin-products-grid').html('<div class="loading">טוען מוצרים...</div>');
+        
+        // Load products from GitHub
+        productManager.loadProductsFromGitHub().then(success => {
+            if (success) {
+                displayProductsInAdminPanel();
+            } else {
+                $('#admin-products-grid').html('<div class="error">שגיאה בטעינת מוצרים</div>');
+            }
+        });
+    } else {
+        $('#admin-products-grid').html('<div class="error">מנהל המוצרים לא מאותחל</div>');
+    }
+}
+
+// Function to display products in admin panel
+function displayProductsInAdminPanel() {
+    const products = productManager.getAllProducts();
+    
+    if (!products || products.length === 0) {
+        $('#admin-products-grid').html('<div class="empty">אין מוצרים להצגה</div>');
+        return;
+    }
+    
+    let productsHTML = '';
+    
+    products.forEach(product => {
+        productsHTML += `
+            <div class="admin-product-card" data-id="${product.id}">
+                <img src="${product.image || 'https://via.placeholder.com/300x300?text=' + encodeURIComponent(product.name)}" 
+                     alt="${product.name}" class="admin-product-image">
+                <h4>${product.name}</h4>
+                <p>מחיר: ₪${product.price.toFixed(2)}</p>
+                <div class="admin-product-actions">
+                    <button class="btn-edit-product" data-id="${product.id}">עריכה</button>
+                    <button class="btn-delete-product" data-id="${product.id}">מחיקה</button>
+                </div>
+            </div>
+        `;
+    });
+    
+    $('#admin-products-grid').html(productsHTML);
+    
+    // Attach event handlers to edit and delete buttons
+    $('.btn-edit-product').on('click', function() {
+        const productId = $(this).data('id');
+        editProduct(productId);
+    });
+    
+    $('.btn-delete-product').on('click', function() {
+        const productId = $(this).data('id');
+        if (confirm('האם אתה בטוח שברצונך למחוק מוצר זה?')) {
+            deleteProduct(productId);
+        }
+    });
+}
+
+// Function to show product form
+function showProductForm(productId = null) {
+    // Implement product form functionality (edit/create)
+    // This is just a placeholder - implement according to your needs
+    alert(productId ? 'עריכת מוצר: ' + productId : 'הוספת מוצר חדש');
+}
+
+// Function to edit product
+function editProduct(productId) {
+    // Show product form with product data
+    showProductForm(productId);
+}
+
+// Function to delete product
+function deleteProduct(productId) {
+    if (typeof productManager !== 'undefined') {
+        productManager.deleteProduct(productId).then(success => {
+            if (success) {
+                // Refresh the admin products grid
+                displayProductsInAdminPanel();
+            }
+        });
     }
 }
