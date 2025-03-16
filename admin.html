@@ -1,0 +1,292 @@
+                                                <button class="btn btn-sm btn-outline-primary edit-user-btn" data-user-id="3"><i class="fas fa-edit"></i></button>
+                                                <button class="btn btn-sm btn-outline-danger delete-user-btn" data-user-id="3"><i class="fas fa-trash"></i></button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>4</td>
+                                            <td>מיכל לוי</td>
+                                            <td>michal@example.com</td>
+                                            <td>05/04/2023</td>
+                                            <td><span class="badge bg-secondary">לא פעיל</span></td>
+                                            <td><span class="badge bg-secondary">רגיל</span></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary edit-user-btn" data-user-id="4"><i class="fas fa-edit"></i></button>
+                                                <button class="btn btn-sm btn-outline-danger delete-user-btn" data-user-id="4"><i class="fas fa-trash"></i></button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Settings Section -->
+                        <div id="settings-section" class="admin-section">
+                            <div class="admin-header">
+                                <h1><i class="fas fa-cog"></i> הגדרות אתר</h1>
+                                <button class="btn btn-primary" id="save-settings-btn">שמור הגדרות</button>
+                            </div>
+                            
+                            <form id="site-settings-form" class="site-settings-form">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="site-name">שם האתר</label>
+                                            <input type="text" class="form-control" id="site-name" value="Doctor Instraction">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="site-email">דוא"ל קשר</label>
+                                            <input type="email" class="form-control" id="site-email" value="info@doctorinstraction.com">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="site-phone">טלפון קשר</label>
+                                            <input type="text" class="form-control" id="site-phone" value="03-1234567">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="site-address">כתובת</label>
+                                            <input type="text" class="form-control" id="site-address" value="רחוב הראשי 123, תל אביב">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="site-description">תיאור האתר</label>
+                                    <textarea class="form-control" id="site-description" rows="3">חנות מקצועית ומובילה עם מוצרים איכותיים במחירים אטרקטיביים. הצטרפו למועדון ה-VIP וקבלו הטבות בלעדיות.</textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="site-logo">לוגו האתר</label>
+                                    <input type="file" class="form-control" id="site-logo">
+                                    <div class="mt-2">
+                                        <img src="/api/placeholder/100/100" alt="Site Logo" class="img-thumbnail" style="max-width: 100px;">
+                                    </div>
+                                </div>
+                                
+                                <h4 class="mt-4">רשתות חברתיות</h4>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="facebook-url">Facebook URL</label>
+                                            <input type="text" class="form-control" id="facebook-url" value="https://www.facebook.com/doctorinstraction">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="instagram-url">Instagram URL</label>
+                                            <input type="text" class="form-control" id="instagram-url" value="https://www.instagram.com/doctorinstraction">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="twitter-url">Twitter URL</label>
+                                            <input type="text" class="form-control" id="twitter-url" value="https://www.twitter.com/doctorinstraction">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="telegram-url">Telegram URL</label>
+                                            <input type="text" class="form-control" id="telegram-url" value="https://t.me/doctorinstraction">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <h4 class="mt-4">הגדרות מערכת</h4>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="products-per-page">מוצרים בכל עמוד</label>
+                                            <input type="number" class="form-control" id="products-per-page" value="8">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="currency">מטבע</label>
+                                            <select class="form-select" id="currency">
+                                                <option value="ILS" selected>₪ שקל (ILS)</option>
+                                                <option value="USD">$ דולר (USD)</option>
+                                                <option value="EUR">€ יורו (EUR)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-check form-switch mt-4">
+                                            <input class="form-check-input" type="checkbox" id="maintenance-mode" checked>
+                                            <label class="form-check-label" for="maintenance-mode">מצב תחזוקה מושבת</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check form-switch mt-4">
+                                            <input class="form-check-input" type="checkbox" id="allow-reviews" checked>
+                                            <label class="form-check-label" for="allow-reviews">אפשר ביקורות מוצרים</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Admin Panel JavaScript
+        $(document).ready(function() {
+            // Set Current Date
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            $('#current-date').text(now.toLocaleDateString('he-IL', options));
+            
+            // Login Form Handler
+            $('#login-form').on('submit', function(e) {
+                e.preventDefault();
+                const email = $('#email').val();
+                const password = $('#password').val();
+                
+                // Simple authentication - in production, this would be a proper API call
+                if (email === 'liad1111@gmail.com' && password === '123123') {
+                    // Hide login, show admin panel
+                    $('#login-section').hide();
+                    $('#admin-panel').show();
+                    $('#admin-header-welcome').show();
+                    $('#admin-name').text('ליעד');
+                } else {
+                    $('#login-error').text('דוא"ל או סיסמה שגויים').show();
+                }
+            });
+            
+            // Logout Button
+            $('#logout-btn').on('click', function() {
+                $('#admin-panel').hide();
+                $('#admin-header-welcome').hide();
+                $('#login-section').show();
+                $('#login-form')[0].reset();
+                $('#login-error').hide();
+            });
+            
+            // Sidebar Navigation
+            $('.admin-sidebar li').on('click', function() {
+                const section = $(this).data('section');
+                
+                // Update active class in sidebar
+                $('.admin-sidebar li').removeClass('active');
+                $(this).addClass('active');
+                
+                // Show selected section
+                $('.admin-section').removeClass('active');
+                $(`#${section}-section`).addClass('active');
+            });
+            
+            // Add Product Button
+            $('#add-product-btn').on('click', function() {
+                $('#productModalTitle').text('הוספת מוצר חדש');
+                $('#product-form')[0].reset();
+                $('#product-id').val('');
+                $('#product-image-preview').hide();
+                var productModal = new bootstrap.Modal(document.getElementById('productModal'));
+                productModal.show();
+            });
+            
+            // Edit Product Button
+            $('.edit-product-btn').on('click', function() {
+                const productId = $(this).data('product-id');
+                $('#productModalTitle').text('עריכת מוצר');
+                $('#product-id').val(productId);
+                
+                // In a real application, you would fetch product data from the server
+                // For demo purposes, let's populate with dummy data
+                $('#product-name').val('מוצר ' + productId);
+                $('#product-category').val(productId % 3 + 1);
+                $('#product-price').val('199.99');
+                $('#product-old-price').val('249.99');
+                $('#product-stock').val('10');
+                $('#product-badge').val('new');
+                $('#product-description').val('תיאור מוצר לדוגמה למוצר מספר ' + productId);
+                
+                var productModal = new bootstrap.Modal(document.getElementById('productModal'));
+                productModal.show();
+            });
+            
+            // Delete Product Confirmation
+            $('.delete-product-btn').on('click', function() {
+                const productId = $(this).data('product-id');
+                if (confirm('האם אתה בטוח שברצונך למחוק את המוצר הזה?')) {
+                    alert('המוצר נמחק בהצלחה');
+                    // In a real application, you would delete the product via API call
+                }
+            });
+            
+            // Product Image Preview
+            $('#product-image').on('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#product-image-preview').attr('src', e.target.result).show();
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // Save Product Button
+            $('#save-product-btn').on('click', function() {
+                if ($('#product-form')[0].checkValidity()) {
+                    // In a real application, you would save the product via API call
+                    alert('המוצר נשמר בהצלחה');
+                    var productModal = bootstrap.Modal.getInstance(document.getElementById('productModal'));
+                    productModal.hide();
+                } else {
+                    $('#product-form')[0].reportValidity();
+                }
+            });
+            
+            // Add Category Button
+            $('#add-category-btn').on('click', function() {
+                $('#category-form-title').text('הוספת קטגוריה חדשה');
+                $('#category-form')[0].reset();
+                $('#category-id').val('');
+            });
+            
+            // Edit Category Button
+            $('.edit-category-btn').on('click', function() {
+                const categoryId = $(this).data('category-id');
+                $('#category-form-title').text('עריכת קטגוריה');
+                $('#category-id').val(categoryId);
+                $('#category-name').val('קטגוריה ' + categoryId);
+                $('#category-description').val('תיאור קטגוריה לדוגמה');
+            });
+            
+            // Cancel Category Form
+            $('#cancel-category-btn').on('click', function() {
+                $('#category-form')[0].reset();
+                $('#category-id').val('');
+                $('#category-form-title').text('הוספת קטגוריה חדשה');
+            });
+            
+            // Save Settings Button
+            $('#save-settings-btn').on('click', function() {
+                // In a real application, you would save settings via API call
+                alert('ההגדרות נשמרו בהצלחה');
+            });
+        });
+    </script>
+</body>
+</html>
