@@ -259,8 +259,11 @@ nav ul li a:hover::after {
     right: 50px;
     transform: translateY(-50%);
     max-width: 500px;
-    z-index: 2;
+    z-index: 10;
     animation: fadeInRight 1s ease;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.4);
+    border-radius: 5px;
 }
 
 .hero-title {
@@ -275,6 +278,11 @@ nav ul li a:hover::after {
     margin-bottom: 1.5rem;
     color: #f0f0f0;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 10px;
 }
 
 .btn {
@@ -1915,6 +1923,7 @@ textarea.form-control {
     .hero-content {
         right: 20px;
         max-width: 400px;
+        padding: 15px;
     }
     
     .hero-title {
@@ -1930,27 +1939,26 @@ textarea.form-control {
     }
     
     .category-bubble {
-        width: 180px;
-        height: 180px;
+        flex: 0 0 calc(33.33% - 20px);
     }
     
     .bubble-icon {
-        font-size: 2.5rem;
+        font-size: 1.8rem;
     }
     
     .bubble-title {
-        font-size: 1.2rem;
+        font-size: 0.9rem;
     }
 }
 
 @media (max-width: 768px) {
     .header-top {
-        flex-direction: column;
-        gap: 1rem;
+        flex-wrap: wrap;
+        justify-content: center;
     }
     
     nav ul {
-        display: none;
+        flex-direction: column;
     }
     
     .hero {
@@ -1961,7 +1969,13 @@ textarea.form-control {
         text-align: center;
         right: 50%;
         transform: translate(50%, -50%);
-        padding: 0 20px;
+        padding: 20px;
+        width: 90%;
+        max-width: none;
+    }
+    
+    .hero-buttons {
+        justify-content: center;
     }
     
     .dashboard-container {
@@ -1969,26 +1983,30 @@ textarea.form-control {
     }
     
     .dashboard-sidebar {
-        flex: 0 0 100%;
+        width: 100%;
     }
     
     .category-bubble {
-        width: 150px;
-        height: 150px;
+        flex: 0 0 calc(50% - 20px);
     }
     
     .bubble-icon {
-        font-size: 2rem;
+        font-size: 1.5rem;
     }
     
     .bubble-title {
-        font-size: 1rem;
+        font-size: 0.8rem;
     }
 }
 
 @media (max-width: 576px) {
     .hero {
         height: 300px;
+    }
+    
+    .hero-content {
+        padding: 15px;
+        width: 95%;
     }
     
     .hero-title {
