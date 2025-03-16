@@ -1,8 +1,28 @@
 // Admin Email Configuration
 const ADMIN_EMAIL = 'liad1111@gmail.com';
 
+// Initialize a global productManager instance
+let productManager;
+let isAdmin = false;  // Also make sure isAdmin is defined globally
+
 // Initialize Slick Carousel for Hero
 $(document).ready(function(){
+    // Initialize the product manager
+    productManager = new ProductManager();
+    
+    // Load products from GitHub when page loads
+    productManager.loadProductsFromGitHub().then(() => {
+        console.log('Products loaded on page load');
+        
+        // Display products on the homepage if we're on the homepage
+        if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+            console.log('On homepage, displaying products');
+            displayProductsOnHomepage();
+        }
+    }).catch(err => {
+        console.error('Error loading products:', err);
+    });
+    
     // Hero Slider
     $('.hero').slick({
         rtl: true,
@@ -1127,7 +1147,7 @@ function displayProductsOnHomepage() {
             productsHTML += `
                 <div class="product-card" data-id="${product.id}">
                     <div class="product-image">
-                        <img src="${product.image || 'https://via.placeholder.com/300x300?text=' + encodeURIComponent(product.name)}" alt="${product.name}">
+                        <img src="${product.image || getPlaceholderImage(300, 300, product.name)}" alt="${product.name}">
                         ${badge ? `<div class="product-badge ${badge}">${getBadgeText(badge)}</div>` : ''}
                         <div class="product-actions">
                             <button class="quick-view-btn"><i class="fas fa-eye"></i></button>
@@ -1778,13 +1798,10 @@ async function loadProductsData() {
         
         let productsHTML = '';
         
-        // Use placeholder.com for placeholder images
-        const placeholderImage = 'https://via.placeholder.com/50?text=Image';
-        
         products.forEach(product => {
             productsHTML += `
                 <tr>
-                    <td><img src="${product.image || placeholderImage}" alt="${product.name}" width="50" height="50"></td>
+                    <td><img src="${product.image || getPlaceholderImage(50, 50, 'Product')}" alt="${product.name}" width="50" height="50"></td>
                     <td>${product.name}</td>
                     <td>${product.category || 'ללא קטגוריה'}</td>
                     <td>₪${product.price}</td>
@@ -1914,3 +1931,65 @@ function getRatingStars(rating) {
     
     return stars;
 }
+
+// Add a new helper function to fix placeholder image URLs
+function getPlaceholderImage(width, height, text) {
+    // Use a reliable placeholder service instead of a local API endpoint
+    return `https://via.placeholder.com/${width}x${height}?text=${encodeURIComponent(text || 'Image')}`;
+}
+
+// Update getAllCategories method in ProductManager class
+ProductManager.prototype.getAllCategories = function() {
+    // Extract unique categories from products
+    const uniqueCategories = [];
+    
+    this.products.forEach(product => {
+        if (product.category && !uniqueCategories.includes(product.category)) {
+            uniqueCategories.push(product.category);
+        }
+    });
+    
+    // Add a default category if none exist
+    if (uniqueCategories.length === 0) {
+        uniqueCategories.push('כללי');
+    }
+    
+    console.log('Categories:', uniqueCategories);
+    return uniqueCategories;
+};
+
+// Add filterProducts method to ProductManager class
+ProductManager.prototype.filterProducts = function(filter) {
+    if (!filter) return this.products;
+    
+    return this.products.filter(product => {
+        for (const key in filter) {
+            if (product[key] !== filter[key]) {
+                return false;
+            }
+        }
+        return true;
+    });
+};
+
+// Add base64ToUtf8 method to ProductManager class
+ProductManager.prototype.base64ToUtf8 = function(base64) {
+    try {
+        // Convert base64 to binary string
+        const binary = atob(base64);
+        
+        // Handle UTF-8 decoding properly
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) {
+            bytes[i] = binary.charCodeAt(i);
+        }
+        
+        // Decode the UTF-8 bytes
+        const decoder = new TextDecoder('utf-8');
+        return decoder.decode(bytes);
+    } catch (error) {
+        console.error('Error decoding base64:', error);
+        // Fallback to simple decoding
+        return atob(base64);
+    }
+};
