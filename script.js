@@ -664,6 +664,7 @@ class ProductManager {
     addProduct(product) {
         // Generate unique ID
         product.id = Date.now().toString(36) + Math.random().toString(36).substr(2);
+        console.log('Adding product with ID:', product.id);
         this.products.push(product);
         this.saveProducts();
         return product.id;
@@ -682,6 +683,7 @@ class ProductManager {
     
     // Delete product
     deleteProduct(productId) {
+        console.log('Deleting product with ID:', productId);
         this.products = this.products.filter(p => p.id !== productId);
         this.saveProducts();
     }
@@ -693,7 +695,90 @@ class ProductManager {
     
     // Get all products
     getAllProducts() {
+        console.log('Getting all products, count:', this.products.length);
         return this.products;
+    }
+    
+    // Save products to localStorage
+    saveProducts() {
+        console.log('Saving products to localStorage, count:', this.products.length);
+        localStorage.setItem('products', JSON.stringify(this.products));
+    }
+    
+    // Load products from localStorage
+    loadProducts() {
+        const storedProducts = localStorage.getItem('products');
+        if(storedProducts) {
+            try {
+                this.products = JSON.parse(storedProducts);
+                console.log('Loaded products from localStorage, count:', this.products.length);
+            } catch (e) {
+                console.error('Error parsing products from localStorage:', e);
+                this.products = [];
+            }
+        } else {
+            console.log('No products found in localStorage');
+        }
+    }
+    
+    // Add category
+    addCategory(category) {
+        console.log('Adding category:', category);
+        if(!this.categories.includes(category)) {
+            this.categories.push(category);
+            this.saveCategories();
+            return true;
+        }
+        return false;
+    }
+    
+    // Get all categories
+    getAllCategories() {
+        console.log('Getting all categories, count:', this.categories.length);
+        return this.categories;
+    }
+    
+    // Load categories from localStorage
+    loadCategories() {
+        const storedCategories = localStorage.getItem('categories');
+        if(storedCategories) {
+            try {
+                this.categories = JSON.parse(storedCategories);
+                console.log('Loaded categories from localStorage, count:', this.categories.length);
+            } catch(e) {
+                console.error('Error parsing categories from localStorage:', e);
+                this.categories = [];
+            }
+        } else {
+            console.log('No categories found in localStorage');
+        }
+    }
+    
+    // Save categories to localStorage
+    saveCategories() {
+        console.log('Saving categories to localStorage, count:', this.categories.length);
+        localStorage.setItem('categories', JSON.stringify(this.categories));
+    }
+    
+    // Add tag
+    addTag(tag) {
+        if(!this.tags.includes(tag)) {
+            this.tags.push(tag);
+            localStorage.setItem('tags', JSON.stringify(this.tags));
+        }
+    }
+    
+    // Get all tags
+    getAllTags() {
+        return this.tags;
+    }
+    
+    // Load tags from localStorage
+    loadTags() {
+        const storedTags = localStorage.getItem('tags');
+        if(storedTags) {
+            this.tags = JSON.parse(storedTags);
+        }
     }
     
     // Filter products
@@ -749,61 +834,6 @@ class ProductManager {
         }
         
         return filteredProducts;
-    }
-    
-    // Save products to localStorage
-    saveProducts() {
-        localStorage.setItem('products', JSON.stringify(this.products));
-    }
-    
-    // Load products from localStorage
-    loadProducts() {
-        const storedProducts = localStorage.getItem('products');
-        if(storedProducts) {
-            this.products = JSON.parse(storedProducts);
-        }
-    }
-    
-    // Add category
-    addCategory(category) {
-        if(!this.categories.includes(category)) {
-            this.categories.push(category);
-            localStorage.setItem('categories', JSON.stringify(this.categories));
-        }
-    }
-    
-    // Get all categories
-    getAllCategories() {
-        return this.categories;
-    }
-    
-    // Load categories from localStorage
-    loadCategories() {
-        const storedCategories = localStorage.getItem('categories');
-        if(storedCategories) {
-            this.categories = JSON.parse(storedCategories);
-        }
-    }
-    
-    // Add tag
-    addTag(tag) {
-        if(!this.tags.includes(tag)) {
-            this.tags.push(tag);
-            localStorage.setItem('tags', JSON.stringify(this.tags));
-        }
-    }
-    
-    // Get all tags
-    getAllTags() {
-        return this.tags;
-    }
-    
-    // Load tags from localStorage
-    loadTags() {
-        const storedTags = localStorage.getItem('tags');
-        if(storedTags) {
-            this.tags = JSON.parse(storedTags);
-        }
     }
 }
 
@@ -1088,11 +1118,13 @@ class CartManager {
 }
 
 // Initialize managers
+console.log('Initializing product manager, membership manager, and cart manager...');
 const productManager = new ProductManager();
 const membershipManager = new MembershipManager();
 const cartManager = new CartManager();
 
 // Load data from localStorage
+console.log('Loading data from localStorage...');
 productManager.loadProducts();
 productManager.loadCategories();
 productManager.loadTags();
@@ -1184,6 +1216,25 @@ function closeAdminPanel() {
     $('#admin-panel').removeClass('active');
 }
 
+// Function to update category dropdown in the add product form
+function updateCategoryDropdown() {
+    try {
+        console.log('Updating category dropdown');
+        const categories = productManager.getAllCategories();
+        const categorySelect = $('#product-category');
+        
+        // Clear current options (keep the default option)
+        categorySelect.find('option:not(:first)').remove();
+        
+        // Add categories as options
+        categories.forEach((category, index) => {
+            categorySelect.append(`<option value="${category}">${category}</option>`);
+        });
+    } catch (error) {
+        console.error('Error updating category dropdown:', error);
+    }
+}
+
 // Function to check if user is authenticated with Supabase
 async function checkUserAuth() {
     try {
@@ -1266,6 +1317,8 @@ async function loadProductsData() {
         const products = productManager.getAllProducts();
         const productListBody = $('#product-list-body');
         
+        console.log('Loading products:', products);
+        
         if (products.length === 0) {
             productListBody.html(`
                 <tr>
@@ -1277,10 +1330,13 @@ async function loadProductsData() {
         
         let productsHTML = '';
         
+        // Default SVG placeholder for images
+        const placeholderSvg = 'data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%20viewBox%3D%220%200%20100%20100%22%3E%3Crect%20fill%3D%22%23CCC%22%20width%3D%22100%22%20height%3D%22100%22%2F%3E%3Ctext%20text-anchor%3D%22middle%22%20x%3D%2250%22%20y%3D%2250%22%20dy%3D%22.3em%22%20fill%3D%22%23555%22%20font-family%3D%22monospace%22%20font-size%3D%2218%22%3EImage%3C%2Ftext%3E%3C%2Fsvg%3E';
+        
         products.forEach(product => {
             productsHTML += `
                 <tr>
-                    <td><img src="${product.image || '/api/placeholder/50/50'}" alt="${product.name}" width="50"></td>
+                    <td><img src="${product.image || placeholderSvg}" alt="${product.name}" width="50" height="50"></td>
                     <td>${product.name}</td>
                     <td>${product.category || 'ללא קטגוריה'}</td>
                     <td>₪${product.price}</td>
@@ -1348,16 +1404,18 @@ async function loadUsersData() {
         const members = membershipManager.members;
         const userListBody = $('#user-list-body');
         
-        // Try to get Supabase users if available
+        // Try to get Supabase users if available - note: admin API requires admin privileges
         let supabaseUsers = [];
         if (supabase) {
             try {
+                // Note: This may fail with 403 for non-admin users
                 const { data, error } = await supabase.auth.admin.listUsers();
                 if (!error && data) {
                     supabaseUsers = data.users || [];
                 }
             } catch (error) {
                 console.log('Unable to fetch Supabase users (requires admin access):', error);
+                // This is expected for non-admin users, so we continue with local data
             }
         }
         
@@ -1385,22 +1443,6 @@ async function loadUsersData() {
                 });
             }
         });
-        
-        // Add additional supabase users if not already in the list
-        if (supabaseUsers.length > 0) {
-            supabaseUsers.forEach(user => {
-                const exists = combinedUsers.some(existingUser => existingUser.email === user.email);
-                if (!exists) {
-                    combinedUsers.push({
-                        name: user.user_metadata?.full_name || user.email.split('@')[0],
-                        email: user.email,
-                        type: 'רגיל',
-                        joinDate: new Date(user.created_at),
-                        id: user.id
-                    });
-                }
-            });
-        }
         
         if (combinedUsers.length === 0) {
             userListBody.html(`
@@ -2236,9 +2278,12 @@ $(document).ready(function() {
             stock: productStock,
             description: productDescription,
             badge: productBadge,
-            image: '/api/placeholder/100/100', // Placeholder for now
+            // Use a data URI for a simple placeholder instead of an external URL
+            image: 'data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%20viewBox%3D%220%200%20100%20100%22%3E%3Crect%20fill%3D%22%23CCC%22%20width%3D%22100%22%20height%3D%22100%22%2F%3E%3Ctext%20text-anchor%3D%22middle%22%20x%3D%2250%22%20y%3D%2250%22%20dy%3D%22.3em%22%20fill%3D%22%23555%22%20font-family%3D%22monospace%22%20font-size%3D%2218%22%3EImage%3C%2Ftext%3E%3C%2Fsvg%3E',
             createdAt: new Date()
         };
+        
+        console.log('Adding new product:', newProduct);
         
         // Add to product manager
         const productId = productManager.addProduct(newProduct);
@@ -2369,20 +2414,6 @@ $(document).ready(function() {
             updateCategoryDropdown();
         }
     });
-    
-    // Function to update category dropdown in the add product form
-    function updateCategoryDropdown() {
-        const categories = productManager.getAllCategories();
-        const categorySelect = $('#product-category');
-        
-        // Clear current options (keep the default option)
-        categorySelect.find('option:not(:first)').remove();
-        
-        // Add categories as options
-        categories.forEach((category, index) => {
-            categorySelect.append(`<option value="${category}">${category}</option>`);
-        });
-    }
     
     // Check for admin on page load
     checkUserAuth();
