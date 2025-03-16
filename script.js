@@ -1,3 +1,6 @@
+// Admin Email Configuration
+const ADMIN_EMAIL = 'liad1111@gmail.com';
+
 // Initialize Slick Carousel for Hero
 $(document).ready(function(){
     // Hero Slider
