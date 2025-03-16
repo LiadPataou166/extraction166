@@ -120,352 +120,65 @@
 </head>
 
 <body>
-<!-- Dark Theme Header Structure - Similar to hydroshop.co.il -->
-<header class="dark-header">
-    <div class="header-inner">
-        <!-- Top Header Section -->
-        <div class="header-top">
-            <div class="inner-width">
-                <div class="flex">
-                    <!-- Logo -->
-                    <div class="logo">
-                        <a href="index.html">
-                            <span class="no-mobile"><img src="/api/placeholder/180/40" alt="Doctor Instraction Logo"></span>
-                            <span class="mobile-only"><img src="/api/placeholder/140/30" alt="Doctor Instraction Logo"></span>
-                        </a>
-                    </div>
-                    
-                    <!-- Mobile Menu Button -->
-                    <div class="mobile-only menu-bt">
-                        <a href="#menu">
-                            <span class="menu-bt-sep"></span>
-                            <span class="menu-bt-sep"></span>
-                            <span class="menu-bt-sep"></span>
-                        </a>
-                    </div>
-                    
-                    <!-- Language Selector (Desktop) -->
-                    <div class="no-mobile flex">
-                        <div id="language-selector">
-                            <ul class="language-flags">
-                                <li><a href="#" title="עברית" class="flag hebrew active"></a></li>
-                                <li><a href="#" title="English" class="flag english"></a></li>
-                                <li><a href="#" title="русский" class="flag russian"></a></li>
-                                <li><a href="#" title="العربية" class="flag arabic"></a></li>
-                            </ul>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-top">
+                <div class="logo">
+                    <img src="/api/placeholder/40/40" alt="Doctor Instraction Logo">
+                    <h1>Doctor Instraction</h1>
+                </div>
+                
+                <button class="mobile-menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <div class="header-actions">
+                    <div class="header-icons">
+                        <div class="header-icon">
+                            <i class="fas fa-heart"></i>
+                            <span class="badge">0</span>
+                        </div>
+                        <div class="header-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="badge">0</span>
+                        </div>
+                        <div class="header-icon">
+                            <i class="fas fa-user"></i>
                         </div>
                     </div>
                     
-                    <!-- Search Form -->
-                    <div class="right top-search-wrap">
-                        <form id="mainSearchForm" class="top-search" action="#">
-                            <div class="top-search-input">
-                                <input id="txtMainSearch" name="s" type="text" placeholder="חיפוש מוצר / מידע" autocomplete="off">
-                            </div>
-                            <div class="top-search-submit">
-                                <button type="submit"><i class="fas fa-search"></i></button>
-                            </div>
-                        </form>
-                    </div>
+                    <form class="search-form">
+                        <input type="text" placeholder="חיפוש מוצרים...">
+                        <button type="submit"><i class="fas fa-search"></i></button>
+                    </form>
                     
-                    <!-- Social Icons -->
-                    <div class="right head-social clearfix">
-                        <div class="left social-item">
-                            <a href="#" target="_blank"><i class="fab fa-facebook-f"></i></a>
-                        </div>
-                        <div class="left social-item">
-                            <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
-                        </div>
-                        <div class="left social-item">
-                            <a href="#" target="_blank"><i class="fab fa-telegram-plane"></i></a>
-                        </div>
-                        <div class="left social-item">
-                            <a href="#" target="_blank"><i class="fab fa-whatsapp"></i></a>
-                        </div>
-                    </div>
-                    
-                    <!-- Shopping Cart -->
-                    <div class="left cart-wrap">
-                        <div id="cartButton" class="cart-top">
-                            <a href="javascript:void(0);">
-                                <span class="top-cart-total no-mobile">הסל שלי</span>
-                                <div class="top-cart-count">
-                                    <span class="cart-num">
-                                        <span>0</span>
-                                        <i class="fas fa-shopping-bag"></i>
-                                    </span>
-                                </div>
-                            </a>
-                        </div>
-                        <!-- Cart Dropdown (will be shown/hidden with JS) -->
-                        <div id="cartDropdown" class="cart-dropdown">
-                            <div class="cart-header">
-                                <h3>הסל שלי</h3>
-                                <span class="close-cart"><i class="fas fa-times"></i></span>
-                            </div>
-                            <div class="cart-items">
-                                <!-- Empty cart message -->
-                                <div class="empty-cart">
-                                    <div class="empty-cart-icon"><i class="fas fa-shopping-cart"></i></div>
-                                    <p>הסל שלך ריק</p>
-                                </div>
-                            </div>
-                            <div class="cart-footer">
-                                <div class="cart-total">סה״כ: <span class="total-amount">₪0</span></div>
-                                <div class="cart-btns">
-                                    <a href="#" class="btn-continue">המשך בקניה</a>
-                                    <a href="#" class="btn-checkout">לקופה</a>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="auth-links">
+                        <a href="#" class="show-login">התחברות</a>
+                        <a href="#" class="show-register">הרשמה</a>
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <!-- Mobile Search Form -->
-        <div class="mobile-only top-search-wrap">
-            <form id="mobileSearchForm" class="top-search" action="#">
-                <div class="top-search-input">
-                    <input id="mobileTxtSearch" name="s" type="text" placeholder="חיפוש מוצר" autocomplete="off">
-                </div>
-                <div class="top-search-submit">
-                    <button type="submit"><i class="fas fa-search"></i></button>
-                </div>
-            </form>
-        </div>
-        
-        <!-- Main Navigation Menu -->
-        <div class="header-bottom">
-            <div class="head-menu" id="menu">
-                <div class="inner-width">
-                    <!-- Mobile Menu Top Section -->
-                    <div class="mobile-only m-menu-top">
-                        <div class="m-menu-top-in relative flex">
-                            <a class="close-mmenu block" href="javascript:void(0)">
-                                <i class="fas fa-times"></i>
-                            </a>
-                            <a class="mobile-sale-btn" href="#">מבצעים</a>
-                            <a class="m-menu-top-branch flex" href="#">
-                                <i class="fas fa-map-marker-alt"></i>
-                                <span class="m-menu-top-branch-tx">סניפים</span>
-                            </a>
-                        </div>
-                        <div class="flex mobile-language">
-                            <div class="language-selector-mobile">
-                                <ul class="language-flags">
-                                    <li><a href="#" title="עברית" class="flag hebrew active"></a></li>
-                                    <li><a href="#" title="English" class="flag english"></a></li>
-                                    <li><a href="#" title="русский" class="flag russian"></a></li>
-                                    <li><a href="#" title="العربية" class="flag arabic"></a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Main Menu Items -->
-                    <div class="menu-padding clearfix">
-                        <ul class="flex main-nav">
-                            <!-- Menu Item 1 with Dropdown -->
-                            <li class="right head-menu-item has-children">
-                                <a href="#" class="head-menu-item-top">
-                                    <span class="head-menu-tx">חללי גידול</span>
-                                    <div class="drop-indicator">
-                                        <i class="fas fa-chevron-down"></i>
-                                    </div>
-                                </a>
-                                <ul class="head-menu-dropdown">
-                                    <li class="head-menu-dropdown-wrap">
-                                        <div class="column">
-                                            <ul>
-                                                <li class="dropdown-link">
-                                                    <a href="#" class="dropdown-link-a">ערכות גידול</a>
-                                                </li>
-                                                <li class="dropdown-link">
-                                                    <a href="#" class="dropdown-link-a">גינה במרפסת</a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                        <div class="column">
-                                            <div class="dropdown-link dropdown-link-has-inner">
-                                                <div class="level-three">
-                                                    <a href="#" class="dropdown-link-a">אוהלי גידול</a>
-                                                </div>
-                                                <ul class="sub-dropdown">
-                                                    <li class="dropdown-link">
-                                                        <a href="#" class="dropdown-link-a">אוהלי Better</a>
-                                                    </li>
-                                                    <li class="dropdown-link">
-                                                        <a href="#" class="dropdown-link-a">אוהלי Secret Jardin</a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </li>
-                            
-                            <!-- Menu Item 2 with Dropdown -->
-                            <li class="right head-menu-item has-children">
-                                <a href="#" class="head-menu-item-top">
-                                    <span class="head-menu-tx">דשנים</span>
-                                    <div class="drop-indicator">
-                                        <i class="fas fa-chevron-down"></i>
-                                    </div>
-                                </a>
-                                <ul class="head-menu-dropdown">
-                                    <li class="head-menu-dropdown-wrap">
-                                        <div class="column">
-                                            <ul>
-                                                <li class="dropdown-link">
-                                                    <a href="#" class="dropdown-link-a">דשן כימי</a>
-                                                </li>
-                                                <li class="dropdown-link">
-                                                    <a href="#" class="dropdown-link-a">דשן אורגני</a>
-                                                </li>
-                                                <li class="dropdown-link">
-                                                    <a href="#" class="dropdown-link-a">דשן Advanced Nutrients</a>
-                                                </li>
-                                                <li class="dropdown-link">
-                                                    <a href="#" class="dropdown-link-a">דשן Atami</a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </li>
-                            
-                            <!-- Menu Item 3 with Dropdown -->
-                            <li class="right head-menu-item has-children">
-                                <a href="#" class="head-menu-item-top">
-                                    <span class="head-menu-tx">תאורה</span>
-                                    <div class="drop-indicator">
-                                        <i class="fas fa-chevron-down"></i>
-                                    </div>
-                                </a>
-                                <ul class="head-menu-dropdown">
-                                    <li class="head-menu-dropdown-wrap">
-                                        <div class="column">
-                                            <ul>
-                                                <li class="dropdown-link">
-                                                    <a href="#" class="dropdown-link-a">מערכות תאורה</a>
-                                                </li>
-                                                <li class="dropdown-link">
-                                                    <a href="#" class="dropdown-link-a">טיימרים</a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </li>
-                            
-                            <!-- Menu Item 4 with Dropdown -->
-                            <li class="right head-menu-item has-children">
-                                <a href="#" class="head-menu-item-top">
-                                    <span class="head-menu-tx">אוורור</span>
-                                    <div class="drop-indicator">
-                                        <i class="fas fa-chevron-down"></i>
-                                    </div>
-                                </a>
-                                <ul class="head-menu-dropdown">
-                                    <li class="head-menu-dropdown-wrap">
-                                        <div class="column">
-                                            <ul>
-                                                <li class="dropdown-link">
-                                                    <a href="#" class="dropdown-link-a">טיהור ריחות</a>
-                                                </li>
-                                                <li class="dropdown-link">
-                                                    <a href="#" class="dropdown-link-a">ונטות ומפוחים</a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </li>
-                            
-                            <!-- Menu Item 5 with Dropdown -->
-                            <li class="right head-menu-item has-children">
-                                <a href="#" class="head-menu-item-top">
-                                    <span class="head-menu-tx">מצעי גידול</span>
-                                    <div class="drop-indicator">
-                                        <i class="fas fa-chevron-down"></i>
-                                    </div>
-                                </a>
-                                <ul class="head-menu-dropdown">
-                                    <li class="head-menu-dropdown-wrap">
-                                        <div class="column">
-                                            <ul>
-                                                <li class="dropdown-link">
-                                                    <a href="#" class="dropdown-link-a">מצעי אדמה</a>
-                                                </li>
-                                                <li class="dropdown-link">
-                                                    <a href="#" class="dropdown-link-a">מצעי גידול הידרופוניים</a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </li>
-                            
-                            <!-- Menu Item 6 - Simple Link -->
-                            <li class="right head-menu-item">
-                                <a href="#" class="head-menu-item-top">
-                                    <span class="head-menu-tx">מבצעים</span>
-                                </a>
-                            </li>
-                        </ul>
-                        
-                        <!-- Mobile Menu Additional Items -->
-                        <div class="mobile-only">
-                            <div class="right m-menu-icon head-menu-item">
-                                <div class="head-menu-item-top2">
-                                    <a href="#" class="toplink">
-                                        <i class="fas fa-leaf"></i>
-                                        <span class="head-menu-tx">טבלאות דישון</span>
-                                    </a>
-                                </div>
-                            </div>
-                            
-                            <div class="right m-menu-icon head-menu-item">
-                                <div class="head-menu-item-top2">
-                                    <a href="#" class="toplink">
-                                        <i class="fas fa-info-circle"></i>
-                                        <span class="head-menu-tx">מידע וטיפים</span>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Mobile Footer Menu -->
-                    <div class="mobile-only m-menu-footer">
-                        <div class="flex flex--top">
-                            <ul class="m-ft-nav">
-                                <li><a href="#" class="m-ft-nav-link">עלינו</a></li>
-                                <li><a href="#" class="m-ft-nav-link">משלוחים</a></li>
-                                <li><a href="#" class="m-ft-nav-link">סניפים</a></li>
-                                <li><a href="#" class="m-ft-nav-link">דברו איתנו</a></li>
-                                <li><a href="#" class="m-ft-nav-link">מגזין</a></li>
-                            </ul>
-                            
-                            <div class="m-ft-phone-wrap">
-                                <a class="m-ft-phone" href="tel:0501234567">050-123-4567</a>
-                                <div class="m-ft-phone-tx">שירות והזמנות</div>
-                                <div class="flex flex--center">
-                                    <div class="m-whatsapp-icon">
-                                        <a target="_blank" href="https://api.whatsapp.com/send?phone=972501234567&text=שלום, אני מעוניין לקבל מידע">
-                                            <i class="fab fa-whatsapp"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            
+            <div class="header-bottom">
+                <nav>
+                    <ul>
+                        <li><a href="index.html" class="active">דף הבית</a></li>
+                        <li><a href="#">קטגוריות</a></li>
+                        <li><a href="page2.html">חנות</a></li>
+                        <li><a href="page3.html">מוצרים חדשים</a></li>
+                        <li><a href="#">מועדון VIP</a></li>
+                        <li><a href="#">בלוג</a></li>
+                        <li><a href="#">צור קשר</a></li>
+                        <li id="admin-menu-item" style="display: none;"><a href="#" class="admin-panel-btn">פאנל ניהול</a></li>
+                    </ul>
+                </nav>
             </div>
         </div>
-    </div>
-</header>
+    </header>
+
+
+    
 
 <!-- Category Grid Section - Similar to puffiz.co.il -->
 <section class="puffiz-category-section">
