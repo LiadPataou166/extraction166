@@ -978,6 +978,16 @@ class ProductManager {
             return false;
         }
     }
+
+    // This is a proper UTF-8 safe base64 decoder
+    base64ToUtf8(base64) {
+        const binaryString = atob(base64);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        return new TextDecoder().decode(bytes);
+    }
 }
 
 // Function to display products on homepage
@@ -1181,8 +1191,20 @@ function addAdminMenuItemToNav() {
 
 // Function to open the admin panel
 function openAdminPanel() {
+    console.log('Opening admin panel...');
     $('#admin-panel').addClass('active');
+    
+    // Check if productManager exists and initialize it if needed
+    if (typeof productManager === 'undefined' || !productManager) {
+        console.log('Creating new ProductManager instance...');
+        window.productManager = new ProductManager();
+    }
+    
+    // Clear any previous content and show loading state
+    $('#admin-products-grid').html('<div class="loading">טוען מוצרים...</div>');
+    
     // Load and display products in admin panel
+    console.log('Loading products from GitHub...');
     loadAndDisplayAdminProducts();
 }
 
@@ -1299,28 +1321,54 @@ function addAdminStyles() {
 
 // Function to load and display products in admin panel
 function loadAndDisplayAdminProducts() {
+    console.log('loadAndDisplayAdminProducts called');
+    
     // Check if productManager exists
-    if (typeof productManager !== 'undefined') {
-        $('#admin-products-grid').html('<div class="loading">טוען מוצרים...</div>');
+    if (typeof productManager === 'undefined' || !productManager) {
+        console.error('ProductManager not initialized!');
+        $('#admin-products-grid').html('<div class="error">מנהל המוצרים לא מאותחל</div>');
         
-        // Load products from GitHub
-        productManager.loadProductsFromGitHub().then(success => {
+        // Try to initialize it
+        try {
+            console.log('Attempting to initialize ProductManager...');
+            window.productManager = new ProductManager();
+        } catch (e) {
+            console.error('Failed to initialize ProductManager:', e);
+            return;
+        }
+    }
+    
+    $('#admin-products-grid').html('<div class="loading">טוען מוצרים...</div>');
+    
+    console.log('Calling loadProductsFromGitHub...');
+    
+    // Load products from GitHub with better error handling
+    productManager.loadProductsFromGitHub()
+        .then(success => {
+            console.log('loadProductsFromGitHub result:', success);
             if (success) {
+                console.log('Products loaded, displaying in admin panel...');
+                console.log('Product count:', productManager.getAllProducts().length);
                 displayProductsInAdminPanel();
             } else {
+                console.error('Failed to load products from GitHub');
                 $('#admin-products-grid').html('<div class="error">שגיאה בטעינת מוצרים</div>');
             }
+        })
+        .catch(error => {
+            console.error('Error in loadProductsFromGitHub:', error);
+            $('#admin-products-grid').html(`<div class="error">שגיאה בטעינת מוצרים: ${error.message}</div>`);
         });
-    } else {
-        $('#admin-products-grid').html('<div class="error">מנהל המוצרים לא מאותחל</div>');
-    }
 }
 
 // Function to display products in admin panel
 function displayProductsInAdminPanel() {
+    console.log('displayProductsInAdminPanel called');
     const products = productManager.getAllProducts();
+    console.log('Products to display:', products.length, products);
     
     if (!products || products.length === 0) {
+        console.warn('No products to display in admin panel');
         $('#admin-products-grid').html('<div class="empty">אין מוצרים להצגה</div>');
         return;
     }
@@ -1328,12 +1376,13 @@ function displayProductsInAdminPanel() {
     let productsHTML = '';
     
     products.forEach(product => {
+        console.log('Adding product to HTML:', product.name);
         productsHTML += `
             <div class="admin-product-card" data-id="${product.id}">
                 <img src="${product.image || 'https://via.placeholder.com/300x300?text=' + encodeURIComponent(product.name)}" 
                      alt="${product.name}" class="admin-product-image">
                 <h4>${product.name}</h4>
-                <p>מחיר: ₪${product.price.toFixed(2)}</p>
+                <p>מחיר: ₪${product.price ? product.price.toFixed(2) : '0.00'}</p>
                 <div class="admin-product-actions">
                     <button class="btn-edit-product" data-id="${product.id}">עריכה</button>
                     <button class="btn-delete-product" data-id="${product.id}">מחיקה</button>
@@ -1342,7 +1391,9 @@ function displayProductsInAdminPanel() {
         `;
     });
     
+    console.log('Setting admin-products-grid HTML');
     $('#admin-products-grid').html(productsHTML);
+    console.log('HTML set, attaching event handlers');
     
     // Attach event handlers to edit and delete buttons
     $('.btn-edit-product').on('click', function() {
@@ -1356,6 +1407,8 @@ function displayProductsInAdminPanel() {
             deleteProduct(productId);
         }
     });
+    
+    console.log('Admin panel products display complete');
 }
 
 // Function to show product form
