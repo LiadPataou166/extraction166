@@ -248,7 +248,7 @@ $(document).ready(function(){
             showAuthError('register', error.message || 'הרשמה נכשלה. אנא נסה שוב מאוחר יותר.');
         } finally {
             // Reset button state
-            $('#register-submit').prop('disabled', false).text('הרשם');
+            $('#register-submit').prop('disabled', false).text('הרשמה');
         }
     });
     
@@ -403,85 +403,6 @@ $(document).ready(function(){
     } catch (err) {
         console.warn('Supabase initialization failed, proceeding without authentication:', err);
     }
-
-    // Initialize everything when the document is ready
-    $(document).ready(function(){
-        // Hero Slider
-        $('.hero').slick({
-            rtl: true,
-            dots: true,
-            arrows: false,
-            infinite: true,
-            speed: 500,
-            fade: true,
-            cssEase: 'linear',
-            autoplay: true,
-            autoplaySpeed: 5000
-        });
-        
-        // Testimonial Slider
-        $('.testimonial-slider').slick({
-            rtl: true,
-            dots: true,
-            arrows: false,
-            infinite: true,
-            speed: 500,
-            slidesToShow: 1,
-            slidesToScroll: 1,
-            autoplay: true,
-            autoplaySpeed: 6000
-        });
-        
-        // Initialize modals
-        addAuthModalToDOM();
-        
-        // Auth modal triggers
-        $('.show-login').on('click', function(e){
-            e.preventDefault();
-            showAuthModal('login');
-        });
-        
-        $('.show-register').on('click', function(e){
-            e.preventDefault();
-            showAuthModal('register');
-        });
-        
-        // Initialize managers
-        window.productManager = new ProductManager();
-        window.membershipManager = new MembershipManager();
-        window.cartManager = new CartManager();
-        
-        // Initialize Supabase
-        initSupabase();
-        
-        // Check user authentication
-        checkUserLogin();
-
-        // Replace login form handler with admin-enabled version
-        enhancedLoginHandler();
-        
-        // Initialize pagination for products
-        setupPagination();
-        
-        // Back to top button functionality
-        $(window).scroll(function(){
-            if ($(this).scrollTop() > 300) {
-                $('.back-to-top').fadeIn();
-            } else {
-                $('.back-to-top').fadeOut();
-            }
-        });
-        
-        $('.back-to-top').on('click', function(){
-            $('html, body').animate({scrollTop: 0}, 500);
-            return false;
-        });
-
-        // Network status check
-        window.addEventListener('online', checkNetworkConnection);
-        window.addEventListener('offline', checkNetworkConnection);
-        checkNetworkConnection();
-    });
 });
 
 // Auth Helper Functions
@@ -601,70 +522,65 @@ function clearAuthErrors() {
 }
 
 function checkUserLogin() {
-    const user = localStorage.getItem('user');
-    if (user) {
-        try {
-            const userData = JSON.parse(user);
-            updateUserUI(userData);
-            return userData;
-        } catch (e) {
-            console.error('Error parsing user data:', e);
-            localStorage.removeItem('user');
-            updateUserUI(null);
-        }
-    } else {
-        updateUserUI(null);
+    const userData = localStorage.getItem('user');
+    if(userData) {
+        updateUserUI(JSON.parse(userData));
     }
-    return null;
 }
 
 function updateUserUI(userData) {
-    if (userData) {
+    if(userData) {
+        // User is logged in
+        const { name, isVIP } = userData;
+        
+        // Update header
         $('.auth-links').html(`
-            <div class="user-greeting">
-                שלום, <span class="user-name">${userData.name}</span>
+            <div class="user-dropdown">
+                <span class="user-greeting">שלום, ${name}</span>
+                ${isVIP ? '<span class="vip-badge">VIP</span>' : ''}
+                <i class="fas fa-chevron-down"></i>
                 <div class="user-menu">
-                    <div class="user-menu-item" data-action="profile">הפרופיל שלי</div>
-                    <div class="user-menu-item" data-action="orders">ההזמנות שלי</div>
-                    <div class="user-menu-item" data-action="wishlist">רשימת משאלות</div>
-                    <div class="user-menu-item" data-action="settings">הגדרות</div>
-                    <div class="user-menu-divider"></div>
-                    <div class="user-menu-item logout" data-action="logout">התנתקות</div>
+                    <div class="user-menu-item">
+                        <a href="/profile" class="user-menu-link">
+                            <i class="fas fa-user"></i>
+                            הפרופיל שלי
+                        </a>
+                    </div>
+                    <div class="user-menu-item">
+                        <a href="/orders" class="user-menu-link">
+                            <i class="fas fa-box"></i>
+                            ההזמנות שלי
+                        </a>
+                    </div>
+                    <div class="user-menu-item">
+                        <a href="/wishlist" class="user-menu-link">
+                            <i class="fas fa-heart"></i>
+                            המועדפים שלי
+                        </a>
+                    </div>
+                    ${isVIP ? `
+                    <div class="user-menu-item">
+                        <a href="/vip" class="user-menu-link">
+                            <i class="fas fa-crown"></i>
+                            הטבות VIP
+                        </a>
+                    </div>
+                    ` : ''}
+                    <div class="user-menu-item">
+                        <a href="#" class="user-menu-link logout-btn">
+                            <i class="fas fa-sign-out-alt"></i>
+                            התנתקות
+                        </a>
+                    </div>
                 </div>
             </div>
         `);
-        
-        // Attach event handlers
-        $('.user-menu-item').on('click', function() {
-            const action = $(this).data('action');
-            if (action === 'logout') {
-                localStorage.removeItem('user');
-                updateUserUI(null);
-                return;
-            }
-            
-            // Handle other menu actions (for now just show notification)
-            showNotification(`הפונקציה "${$(this).text()}" תהיה זמינה בקרוב`, 'info');
-        });
-        
-        // Check if user is admin
-        checkAdminLogin(userData);
     } else {
+        // User is logged out
         $('.auth-links').html(`
             <a href="#" class="show-login">התחברות</a>
             <a href="#" class="show-register">הרשמה</a>
         `);
-        
-        // Reattach event handlers for modals
-        $('.show-login').on('click', function(e) {
-            e.preventDefault();
-            showAuthModal('login');
-        });
-        
-        $('.show-register').on('click', function(e) {
-            e.preventDefault();
-            showAuthModal('register');
-        });
     }
 }
 
@@ -1246,457 +1162,3 @@ async function checkEmailAllowed(email) {
         return true; // Fallback to allow if the service is unavailable
     }
 }
-
-// Pagination Variables
-let currentPage = 1;
-const productsPerPage = 8;
-let allProducts = [];
-let filteredProducts = [];
-let totalPages = 0;
-
-// Product Pagination Function
-function setupPagination() {
-    // Load all product data
-    productManager.loadProducts();
-    allProducts = productManager.getAllProducts();
-    filteredProducts = [...allProducts];
-    totalPages = Math.ceil(filteredProducts.length / productsPerPage);
-    
-    renderPagination();
-    loadProductsForPage(currentPage);
-    
-    // Pagination event listeners
-    $(document).on('click', '.pagination-number', function() {
-        const page = parseInt($(this).text());
-        if (page !== currentPage) {
-            currentPage = page;
-            loadProductsForPage(currentPage);
-            renderPagination();
-        }
-    });
-    
-    $(document).on('click', '.next-page:not([disabled])', function() {
-        currentPage++;
-        loadProductsForPage(currentPage);
-        renderPagination();
-    });
-    
-    $(document).on('click', '.prev-page:not([disabled])', function() {
-        currentPage--;
-        loadProductsForPage(currentPage);
-        renderPagination();
-    });
-    
-    // Filter button clicks should reset pagination
-    $('.filter-btn').on('click', function() {
-        const filter = $(this).text().trim();
-        
-        if (filter === 'הכל') {
-            filteredProducts = [...allProducts];
-        } else if (filter === 'מוצרים חדשים') {
-            filteredProducts = allProducts.filter(p => p.badge === 'new');
-        } else if (filter === 'מבצעים') {
-            filteredProducts = allProducts.filter(p => p.badge === 'hot' || p.badge === 'sale');
-        } else if (filter === 'בלעדי ל-VIP') {
-            filteredProducts = allProducts.filter(p => p.badge === 'vip');
-        }
-        
-        totalPages = Math.ceil(filteredProducts.length / productsPerPage);
-        currentPage = 1;
-        renderPagination();
-        loadProductsForPage(currentPage);
-    });
-    
-    // Sort select change
-    $('.sort-select').on('change', function() {
-        const sortMethod = $(this).val();
-        
-        if (sortMethod === 'popularity') {
-            filteredProducts.sort((a, b) => b.popularity - a.popularity);
-        } else if (sortMethod === 'rating') {
-            filteredProducts.sort((a, b) => b.rating - a.rating);
-        } else if (sortMethod === 'price-low') {
-            filteredProducts.sort((a, b) => a.price - b.price);
-        } else if (sortMethod === 'price-high') {
-            filteredProducts.sort((a, b) => b.price - a.price);
-        } else if (sortMethod === 'newest') {
-            filteredProducts.sort((a, b) => new Date(b.date) - new Date(a.date));
-        }
-        
-        loadProductsForPage(currentPage);
-    });
-}
-
-function renderPagination() {
-    const $paginationNumbers = $('.pagination-numbers');
-    $paginationNumbers.empty();
-    
-    // Determine which page numbers to show
-    let startPage = Math.max(1, currentPage - 1);
-    let endPage = Math.min(totalPages, startPage + 2);
-    
-    // Adjust if we're at the end
-    if (endPage - startPage < 2) {
-        startPage = Math.max(1, endPage - 2);
-    }
-    
-    // Previous button
-    $('.prev-page').prop('disabled', currentPage === 1);
-    
-    // Add first page + ellipsis if needed
-    if (startPage > 1) {
-        $paginationNumbers.append(`<button class="pagination-number ${1 === currentPage ? 'active' : ''}">1</button>`);
-        if (startPage > 2) {
-            $paginationNumbers.append('<span class="pagination-ellipsis">...</span>');
-        }
-    }
-    
-    // Add page numbers
-    for (let i = startPage; i <= endPage; i++) {
-        $paginationNumbers.append(`<button class="pagination-number ${i === currentPage ? 'active' : ''}">${i}</button>`);
-    }
-    
-    // Add last page + ellipsis if needed
-    if (endPage < totalPages) {
-        if (endPage < totalPages - 1) {
-            $paginationNumbers.append('<span class="pagination-ellipsis">...</span>');
-        }
-        $paginationNumbers.append(`<button class="pagination-number ${totalPages === currentPage ? 'active' : ''}">${totalPages}</button>`);
-    }
-    
-    // Next button
-    $('.next-page').prop('disabled', currentPage === totalPages);
-    
-    // Update the range text
-    const start = (currentPage - 1) * productsPerPage + 1;
-    const end = Math.min(start + productsPerPage - 1, filteredProducts.length);
-    $('.current-range').text(`${start}-${end}`);
-    $('.total-count').text(filteredProducts.length);
-}
-
-function loadProductsForPage(page) {
-    const startIndex = (page - 1) * productsPerPage;
-    const endIndex = startIndex + productsPerPage;
-    const productsToShow = filteredProducts.slice(startIndex, endIndex);
-    
-    // Clear the products grid
-    $('.products-grid').empty();
-    
-    // Add products
-    productsToShow.forEach(product => {
-        const productHTML = createProductCard(product);
-        $('.products-grid').append(productHTML);
-    });
-    
-    // Re-activate hover effects
-    $('.product-card').hover(
-        function(){
-            $(this).find('.product-actions').css('opacity', '1');
-        },
-        function(){
-            $(this).find('.product-actions').css('opacity', '0');
-        }
-    );
-}
-
-function createProductCard(product) {
-    let badgeHTML = '';
-    if (product.badge) {
-        const badgeText = {
-            'new': 'חדש',
-            'hot': 'מבצע',
-            'vip': 'VIP',
-            'sale': 'מבצע'
-        }[product.badge] || '';
-        
-        badgeHTML = `<div class="product-badge ${product.badge}">${badgeText}</div>`;
-    }
-    
-    let priceHTML = `<div class="current-price">₪${product.price.toFixed(2)}</div>`;
-    if (product.oldPrice && product.oldPrice > product.price) {
-        const discount = Math.round((1 - product.price / product.oldPrice) * 100);
-        priceHTML += `
-            <div class="old-price">₪${product.oldPrice.toFixed(2)}</div>
-            <div class="price-discount">-${discount}%</div>
-        `;
-    }
-    
-    // Generate rating stars
-    const fullStars = Math.floor(product.rating);
-    const halfStar = product.rating % 1 >= 0.5;
-    const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
-    
-    let starsHTML = '';
-    for (let i = 0; i < fullStars; i++) {
-        starsHTML += '<i class="fas fa-star"></i>';
-    }
-    if (halfStar) {
-        starsHTML += '<i class="fas fa-star-half-alt"></i>';
-    }
-    for (let i = 0; i < emptyStars; i++) {
-        starsHTML += '<i class="far fa-star"></i>';
-    }
-    
-    return `
-        <div class="product-card" data-product-id="${product.id}">
-            ${badgeHTML}
-            <div class="product-img">
-                <img src="${product.image || '/api/placeholder/300/300'}" alt="${product.name}">
-            </div>
-            <div class="product-actions">
-                <div class="product-action-btn">
-                    <i class="fas fa-heart"></i>
-                </div>
-                <div class="product-action-btn">
-                    <i class="fas fa-eye"></i>
-                </div>
-                <div class="product-action-btn">
-                    <i class="fas fa-exchange-alt"></i>
-                </div>
-            </div>
-            <div class="product-content">
-                <div class="product-category">${product.category || 'קטגוריה'}</div>
-                <h3 class="product-title">${product.name}</h3>
-                <div class="product-rating">
-                    <div class="rating-stars">
-                        ${starsHTML}
-                    </div>
-                    <div class="rating-count">(${product.ratingCount || 0})</div>
-                </div>
-                <div class="product-price">
-                    ${priceHTML}
-                </div>
-                <button class="add-to-cart">הוסף לסל</button>
-            </div>
-        </div>
-    `;
-}
-
-// Admin Functionality
-function setupAdminFunctionality() {
-    // Admin tab switching
-    $('.admin-tab').on('click', function() {
-        const tabId = $(this).data('tab');
-        
-        $('.admin-tab').removeClass('active');
-        $(this).addClass('active');
-        
-        $('.admin-tab-content').removeClass('active');
-        $(`#${tabId}-tab`).addClass('active');
-    });
-    
-    // Product form controls
-    $('#add-product-btn').on('click', function() {
-        $('#product-form').slideDown();
-    });
-    
-    $('#cancel-product-btn').on('click', function() {
-        $('#product-form').slideUp();
-        $('#new-product-form')[0].reset();
-    });
-    
-    // Add new product
-    $('#new-product-form').on('submit', function(e) {
-        e.preventDefault();
-        
-        const product = {
-            id: Date.now().toString(),
-            name: $('#product-name').val(),
-            category: $('#product-category option:selected').text(),
-            price: parseFloat($('#product-price').val()),
-            oldPrice: $('#product-old-price').val() ? parseFloat($('#product-old-price').val()) : null,
-            badge: $('#product-badge').val() || null,
-            description: $('#product-description').val(),
-            image: '/api/placeholder/300/300', // In a real app, would handle image upload
-            stock: parseInt($('#product-stock').val()),
-            rating: 0,
-            ratingCount: 0,
-            date: new Date().toISOString(),
-            popularity: 0
-        };
-        
-        productManager.addProduct(product);
-        allProducts = productManager.getAllProducts();
-        filteredProducts = [...allProducts];
-        totalPages = Math.ceil(filteredProducts.length / productsPerPage);
-        
-        renderPagination();
-        loadProductsForPage(currentPage);
-        loadAdminProductsTable();
-        
-        $('#product-form').slideUp();
-        $('#new-product-form')[0].reset();
-        
-        showNotification('המוצר נוסף בהצלחה!', 'success');
-    });
-    
-    // Load products table in admin view
-    loadAdminProductsTable();
-    
-    // Admin logout
-    $('#admin-logout').on('click', function(e) {
-        e.preventDefault();
-        logoutAdmin();
-    });
-}
-
-function loadAdminProductsTable() {
-    const products = productManager.getAllProducts();
-    const $tableBody = $('#products-table-body');
-    $tableBody.empty();
-    
-    products.forEach(product => {
-        const statusClass = product.stock > 0 ? 'text-success' : 'text-danger';
-        const statusText = product.stock > 0 ? 'במלאי' : 'אזל מהמלאי';
-        
-        $tableBody.append(`
-            <tr data-product-id="${product.id}">
-                <td><img src="${product.image}" alt="${product.name}" width="50"></td>
-                <td>${product.name}</td>
-                <td>${product.category}</td>
-                <td>₪${product.price.toFixed(2)}</td>
-                <td>${product.stock}</td>
-                <td class="${statusClass}">${statusText}</td>
-                <td class="admin-actions">
-                    <button class="admin-action-btn edit"><i class="fas fa-edit"></i></button>
-                    <button class="admin-action-btn delete"><i class="fas fa-trash"></i></button>
-                </td>
-            </tr>
-        `);
-    });
-    
-    // Attach event handlers to the edit and delete buttons
-    $('.admin-action-btn.edit').on('click', function() {
-        const productId = $(this).closest('tr').data('product-id');
-        // Implementation would open the form for editing
-        showNotification('פונקציונליות עריכה תהיה זמינה בקרוב', 'info');
-    });
-    
-    $('.admin-action-btn.delete').on('click', function() {
-        const productId = $(this).closest('tr').data('product-id');
-        if (confirm('האם אתה בטוח שברצונך למחוק מוצר זה?')) {
-            productManager.deleteProduct(productId);
-            
-            // Refresh all product related views
-            allProducts = productManager.getAllProducts();
-            filteredProducts = [...allProducts];
-            totalPages = Math.ceil(filteredProducts.length / productsPerPage);
-            
-            if (currentPage > totalPages) {
-                currentPage = Math.max(1, totalPages);
-            }
-            
-            renderPagination();
-            loadProductsForPage(currentPage);
-            loadAdminProductsTable();
-            
-            showNotification('המוצר נמחק בהצלחה', 'success');
-        }
-    });
-}
-
-// Admin Authentication
-const ADMIN_EMAIL = 'liad1111@gmail.com';
-
-function checkAdminLogin(userData) {
-    if (userData && userData.email === ADMIN_EMAIL) {
-        showAdminPage();
-        return true;
-    }
-    return false;
-}
-
-function showAdminPage() {
-    // Hide regular content
-    $('header, main, footer, .back-to-top').hide();
-    
-    // Show admin page
-    $('#admin-page').show();
-    
-    // Setup admin functionality
-    setupAdminFunctionality();
-    
-    // Add class to body
-    $('body').addClass('admin-mode');
-}
-
-function logoutAdmin() {
-    // Clear authentication
-    localStorage.removeItem('user');
-    
-    // Show regular content
-    $('header, main, footer, .back-to-top').show();
-    
-    // Hide admin page
-    $('#admin-page').hide();
-    
-    // Remove admin class
-    $('body').removeClass('admin-mode');
-    
-    // Update UI
-    updateUserUI(null);
-}
-
-// Enhanced login function to support admin login
-function enhancedLoginHandler() {
-    $('#login-form').on('submit', function(e) {
-        e.preventDefault();
-        
-        const email = $('#login-email').val();
-        const password = $('#login-password').val();
-        
-        if (!isValidEmail(email)) {
-            showAuthError('login', 'נא להזין כתובת אימייל תקינה');
-            return;
-        }
-        
-        if (password.length < 6) {
-            showAuthError('login', 'הסיסמה חייבת להכיל לפחות 6 תווים');
-            return;
-        }
-        
-        // Simulated login for demo purposes
-        // In a real app, this would make an API request to your backend
-        if (email === ADMIN_EMAIL && password === 'admin123') {
-            const userData = {
-                id: 'admin1',
-                name: 'מנהל',
-                email: ADMIN_EMAIL,
-                isAdmin: true
-            };
-            
-            localStorage.setItem('user', JSON.stringify(userData));
-            hideAuthModal();
-            updateUserUI(userData);
-            showNotification('התחברת בהצלחה כמנהל', 'success');
-        } else {
-            // Regular user login logic
-            const memberByEmail = membershipManager.getMemberByEmail(email);
-            
-            if (memberByEmail && memberByEmail.password === password) {
-                localStorage.setItem('user', JSON.stringify(memberByEmail));
-                hideAuthModal();
-                updateUserUI(memberByEmail);
-                showNotification('התחברת בהצלחה', 'success');
-            } else {
-                showAuthError('login', 'שם משתמש או סיסמה שגויים');
-            }
-        }
-    });
-}
-
-// Replace the current login form handler with the enhanced one
-$(document).ready(function(){
-    // ... existing initializations ...
-    
-    // Initialize pagination
-    setupPagination();
-    
-    // Check if user is already logged in
-    checkUserLogin();
-    
-    // Setup login form handler with admin support
-    enhancedLoginHandler();
-    
-    // ... rest of your initialization code ...
-});
