@@ -1273,6 +1273,7 @@
   }
   
   .vip-title {
+    margin-right: 320px;
     color: var(--vip-color);
     margin-bottom: 1.5rem;
     font-size: 2.5rem;
