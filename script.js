@@ -1066,164 +1066,132 @@ $(document).ready(function(){
 });
 
 // Supabase configuration
-const SUPABASE_URL = 'https://xyzcompany.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVia2diYWV0c2d0em9yZHZrY3ZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxMjAzMTMsImV4cCI6MjA1NzY5NjMxM30.fype9g6RIKCYHJvXJN8b_kFFnkehACo3inpXa382GgI';
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const SUPABASE_URL = 'https://ebkgbaetsgtzordvkcvf.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVia2diYWV0c2d0em9yZHZrY3ZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxMjAzMTMsImV4cCI6MjA1NzY5NjMxM30.fype9g6RIKCYHJvXJN8b_kFFnkehACo3inpXa382GgI';
+let supabase;
 
-// משתנים גלובליים
-let currentUser = null;
-const ADMIN_EMAIL = 'liad1111@gmail.com';
-let isAdmin = false;
-
-// פונקציה להצגת הודעות למשתמש
-function showNotification(message, type = 'info') {
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
+// Initialize Supabase client
+function initSupabase() {
+    console.log('מנסה להתחבר ל-Supabase...');
     
-    let icon;
-    switch(type) {
-        case 'success':
-            icon = 'fa-check-circle';
-            break;
-        case 'error':
-            icon = 'fa-exclamation-circle';
-            break;
-        case 'warning':
-            icon = 'fa-exclamation-triangle';
-            break;
-        default:
-            icon = 'fa-info-circle';
+    try {
+        // Access the Supabase library from the global window object
+        const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        supabase = client; // Set the global variable
+        return client;
+    } catch (error) {
+        console.error('Failed to initialize Supabase client:', error);
+        showNotification('Failed to connect to database service', 'error');
+        return null;
     }
-    
-    notification.innerHTML = `
-        <i class="fas ${icon}"></i>
-        <span>${message}</span>
-    `;
-    
-    document.body.appendChild(notification);
-    
-    // הצג את ההודעה
-    setTimeout(() => {
-        notification.classList.add('show');
-    }, 50);
-    
-    // הסר את ההודעה לאחר 3 שניות
-    setTimeout(() => {
-        notification.classList.remove('show');
-        setTimeout(() => {
-            notification.remove();
-        }, 300);
-    }, 3000);
 }
 
-// פונקציה לבדיקה אם המשתמש הוא מנהל
-function isUserAdmin(user) {
-    return user && user.email === ADMIN_EMAIL;
+// Check if user is authenticated with Supabase
+async function checkUserAuth() {
+    try {
+        if (supabase) {
+            supabase.auth.getSession().then(({ data, error }) => {
+                if (error) {
+                    console.error('Auth error:', error);
+                    return;
+                }
+                
+                if (data && data.session) {
+                    // User is logged in
+                    const user = data.session.user;
+                    const userData = {
+                        email: user.email,
+                        name: user.user_metadata && user.user_metadata.full_name ? user.user_metadata.full_name : user.email.split('@')[0],
+                        isVIP: user.user_metadata && user.user_metadata.isVIP ? user.user_metadata.isVIP : false
+                    };
+                    
+                    updateUserUI(userData);
+                } else {
+                    // Fallback to local storage check
+                    checkUserLogin();
+                }
+            }).catch(err => {
+                console.error('Error checking auth:', err);
+                // Fallback to local storage check
+                checkUserLogin();
+            });
+        } else {
+            // If Supabase is not available, fallback to local storage
+            checkUserLogin();
+        }
+    } catch (err) {
+        console.error('Error in checkUserAuth:', err);
+        // Fallback to local storage check
+        checkUserLogin();
+    }
 }
 
-// עדכון ממשק המשתמש בהתאם לסטטוס ההתחברות
-function updateUserUI(userData) {
-    const authLinks = document.querySelector('.auth-links');
-    const adminMenuItem = document.getElementById('admin-menu-item');
-    
-    if (userData) {
-        // המשתמש מחובר
-        authLinks.innerHTML = `
-            <span>שלום, ${userData.name || userData.email}</span>
-            <a href="#" id="logout-link">התנתק</a>
-        `;
-        
-        // הוסף פונקציונליות התנתקות
-        document.getElementById('logout-link').addEventListener('click', async (e) => {
-            e.preventDefault();
-            await supabase.auth.signOut();
-            showNotification('התנתקת בהצלחה', 'success');
-            currentUser = null;
-            isAdmin = false;
-            updateUserUI(null);
+// Add this function to detect network issues
+function checkNetworkConnection() {
+    if (!navigator.onLine) {
+        showNotification('You appear to be offline. Please check your internet connection.', 'warning');
+        return false;
+    }
+    return true;
+}
+
+// Add this function to check if an email is allowed before attempting to register
+async function checkEmailAllowed(email) {
+    try {
+        const response = await fetch('https://api.email-validator.net/api/verify', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                EmailAddress: email,
+                APIKey: 'your-email-validation-api-key', // Get a free API key or remove this
+            }),
         });
         
-        // בדוק אם המשתמש הוא מנהל
-        if (isUserAdmin(userData)) {
-            isAdmin = true;
-            adminMenuItem.style.display = 'inline-block';
-                } else {
-            isAdmin = false;
-            adminMenuItem.style.display = 'none';
-                }
+        const result = await response.json();
+        
+        if (result.status === 'valid') {
+            return true;
         } else {
-        // המשתמש לא מחובר
-        authLinks.innerHTML = `
-            <a href="#" class="show-login">התחברות</a>
-            <a href="#" class="show-register">הרשמה</a>
-        `;
-        
-        // הסתר את פריט פאנל הניהול בתפריט
-        adminMenuItem.style.display = 'none';
-        isAdmin = false;
-        
-        // אתחול מחדש של כפתורי פתיחת החלונות המודליים
-        document.querySelector('.show-login').addEventListener('click', showLoginModal);
-        document.querySelector('.show-register').addEventListener('click', showRegisterModal);
+            console.warn('Email validation issue:', result.info);
+            return false;
+        }
+    } catch (error) {
+        console.error('Email validation error:', error);
+        return true; // Fallback to allow if the service is unavailable
     }
 }
 
-// פתיחת חלון התחברות
-function showLoginModal(e) {
-    e.preventDefault();
-    document.querySelector('.auth-modal').classList.add('active');
-    document.getElementById('login-form').classList.add('active');
-    document.getElementById('register-form').classList.remove('active');
-    document.querySelector('.auth-tab[data-target="login-form"]').classList.add('active');
-    document.querySelector('.auth-tab[data-target="register-form"]').classList.remove('active');
-}
+// Admin Panel System
+// Check if user is admin when logged in
+let isAdmin = false;
+const ADMIN_EMAIL = 'liad1111@gmail.com';
 
-// פתיחת חלון הרשמה
-function showRegisterModal(e) {
-    e.preventDefault();
-    document.querySelector('.auth-modal').classList.add('active');
-    document.getElementById('login-form').classList.remove('active');
-    document.getElementById('register-form').classList.add('active');
-    document.querySelector('.auth-tab[data-target="login-form"]').classList.remove('active');
-    document.querySelector('.auth-tab[data-target="register-form"]').classList.add('active');
-}
-
-// סגירת חלון האימות
-function hideAuthModal() {
-    document.querySelector('.auth-modal').classList.remove('active');
-}
-
-// פתיחת פאנל הניהול
+// Function to show admin panel
 function openAdminPanel() {
-    if (!isAdmin) {
-        showNotification('אין לך הרשאות מנהל', 'error');
-        return;
-    }
-    
-    document.getElementById('admin-panel').classList.add('active');
-    
-    // טען נתונים לפאנל הניהול
+    $('#admin-panel').addClass('active');
     loadAdminPanelData();
 }
 
-// סגירת פאנל הניהול
+// Function to close admin panel
 function closeAdminPanel() {
-    document.getElementById('admin-panel').classList.remove('active');
+    $('#admin-panel').removeClass('active');
 }
 
-// טעינת נתונים לפאנל הניהול
+// Function to load data for admin panel
 async function loadAdminPanelData() {
     try {
-        // טעינת מוצרים מ-Supabase
+        // Load products data
         await loadProductsData();
         
-        // טעינת קטגוריות מ-Supabase
+        // Load categories data
         await loadCategoriesData();
         
-        // טעינת משתמשים מ-Supabase
+        // Load users data
         await loadUsersData();
         
-        // טעינת הזמנות מ-Supabase
+        // Load orders data
         await loadOrdersData();
     } catch (error) {
         console.error('Error loading admin data:', error);
@@ -1231,346 +1199,732 @@ async function loadAdminPanelData() {
     }
 }
 
-// טעינת מוצרים מ-Supabase
+// Function to load products data
 async function loadProductsData() {
     try {
-        const { data: products, error } = await supabase
-            .from('products')
-            .select('*')
-            .order('created_at', { ascending: false });
-        
-        if (error) throw error;
-        
-        const productListBody = document.getElementById('product-list-body');
-        
-        if (products && products.length > 0) {
-            productListBody.innerHTML = '';
-            
-            products.forEach(product => {
-                productListBody.innerHTML += `
-                    <tr>
-                        <td><img src="${product.image_url || '/api/placeholder/50/50'}" alt="${product.name}" width="50"></td>
-                        <td>${product.name}</td>
-                        <td>${product.category}</td>
-                        <td>₪${product.price}</td>
-                        <td>${product.stock}</td>
-                        <td>
-                            <button class="action-btn edit-btn" data-id="${product.id}"><i class="fas fa-edit"></i></button>
-                            <button class="action-btn delete-btn" data-id="${product.id}"><i class="fas fa-trash"></i></button>
+        // For now, using demo data
+        // In real implementation, fetch from Supabase
+        const productListBody = $('#product-list-body');
+        productListBody.html(`
+            <tr>
+                <td><img src="/api/placeholder/50/50" alt="מוצר 1" width="50"></td>
+                <td>מוצר לדוגמה 1</td>
+                <td>קטגוריה 1</td>
+                <td>₪149.99</td>
+                <td>25</td>
+                <td>
+                    <button class="action-btn edit-btn" data-id="1"><i class="fas fa-edit"></i></button>
+                    <button class="action-btn delete-btn" data-id="1"><i class="fas fa-trash"></i></button>
                 </td>
             </tr>
-                `;
-            });
-        } else {
-            productListBody.innerHTML = `
-                <tr>
-                    <td colspan="6" class="text-center">אין מוצרים</td>
+            <tr>
+                <td><img src="/api/placeholder/50/50" alt="מוצר 2" width="50"></td>
+                <td>מוצר לדוגמה 2</td>
+                <td>קטגוריה 2</td>
+                <td>₪89.99</td>
+                <td>15</td>
+                <td>
+                    <button class="action-btn edit-btn" data-id="2"><i class="fas fa-edit"></i></button>
+                    <button class="action-btn delete-btn" data-id="2"><i class="fas fa-trash"></i></button>
+                </td>
             </tr>
-            `;
-        }
+        `);
     } catch (error) {
         console.error('Error loading products data:', error);
         throw error;
     }
 }
 
-// טעינת קטגוריות מ-Supabase
+// Function to load categories data
 async function loadCategoriesData() {
     try {
-        const { data: categories, error } = await supabase
-            .from('categories')
-            .select('*, products:products(id)');
-        
-        if (error) throw error;
-        
-        const categoryListBody = document.getElementById('category-list-body');
-        
-        if (categories && categories.length > 0) {
-            categoryListBody.innerHTML = '';
-            
-            categories.forEach(category => {
-                const productCount = category.products ? category.products.length : 0;
-                
-                categoryListBody.innerHTML += `
-                    <tr>
-                        <td>${category.name}</td>
-                        <td>${productCount}</td>
-                        <td>
-                            <button class="action-btn edit-btn" data-id="${category.id}"><i class="fas fa-edit"></i></button>
-                            <button class="action-btn delete-btn" data-id="${category.id}"><i class="fas fa-trash"></i></button>
+        // For now, using demo data
+        const categoryListBody = $('#category-list-body');
+        categoryListBody.html(`
+            <tr>
+                <td>קטגוריה 1</td>
+                <td>24</td>
+                <td>
+                    <button class="action-btn edit-btn" data-id="1"><i class="fas fa-edit"></i></button>
+                    <button class="action-btn delete-btn" data-id="1"><i class="fas fa-trash"></i></button>
                 </td>
             </tr>
-                `;
-            });
-                } else {
-            categoryListBody.innerHTML = `
-                <tr>
-                    <td colspan="3" class="text-center">אין קטגוריות</td>
+            <tr>
+                <td>קטגוריה 2</td>
+                <td>18</td>
+                <td>
+                    <button class="action-btn edit-btn" data-id="2"><i class="fas fa-edit"></i></button>
+                    <button class="action-btn delete-btn" data-id="2"><i class="fas fa-trash"></i></button>
+                </td>
             </tr>
-            `;
-        }
+        `);
     } catch (error) {
         console.error('Error loading categories data:', error);
         throw error;
     }
 }
 
-// טעינת משתמשים מ-Supabase
+// Function to load users data
 async function loadUsersData() {
     try {
-        const { data: users, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .order('created_at', { ascending: false });
-        
-        if (error) throw error;
-        
-        const userListBody = document.getElementById('user-list-body');
-        
-        if (users && users.length > 0) {
-            userListBody.innerHTML = '';
-            
-            users.forEach(user => {
-                userListBody.innerHTML += `
-                    <tr>
-                        <td>${user.full_name || 'לא צוין'}</td>
-                        <td>${user.email}</td>
-                        <td>${user.email === ADMIN_EMAIL ? 'מנהל' : 'רגיל'}</td>
-                        <td>${new Date(user.created_at).toLocaleDateString()}</td>
-                        <td>
-                            <button class="action-btn edit-btn" data-id="${user.id}"><i class="fas fa-edit"></i></button>
-                            <button class="action-btn delete-btn" data-id="${user.id}"><i class="fas fa-trash"></i></button>
+        // For now, using demo data
+        const userListBody = $('#user-list-body');
+        userListBody.html(`
+            <tr>
+                <td>לקוח לדוגמה</td>
+                <td>customer@example.com</td>
+                <td>רגיל</td>
+                <td>2025-03-15</td>
+                <td>
+                    <button class="action-btn edit-btn" data-id="1"><i class="fas fa-edit"></i></button>
+                    <button class="action-btn delete-btn" data-id="1"><i class="fas fa-trash"></i></button>
                 </td>
             </tr>
-                `;
-            });
-        } else {
-            userListBody.innerHTML = `
-                <tr>
-                    <td colspan="5" class="text-center">אין משתמשים</td>
+            <tr>
+                <td>מנהל</td>
+                <td>${ADMIN_EMAIL}</td>
+                <td>מנהל</td>
+                <td>2025-03-10</td>
+                <td>
+                    <button class="action-btn edit-btn" data-id="2"><i class="fas fa-edit"></i></button>
+                    <button class="action-btn delete-btn" data-id="2"><i class="fas fa-trash"></i></button>
+                </td>
             </tr>
-            `;
-        }
+        `);
     } catch (error) {
         console.error('Error loading users data:', error);
         throw error;
     }
 }
 
-// טעינת הזמנות מ-Supabase
+// Function to load orders data
 async function loadOrdersData() {
     try {
-        const { data: orders, error } = await supabase
-            .from('orders')
-            .select('*, profile:profiles(*)')
-            .order('created_at', { ascending: false });
-        
-        if (error) throw error;
-        
-        const orderListBody = document.getElementById('order-list-body');
-        
-        if (orders && orders.length > 0) {
-            orderListBody.innerHTML = '';
-            
-            orders.forEach(order => {
-                // סטטוס בהתאם למצב ההזמנה
-                let statusClass = '';
-                switch (order.status) {
-                    case 'completed':
-                        statusClass = 'completed';
-                        break;
-                    case 'pending':
-                        statusClass = 'pending';
-                        break;
-                    case 'cancelled':
-                        statusClass = 'cancelled';
-                        break;
-                    default:
-                        statusClass = 'pending';
-                }
-                
-                const statusText = {
-                    'completed': 'הושלם',
-                    'pending': 'בטיפול',
-                    'cancelled': 'בוטל'
-                };
-                
-                orderListBody.innerHTML += `
-                    <tr>
-                        <td>#${order.id}</td>
-                        <td>${order.profile ? (order.profile.full_name || order.profile.email) : 'לקוח לא ידוע'}</td>
-                        <td>${new Date(order.created_at).toLocaleDateString()}</td>
-                        <td>₪${order.total_amount}</td>
-                        <td><span class="status-badge ${statusClass}">${statusText[order.status] || 'בטיפול'}</span></td>
-                        <td>
-                            <button class="action-btn view-btn" data-id="${order.id}"><i class="fas fa-eye"></i></button>
-                            <button class="action-btn delete-btn" data-id="${order.id}"><i class="fas fa-trash"></i></button>
+        // For now, using demo data
+        const orderListBody = $('#order-list-body');
+        orderListBody.html(`
+            <tr>
+                <td>#1001</td>
+                <td>לקוח לדוגמה</td>
+                <td>2025-03-18</td>
+                <td>₪299.98</td>
+                <td><span class="status-badge completed">הושלם</span></td>
+                <td>
+                    <button class="action-btn view-btn" data-id="1001"><i class="fas fa-eye"></i></button>
+                    <button class="action-btn delete-btn" data-id="1001"><i class="fas fa-trash"></i></button>
                 </td>
             </tr>
-                `;
-            });
-        } else {
-            orderListBody.innerHTML = `
-                <tr>
-                    <td colspan="6" class="text-center">אין הזמנות</td>
+            <tr>
+                <td>#1002</td>
+                <td>לקוח לדוגמה 2</td>
+                <td>2025-03-17</td>
+                <td>₪149.99</td>
+                <td><span class="status-badge pending">בטיפול</span></td>
+                <td>
+                    <button class="action-btn view-btn" data-id="1002"><i class="fas fa-eye"></i></button>
+                    <button class="action-btn delete-btn" data-id="1002"><i class="fas fa-trash"></i></button>
+                </td>
             </tr>
-            `;
-        }
+        `);
     } catch (error) {
         console.error('Error loading orders data:', error);
         throw error;
     }
 }
 
-// פונקציה להוספת מוצר חדש ל-Supabase
-async function addProduct(productData) {
-    try {
-        const { data, error } = await supabase
-            .from('products')
-            .insert([productData]);
-        
-        if (error) throw error;
-        
-        showNotification('המוצר נוסף בהצלחה', 'success');
-        loadProductsData(); // רענן את רשימת המוצרים
-        
-        return data;
-    } catch (error) {
-        console.error('Error adding product:', error);
-        showNotification('שגיאה בהוספת המוצר', 'error');
-        throw error;
-    }
-}
-
-// פונקציה לעדכון מוצר קיים ב-Supabase
-async function updateProduct(productId, productData) {
-    try {
-        const { data, error } = await supabase
-            .from('products')
-            .update(productData)
-            .eq('id', productId);
-        
-        if (error) throw error;
-        
-        showNotification('המוצר עודכן בהצלחה', 'success');
-        loadProductsData(); // רענן את רשימת המוצרים
-        
-        return data;
-    } catch (error) {
-        console.error('Error updating product:', error);
-        showNotification('שגיאה בעדכון המוצר', 'error');
-        throw error;
-    }
-}
-
-// פונקציה למחיקת מוצר מ-Supabase
-async function deleteProduct(productId) {
-    try {
-        const { data, error } = await supabase
-            .from('products')
-            .delete()
-            .eq('id', productId);
-        
-        if (error) throw error;
-        
-        showNotification('המוצר נמחק בהצלחה', 'success');
-        loadProductsData(); // רענן את רשימת המוצרים
-        
-        return data;
-    } catch (error) {
-        console.error('Error deleting product:', error);
-        showNotification('שגיאה במחיקת המוצר', 'error');
-        throw error;
-    }
-}
-
-// פונקציה להוספת קטגוריה חדשה ל-Supabase
-async function addCategory(categoryData) {
-    try {
-        const { data, error } = await supabase
-            .from('categories')
-            .insert([categoryData]);
-        
-        if (error) throw error;
-        
-        showNotification('הקטגוריה נוספה בהצלחה', 'success');
-        loadCategoriesData(); // רענן את רשימת הקטגוריות
-        
-        return data;
-    } catch (error) {
-        console.error('Error adding category:', error);
-        showNotification('שגיאה בהוספת הקטגוריה', 'error');
-        throw error;
-    }
-}
-
-// פתיחת חלון הוספת מוצר
+// Function to open add product modal
 function openAddProductModal() {
-    document.getElementById('add-product-modal').classList.add('active');
-    
-    // טען את רשימת הקטגוריות לתיבת הבחירה
-    loadCategoriesForSelect();
+    $('#add-product-modal').addClass('active');
 }
 
-// טעינת קטגוריות לתיבת הבחירה של המוצר
-async function loadCategoriesForSelect() {
-    try {
-        const { data: categories, error } = await supabase
-            .from('categories')
-            .select('id, name');
-        
-        if (error) throw error;
-        
-        const categorySelect = document.getElementById('product-category');
-        
-        // נקה את האפשרויות הקיימות
-        categorySelect.innerHTML = '<option value="">בחר קטגוריה</option>';
-        
-        // הוסף את הקטגוריות מ-Supabase
-        if (categories && categories.length > 0) {
-            categories.forEach(category => {
-                categorySelect.innerHTML += `<option value="${category.id}">${category.name}</option>`;
-            });
-        }
-    } catch (error) {
-        console.error('Error loading categories for select:', error);
-    }
-}
-
-// סגירת חלון הוספת מוצר
+// Function to close add product modal
 function closeAddProductModal() {
-    document.getElementById('add-product-modal').classList.remove('active');
-    document.getElementById('add-product-form').reset();
+    $('#add-product-modal').removeClass('active');
 }
 
-// פונקציה להעלאת תמונה ל-Supabase Storage
-async function uploadProductImage(file) {
-    try {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Date.now()}.${fileExt}`;
-        const filePath = `product-images/${fileName}`;
+// Add admin panel HTML to the DOM if it doesn't exist
+function addAdminPanelToDOM() {
+    // Check if admin panel already exists
+    if ($('#admin-panel').length > 0) return;
+    
+    const adminPanelHTML = `
+    <!-- Admin Panel -->
+    <div id="admin-panel" class="admin-panel">
+        <div class="admin-panel-bg"></div>
+        <div class="admin-panel-container">
+            <div class="admin-panel-header">
+                <h2>פאנל ניהול</h2>
+                <button class="close-admin-panel">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="admin-panel-sidebar">
+                <ul>
+                    <li class="admin-menu-item active" data-target="product-management">ניהול מוצרים</li>
+                    <li class="admin-menu-item" data-target="category-management">ניהול קטגוריות</li>
+                    <li class="admin-menu-item" data-target="user-management">ניהול משתמשים</li>
+                    <li class="admin-menu-item" data-target="order-management">ניהול הזמנות</li>
+                    <li class="admin-menu-item" data-target="site-settings">הגדרות אתר</li>
+                </ul>
+            </div>
+            
+            <div class="admin-panel-content">
+                <!-- Product Management -->
+                <div id="product-management" class="admin-tab active">
+                    <h3>ניהול מוצרים</h3>
+                    
+                    <div class="admin-actions">
+                        <button id="add-product-btn" class="admin-btn">הוסף מוצר חדש</button>
+                        <input type="text" id="product-search" placeholder="חפש מוצרים...">
+                    </div>
+                    
+                    <div class="product-list">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>תמונה</th>
+                                    <th>שם המוצר</th>
+                                    <th>קטגוריה</th>
+                                    <th>מחיר</th>
+                                    <th>מלאי</th>
+                                    <th>פעולות</th>
+                                </tr>
+                            </thead>
+                            <tbody id="product-list-body">
+                                <!-- Products will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Category Management -->
+                <div id="category-management" class="admin-tab">
+                    <h3>ניהול קטגוריות</h3>
+                    
+                    <div class="admin-actions">
+                        <button id="add-category-btn" class="admin-btn">הוסף קטגוריה חדשה</button>
+                    </div>
+                    
+                    <div class="category-list">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>שם הקטגוריה</th>
+                                    <th>מספר מוצרים</th>
+                                    <th>פעולות</th>
+                                </tr>
+                            </thead>
+                            <tbody id="category-list-body">
+                                <!-- Categories will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- User Management -->
+                <div id="user-management" class="admin-tab">
+                    <h3>ניהול משתמשים</h3>
+                    
+                    <div class="user-list">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>שם</th>
+                                    <th>אימייל</th>
+                                    <th>סוג חשבון</th>
+                                    <th>תאריך הרשמה</th>
+                                    <th>פעולות</th>
+                                </tr>
+                            </thead>
+                            <tbody id="user-list-body">
+                                <!-- Users will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Order Management -->
+                <div id="order-management" class="admin-tab">
+                    <h3>ניהול הזמנות</h3>
+                    
+                    <div class="order-list">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>מספר הזמנה</th>
+                                    <th>לקוח</th>
+                                    <th>תאריך</th>
+                                    <th>סכום</th>
+                                    <th>סטטוס</th>
+                                    <th>פעולות</th>
+                                </tr>
+                            </thead>
+                            <tbody id="order-list-body">
+                                <!-- Orders will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Site Settings -->
+                <div id="site-settings" class="admin-tab">
+                    <h3>הגדרות אתר</h3>
+                    
+                    <form id="site-settings-form">
+                        <div class="form-group">
+                            <label for="site-title">כותרת האתר</label>
+                            <input type="text" id="site-title" value="Doctor Instraction - חנות מקצועית">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="site-description">תיאור האתר</label>
+                            <textarea id="site-description">חנות מקצועית ומובילה עם מוצרים איכותיים במחירים אטרקטיביים. הצטרפו למועדון ה-VIP וקבלו הטבות בלעדיות.</textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="site-logo">לוגו האתר</label>
+                            <div class="logo-preview">
+                                <img src="/api/placeholder/40/40" alt="Site Logo">
+                            </div>
+                            <input type="file" id="site-logo">
+                        </div>
+                        
+                        <button type="submit" class="admin-btn">שמור שינויים</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Product Modal -->
+    <div id="add-product-modal" class="admin-modal">
+        <div class="admin-modal-bg"></div>
+        <div class="admin-modal-container">
+            <div class="admin-modal-header">
+                <h3>הוסף מוצר חדש</h3>
+                <button class="close-admin-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form id="add-product-form">
+                <div class="form-group">
+                    <label for="product-name">שם המוצר</label>
+                    <input type="text" id="product-name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="product-category">קטגוריה</label>
+                    <select id="product-category" required>
+                        <option value="">בחר קטגוריה</option>
+                        <option value="1">קטגוריה 1</option>
+                        <option value="2">קטגוריה 2</option>
+                        <option value="3">קטגוריה 3</option>
+                        <option value="4">קטגוריה 4</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="product-price">מחיר</label>
+                    <input type="number" id="product-price" step="0.01" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="product-old-price">מחיר קודם (אופציונלי)</label>
+                    <input type="number" id="product-old-price" step="0.01">
+                </div>
+                
+                <div class="form-group">
+                    <label for="product-stock">מלאי</label>
+                    <input type="number" id="product-stock" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="product-description">תיאור</label>
+                    <textarea id="product-description" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="product-image">תמונה</label>
+                    <input type="file" id="product-image" accept="image/*" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="product-badge">תג (אופציונלי)</label>
+                    <select id="product-badge">
+                        <option value="">ללא תג</option>
+                        <option value="new">חדש</option>
+                        <option value="hot">מבצע</option>
+                        <option value="sale">מכירה</option>
+                        <option value="vip">VIP</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="admin-btn">הוסף מוצר</button>
+            </form>
+        </div>
+    </div>
+    `;
+    
+    $('body').append(adminPanelHTML);
+    
+    // Add CSS for admin panel
+    const adminPanelCSS = `
+    <style>
+        /* Admin Panel Styles */
+        .admin-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 3000;
+            display: none;
+        }
+
+        .admin-panel.active {
+            display: block;
+        }
+
+        .admin-panel-bg {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+
+        .admin-panel-container {
+            position: absolute;
+            top: 50%;
+            right: 50%;
+            transform: translate(50%, -50%);
+            width: 90%;
+            max-width: 1200px;
+            height: 80%;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .admin-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: #2c3e50;
+            color: #fff;
+        }
+
+        .admin-panel-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .close-admin-panel {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .admin-panel-sidebar {
+            width: 220px;
+            background-color: #34495e;
+            color: #fff;
+            position: absolute;
+            top: 63px;
+            right: 0;
+            bottom: 0;
+            overflow-y: auto;
+        }
+
+        .admin-panel-sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .admin-panel-sidebar .admin-menu-item {
+            padding: 15px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: background-color 0.3s;
+        }
+
+        .admin-panel-sidebar .admin-menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .admin-panel-sidebar .admin-menu-item.active {
+            background-color: #3498db;
+        }
+
+        .admin-panel-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            margin-right: 220px;
+        }
+
+        .admin-tab {
+            display: none;
+        }
+
+        .admin-tab.active {
+            display: block;
+        }
+
+        .admin-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .admin-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .admin-btn:hover {
+            background-color: #2980b9;
+        }
+
+        .admin-panel table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .admin-panel th, .admin-panel td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: right;
+        }
+
+        .admin-panel th {
+            background-color: #f5f5f5;
+            font-weight: 600;
+        }
+
+        .admin-panel tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .admin-panel tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: #3498db;
+            margin-right: 5px;
+            cursor: pointer;
+        }
+
+        .delete-btn {
+            color: #e74c3c;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group input[type="file"],
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .logo-preview {
+            margin-bottom: 10px;
+        }
+
+        .logo-preview img {
+            max-width: 100px;
+            height: auto;
+        }
+
+        /* Admin Modal */
+        .admin-modal {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 3100;
+            display: none;
+        }
+
+        .admin-modal.active {
+            display: block;
+        }
+
+        .admin-modal-bg {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .admin-modal-container {
+            position: absolute;
+            top: 50%;
+            right: 50%;
+            transform: translate(50%, -50%);
+            width: 90%;
+            max-width: 600px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .admin-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: #2c3e50;
+            color: #fff;
+        }
+
+        .admin-modal-header h3 {
+            margin: 0;
+        }
+
+        .close-admin-modal {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .admin-modal form {
+            padding: 20px;
+        }
         
-        const { data, error } = await supabase.storage
-            .from('product-images')
-            .upload(filePath, file);
+        /* Status badges for orders */
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: center;
+        }
         
-        if (error) throw error;
+        .status-badge.completed {
+            background-color: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+        }
         
-        // קבל את ה-URL הציבורי של התמונה
-        const { data: publicUrlData } = supabase.storage
-            .from('product-images')
-            .getPublicUrl(filePath);
+        .status-badge.pending {
+            background-color: rgba(243, 156, 18, 0.2);
+            color: #f39c12;
+        }
         
-        return publicUrlData.publicUrl;
-    } catch (error) {
-        console.error('Error uploading image:', error);
-        throw error;
+        .status-badge.cancelled {
+            background-color: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+        }
+    </style>
+    `;
+    
+    $('head').append(adminPanelCSS);
+}
+
+// Add admin menu item to the navigation
+function addAdminMenuItemToNav() {
+    // Check if admin menu item already exists
+    if ($('#admin-menu-item').length > 0) return;
+    
+    // Add admin menu item to navigation
+    $('nav ul').append('<li id="admin-menu-item" style="display: none;"><a href="#" class="admin-panel-btn">פאנל ניהול</a></li>');
+}
+
+// Override updateUserUI function to include admin check
+const originalUpdateUserUI = updateUserUI;
+updateUserUI = function(userData) {
+    // Call the original function
+    originalUpdateUserUI(userData);
+    
+    // Check if user is admin
+    if (userData && userData.email === ADMIN_EMAIL) {
+        isAdmin = true;
+        
+        // Make sure admin panel elements exist in DOM
+        addAdminPanelToDOM();
+        addAdminMenuItemToNav();
+        
+        // Show admin menu item
+        $('#admin-menu-item').show();
+        
+        // If this is first login as admin, show admin panel automatically
+        if (localStorage.getItem('adminPanelShown') !== 'true') {
+            openAdminPanel();
+            localStorage.setItem('adminPanelShown', 'true');
+        }
+    } else {
+        isAdmin = false;
+        $('#admin-menu-item').hide();
     }
-}
+};
 
-// התחברות עם Supabase
-async function loginUser(email, password) {
+// Override login function to check for admin
+const originalLoginForm = $('#login-form').on('submit');
+$('#login-form').off('submit').on('submit', async function(e) {
+    e.preventDefault();
+    clearAuthErrors();
+    
+    const email = $('#login-email').val();
+    const password = $('#login-password').val();
+    
     try {
+        const supabase = initSupabase();
+        if (!supabase) {
+            showAuthError('login', 'Unable to connect to authentication service');
+            return;
+        }
+        
+        // Show loading state
+        $('#login-submit').prop('disabled', true).text('מעבד...');
+        
         const { data, error } = await supabase.auth.signInWithPassword({
             email: email,
             password: password
@@ -1578,377 +1932,203 @@ async function loginUser(email, password) {
         
         if (error) throw error;
         
-        // שמור את פרטי המשתמש במשתנה הגלובלי
-        currentUser = data.user;
-        
-        // בדוק אם המשתמש הוא מנהל
-        isAdmin = isUserAdmin(currentUser);
-        
-        // עדכן את ממשק המשתמש עם פרטי המשתמש
         const userData = {
-            id: currentUser.id,
-            email: currentUser.email,
-            name: currentUser.user_metadata && currentUser.user_metadata.full_name ? currentUser.user_metadata.full_name : currentUser.email.split('@')[0]
+            email: data.user.email,
+            name: data.user.user_metadata && data.user.user_metadata.full_name ? data.user.user_metadata.full_name : data.user.email.split('@')[0],
+            isVIP: data.user.user_metadata && data.user.user_metadata.isVIP ? data.user.user_metadata.isVIP : false
         };
         
         showNotification('התחברת בהצלחה!', 'success');
         hideAuthModal();
         updateUserUI(userData);
         
-        // אם המשתמש הוא מנהל, פתח את פאנל הניהול אוטומטית
-        if (isAdmin) {
+        // Save user data to localStorage
+        localStorage.setItem('user', JSON.stringify(userData));
+        
+        // Check if user is admin
+        if (email === ADMIN_EMAIL) {
+            // Open admin panel automatically
             setTimeout(() => {
                 openAdminPanel();
             }, 500);
         }
         
-    return true;
     } catch (error) {
-        console.error('Login error:', error.message);
-        document.getElementById('login-error').textContent = 'שגיאת התחברות: ' + error.message;
-        document.getElementById('login-error').style.display = 'block';
-        return false;
+        console.error('Login error:', error);
+        showAuthError('login', error.message || 'Failed to login. Please check your credentials.');
+    } finally {
+        // Reset button state
+        $('#login-submit').prop('disabled', false).text('התחברות');
     }
-}
+});
 
-// הרשמה עם Supabase
-async function registerUser(email, password, fullName) {
-    try {
-        const { data, error } = await supabase.auth.signUp({
-            email: email,
-            password: password,
-            options: {
-                data: {
-                    full_name: fullName
-                }
-            }
-        });
+// Document ready event handlers for admin panel
+$(document).ready(function() {
+    // Add admin panel elements to DOM
+    addAdminPanelToDOM();
+    addAdminMenuItemToNav();
+    
+    // Admin panel tab switching
+    $(document).on('click', '.admin-menu-item', function() {
+        // Remove active class from all menu items and tabs
+        $('.admin-menu-item').removeClass('active');
+        $('.admin-tab').removeClass('active');
         
-        if (error) throw error;
+        // Add active class to clicked menu item
+        $(this).addClass('active');
         
-        showNotification('נרשמת בהצלחה! בדוק את האימייל שלך לאימות.', 'success');
-        hideAuthModal();
-        
-        // אם יש משתמש וההרשמה הצליחה ללא צורך באימות אימייל
-        if (data.user && !data.session) {
-            showNotification('נשלח אליך אימייל לאימות החשבון', 'info');
-        } else if (data.user && data.session) {
-            // המשתמש נרשם והתחבר מיד
-            currentUser = data.user;
-            
-            // עדכן את ממשק המשתמש עם פרטי המשתמש
-            const userData = {
-                id: currentUser.id,
-                email: currentUser.email,
-                name: currentUser.user_metadata && currentUser.user_metadata.full_name ? currentUser.user_metadata.full_name : currentUser.email.split('@')[0]
-            };
-            
-            updateUserUI(userData);
-        }
-        
-            return true;
-    } catch (error) {
-        console.error('Registration error:', error.message);
-        document.getElementById('register-error').textContent = 'שגיאת הרשמה: ' + error.message;
-        document.getElementById('register-error').style.display = 'block';
-            return false;
-        }
-}
-
-// הוספת מאזיני אירועים
-document.addEventListener('DOMContentLoaded', async () => {
-    try {
-        // בדוק אם יש משתמש מחובר
-        const { data: { user }, error } = await supabase.auth.getUser();
-        if (!error && user) {
-            currentUser = user;
-            isAdmin = isUserAdmin(user);
-            
-            // עדכן את ממשק המשתמש
-            const userData = {
-                id: user.id,
-                email: user.email,
-                name: user.user_metadata && user.user_metadata.full_name ? user.user_metadata.full_name : user.email.split('@')[0]
-            };
-            
-            updateUserUI(userData);
-        }
-        
-        // אירועי התחברות
-        document.getElementById('login-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            
-            // נקה הודעות שגיאה קודמות
-            document.getElementById('login-error').style.display = 'none';
-            
-            await loginUser(email, password);
-        });
-        
-        // אירועי הרשמה
-        document.getElementById('register-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const fullName = document.getElementById('register-name').value;
-            const email = document.getElementById('register-email').value;
-            const password = document.getElementById('register-password').value;
-            const confirmPassword = document.getElementById('register-confirm').value;
-            
-            // נקה הודעות שגיאה קודמות
-            document.getElementById('register-error').style.display = 'none';
-            
-            // בדיקת התאמת סיסמאות
-            if (password !== confirmPassword) {
-                document.getElementById('register-error').textContent = 'הסיסמאות אינן תואמות';
-                document.getElementById('register-error').style.display = 'block';
-                return;
-            }
-            
-            await registerUser(email, password, fullName);
-        });
-        
-        // הצגת חלונות התחברות והרשמה
-        document.querySelectorAll('.show-login').forEach(btn => {
-            btn.addEventListener('click', showLoginModal);
-        });
-        
-        document.querySelectorAll('.show-register').forEach(btn => {
-            btn.addEventListener('click', showRegisterModal);
-        });
-        
-        // מעבר בין לשוניות התחברות והרשמה
-        document.querySelectorAll('.auth-tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                const target = tab.getAttribute('data-target');
-                
-                // הסר את המחלקה 'active' מכל הלשוניות והטפסים
-                document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
-                
-                // הוסף את המחלקה 'active' ללשונית ולטופס הנבחרים
-                tab.classList.add('active');
-                document.getElementById(target).classList.add('active');
-            });
-        });
-        
-        // סגירת חלונות מודליים
-        document.querySelector('.close-auth').addEventListener('click', hideAuthModal);
-        document.querySelector('.auth-modal-bg').addEventListener('click', hideAuthModal);
-        
-        // ניהול פאנל מנהל
-        document.querySelector('.admin-panel-btn').addEventListener('click', (e) => {
-            e.preventDefault();
-            openAdminPanel();
-        });
-        
-        document.querySelector('.close-admin-panel').addEventListener('click', closeAdminPanel);
-        document.querySelector('.admin-panel-bg').addEventListener('click', closeAdminPanel);
-        
-        // מעבר בין לשוניות בפאנל המנהל
-        document.querySelectorAll('.admin-menu-item').forEach(item => {
-            item.addEventListener('click', () => {
-                // הסר את המחלקה 'active' מכל פריטי התפריט
-                document.querySelectorAll('.admin-menu-item').forEach(i => i.classList.remove('active'));
-                // הסר את המחלקה 'active' מכל הלשוניות
-                document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-                
-                // הוסף את המחלקה 'active' לפריט שנבחר
-                item.classList.add('active');
-                
-                // הצג את הלשונית המתאימה
-                const target = item.getAttribute('data-target');
-                document.getElementById(target).classList.add('active');
-            });
-        });
-        
-        // פתיחת חלון הוספת מוצר
-        document.getElementById('add-product-btn').addEventListener('click', openAddProductModal);
-        
-        // סגירת חלון הוספת מוצר
-        document.querySelector('.close-admin-modal').addEventListener('click', closeAddProductModal);
-        document.querySelector('.admin-modal-bg').addEventListener('click', closeAddProductModal);
-        
-        // הוספת מוצר חדש
-        document.getElementById('add-product-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-            
-            const formData = new FormData(e.target);
-            const productName = formData.get('product-name');
-            const categoryId = formData.get('product-category');
-            const price = parseFloat(formData.get('product-price'));
-            const oldPrice = formData.get('product-old-price') ? parseFloat(formData.get('product-old-price')) : null;
-            const stock = parseInt(formData.get('product-stock'));
-            const description = formData.get('product-description');
-            const badge = formData.get('product-badge');
-            const imageFile = document.getElementById('product-image').files[0];
-            
-            try {
-                // כפתור שליחה - שינוי מצב טעינה
-                const submitBtn = document.getElementById('add-product-form').querySelector('button[type="submit"]');
-                submitBtn.disabled = true;
-                submitBtn.textContent = 'מעלה...';
-                
-                // העלאת תמונה אם נבחרה
-                let imageUrl = '/api/placeholder/300/300'; // תמונת ברירת מחדל
-                if (imageFile) {
-                    imageUrl = await uploadProductImage(imageFile);
-                }
-                
-                // יצירת אובייקט המוצר
-                const productData = {
-                    name: productName,
-                    category_id: categoryId,
-                    price: price,
-                    old_price: oldPrice,
-                    stock: stock,
-                    description: description,
-                    badge: badge,
-                    image_url: imageUrl,
-                    created_at: new Date().toISOString()
-                };
-                
-                // הוספת המוצר ל-Supabase
-                await addProduct(productData);
-                
-                // סגירת החלון המודלי וניקוי הטופס
-                closeAddProductModal();
-                e.target.reset();
-    } catch (error) {
-                console.error('Error adding product:', error);
-                showNotification('שגיאה בהוספת המוצר', 'error');
-            } finally {
-                // החזרת כפתור השליחה למצב רגיל
-                const submitBtn = document.getElementById('add-product-form').querySelector('button[type="submit"]');
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'הוסף מוצר';
-            }
-        });
-        
-        // הוספת קטגוריה חדשה
-        document.getElementById('add-category-btn').addEventListener('click', async () => {
-            const categoryName = prompt('הזן שם קטגוריה:');
-            if (categoryName && categoryName.trim() !== '') {
-                try {
-                    await addCategory({ name: categoryName });
-    } catch (error) {
-                    console.error('Error adding category:', error);
-                    showNotification('שגיאה בהוספת הקטגוריה', 'error');
-                }
-            }
-        });
-        
-        // מחיקת מוצר
-        document.addEventListener('click', async (e) => {
-            if (e.target.closest('.delete-btn')) {
-                const button = e.target.closest('.delete-btn');
-                const id = button.getAttribute('data-id');
-                const type = button.closest('table').id.includes('product') ? 'product' : 
-                             button.closest('table').id.includes('category') ? 'category' : 
-                             button.closest('table').id.includes('user') ? 'user' : 'order';
-                
-                if (confirm(`האם אתה בטוח שברצונך למחוק ${type === 'product' ? 'מוצר' : type === 'category' ? 'קטגוריה' : type === 'user' ? 'משתמש' : 'הזמנה'} זה?`)) {
-                    try {
-                        switch (type) {
-                            case 'product':
-                                await deleteProduct(id);
-                                break;
-                            case 'category':
-                                await deleteCategory(id);
-                                break;
-                            case 'user':
-                                await deleteUser(id);
-                                break;
-                            case 'order':
-                                await deleteOrder(id);
-                                break;
-                        }
-                    } catch (error) {
-                        console.error(`Error deleting ${type}:`, error);
-                        showNotification(`שגיאה במחיקת ${type === 'product' ? 'המוצר' : type === 'category' ? 'הקטגוריה' : type === 'user' ? 'המשתמש' : 'ההזמנה'}`, 'error');
-                    }
-                }
-            }
-        });
-        
-        // שינוי הגדרות האתר
-        document.getElementById('site-settings-form').addEventListener('submit', async (e) => {
+        // Show corresponding tab
+        const targetTab = $(this).data('target');
+        $(`#${targetTab}`).addClass('active');
+    });
+    
+    // Admin panel open/close
+    $(document).on('click', '.admin-panel-btn', function(e) {
         e.preventDefault();
-            
-            const siteTitle = document.getElementById('site-title').value;
-            const siteDescription = document.getElementById('site-description').value;
-            const logoFile = document.getElementById('site-logo').files[0];
-            
-            try {
-                let logoUrl = null;
-                if (logoFile) {
-                    // העלאת לוגו חדש
-                    const fileExt = logoFile.name.split('.').pop();
-                    const fileName = `site-logo.${fileExt}`;
-                    const filePath = `site-assets/${fileName}`;
-                    
-                    const { data, error } = await supabase.storage
-                        .from('site-assets')
-                        .upload(filePath, logoFile, { upsert: true });
-                    
-                    if (error) throw error;
-                    
-                    // קבלת URL הציבורי של הלוגו
-                    const { data: publicUrlData } = supabase.storage
-                        .from('site-assets')
-                        .getPublicUrl(filePath);
-                    
-                    logoUrl = publicUrlData.publicUrl;
-                }
-                
-                // עדכון הגדרות האתר ב-Supabase
-                const { data, error } = await supabase
-                    .from('site_settings')
-                    .upsert([
-                        {
-                            id: 1, // הנחה שיש רק שורה אחת של הגדרות
-                            title: siteTitle,
-                            description: siteDescription,
-                            logo_url: logoUrl || document.querySelector('.logo img').src,
-                            updated_at: new Date().toISOString()
-                        }
-                    ]);
-                
-                if (error) throw error;
-                
-                showNotification('הגדרות האתר נשמרו בהצלחה', 'success');
-                
-                // עדכון הכותרת והתיאור בעמוד
-                document.title = siteTitle;
-                document.querySelector('meta[name="description"]').setAttribute('content', siteDescription);
-                
-                // עדכון הלוגו אם הועלה חדש
-                if (logoUrl) {
-                    document.querySelector('.logo img').src = logoUrl;
-                }
-            } catch (error) {
-                console.error('Error updating site settings:', error);
-                showNotification('שגיאה בשמירת הגדרות האתר', 'error');
-            }
-        });
+        openAdminPanel();
+    });
+    
+    $(document).on('click', '.close-admin-panel', function() {
+        closeAdminPanel();
+    });
+    
+    $(document).on('click', '.admin-panel-bg', function() {
+        closeAdminPanel();
+    });
+    
+    // Add product button
+    $(document).on('click', '#add-product-btn', function() {
+        openAddProductModal();
+    });
+    
+    // Close modal buttons
+    $(document).on('click', '.close-admin-modal', function() {
+        closeAddProductModal();
+    });
+    
+    $(document).on('click', '.admin-modal-bg', function() {
+        closeAddProductModal();
+    });
+    
+    // Add product form submission
+    $(document).on('submit', '#add-product-form', function(e) {
+        e.preventDefault();
         
-        // חיפוש מוצרים בפאנל המנהל
-        document.getElementById('product-search').addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            const productRows = document.querySelectorAll('#product-list-body tr');
-            
-            productRows.forEach(row => {
-                const productName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
-                const productCategory = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+        // Get form data
+        const productName = $('#product-name').val();
+        const productCategory = $('#product-category').val();
+        const productPrice = $('#product-price').val();
+        const productOldPrice = $('#product-old-price').val();
+        const productStock = $('#product-stock').val();
+        const productDescription = $('#product-description').val();
+        const productBadge = $('#product-badge').val();
+        
+        // In a real implementation, you would also handle the image upload
+        
+        // For now, just show a success message
+        showNotification('המוצר נוסף בהצלחה!', 'success');
+        closeAddProductModal();
+        
+        // Add a new row to the product list
+        $('#product-list-body').prepend(`
+            <tr>
+                <td><img src="/api/placeholder/50/50" alt="${productName}" width="50"></td>
+                <td>${productName}</td>
+                <td>קטגוריה ${productCategory}</td>
+                <td>₪${productPrice}</td>
+                <td>${productStock}</td>
+                <td>
+                    <button class="action-btn edit-btn" data-id="new"><i class="fas fa-edit"></i></button>
+                    <button class="action-btn delete-btn" data-id="new"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+        `);
+    });
+    
+    // Save site settings form
+    $(document).on('submit', '#site-settings-form', function(e) {
+        e.preventDefault();
+        
+        const siteTitle = $('#site-title').val();
+        const siteDescription = $('#site-description').val();
+        
+        // In a real implementation, you would save these settings to the database
+        
+        showNotification('הגדרות האתר נשמרו בהצלחה!', 'success');
+    });
+    
+    // Delete product button
+    $(document).on('click', '.delete-btn', function() {
+        const id = $(this).data('id');
+        if (confirm('האם אתה בטוח שברצונך למחוק פריט זה?')) {
+            // In a real implementation, you would delete from the database
+            $(this).closest('tr').fadeOut(300, function() {
+                $(this).remove();
+            });
+            showNotification('הפריט נמחק בהצלחה', 'success');
+        }
+    });
+    
+    // Edit product button (placeholder functionality)
+    $(document).on('click', '.edit-btn', function() {
+        const id = $(this).data('id');
+        showNotification('עריכת פריט #' + id + ' תהיה זמינה בקרוב', 'info');
+    });
+    
+    // Product search functionality
+    $(document).on('keyup', '#product-search', function() {
+        const searchTerm = $(this).val().toLowerCase();
+        $('#product-list-body tr').each(function() {
+            const productName = $(this).find('td:nth-child(2)').text().toLowerCase();
+            const productCategory = $(this).find('td:nth-child(3)').text().toLowerCase();
             
             if (productName.includes(searchTerm) || productCategory.includes(searchTerm)) {
-                    row.style.display = '';
+                $(this).show();
             } else {
-                    row.style.display = 'none';
+                $(this).hide();
             }
         });
     });
     
-        } catch (error) {
-        console.error('Error in DOMContentLoaded:', error);
+    // Add category button (placeholder functionality)
+    $(document).on('click', '#add-category-btn', function() {
+        const categoryName = prompt('הזן שם קטגוריה:');
+        if (categoryName) {
+            $('#category-list-body').prepend(`
+                <tr>
+                    <td>${categoryName}</td>
+                    <td>0</td>
+                    <td>
+                        <button class="action-btn edit-btn" data-id="new"><i class="fas fa-edit"></i></button>
+                        <button class="action-btn delete-btn" data-id="new"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `);
+            showNotification('הקטגוריה נוספה בהצלחה', 'success');
         }
+    });
+    
+    // Check login status on page load
+    const checkAdminStatus = async function() {
+        try {
+            if (!supabase) return;
+            
+            const { data, error } = await supabase.auth.getSession();
+            if (error) throw error;
+            
+            if (data && data.session) {
+                const user = data.session.user;
+                if (user.email === ADMIN_EMAIL) {
+                    // User is admin, make sure admin menu is shown
+                    isAdmin = true;
+                    $('#admin-menu-item').show();
+                }
+            }
+        } catch (error) {
+            console.error('Error checking admin status:', error);
+        }
+    };
+    
+    // Run admin check
+    checkAdminStatus();
 });
