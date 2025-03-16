@@ -2208,6 +2208,7 @@ function initializeProductCards() {
 
 
 // Header functionality JavaScript
+// Header functionality JavaScript
 
 document.addEventListener('DOMContentLoaded', function() {
     // Mobile menu toggle
