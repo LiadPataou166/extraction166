@@ -299,16 +299,39 @@ $(document).ready(function(){
         e.preventDefault();
         
         try {
-            // Sign out from Supabase
-            await supabase.auth.signOut();
+            console.log('User logout requested');
+            
+            // Sign out from Supabase if available
+            if (supabase) {
+                try {
+                    await supabase.auth.signOut();
+                    console.log('Successfully signed out from Supabase');
+                } catch (err) {
+                    console.error('Error signing out from Supabase:', err);
+                }
+            }
+            
+            // Clear user data from localStorage
+            localStorage.removeItem('user');
+            // Also clear admin panel shown flag
+            localStorage.removeItem('adminPanelShown');
+            
+            // Reset admin status
+            isAdmin = false;
             
             // Clear user data from UI
             updateUserUI(null);
             
+            // Hide admin panel if open
+            if ($('#admin-panel').hasClass('active')) {
+                closeAdminPanel();
+            }
+            
             // Show success message
-            showNotification('התנתקת בהצלחה', 'info');
+            showNotification('התנתקת בהצלחה', 'success');
             
         } catch (err) {
+            console.error('Error during logout:', err);
             showNotification('שגיאה בהתנתקות', 'error');
         }
     });
@@ -689,14 +712,15 @@ class ProductManager {
         this.tags = [];
         this.githubUser = null;
         this.githubRepo = null;
+        this.githubToken = null;
         this.initGitHubConfig();
     }
     
     // Initialize GitHub configuration
     initGitHubConfig() {
         // Default GitHub config - should be set to your actual GitHub username and repo
-        this.githubUser = "LiadPataou166"; // TODO: Replace with your GitHub username
-        this.githubRepo = "extraction166"; // TODO: Replace with your GitHub repo name
+        this.githubUser = "LiadPataou166"; 
+        this.githubRepo = "extraction166"; 
         
         // Try to get from localStorage if available (for development purposes)
         const storedConfig = localStorage.getItem('githubConfig');
@@ -705,12 +729,41 @@ class ProductManager {
                 const config = JSON.parse(storedConfig);
                 this.githubUser = config.user || this.githubUser;
                 this.githubRepo = config.repo || this.githubRepo;
+                
+                // If token is stored, use it (for convenience during development)
+                this.githubToken = config.token || null;
             } catch (e) {
                 console.error('Error parsing GitHub config:', e);
             }
         }
         
         console.log(`GitHub config: ${this.githubUser}/${this.githubRepo}`);
+    }
+    
+    // Ask for GitHub token if not already stored
+    async ensureGitHubToken() {
+        if (!this.githubToken) {
+            const token = prompt("הכנס GitHub Personal Access Token עם הרשאות 'repo'. (הערה: אם אתה משתמש בדף זה לעתים קרובות, התוקן יישמר בינתיים להקלת השימוש)", "");
+            if (token) {
+                this.githubToken = token;
+                
+                // Save token to localStorage for convenience (with warning)
+                const saveToken = confirm("האם ברצונך לשמור את הטוקן לשימוש עתידי? (אזהרה: לא מומלץ בסביבות ציבוריות)");
+                if (saveToken) {
+                    try {
+                        const config = JSON.parse(localStorage.getItem('githubConfig') || '{}');
+                        config.token = token;
+                        localStorage.setItem('githubConfig', JSON.stringify(config));
+                    } catch (e) {
+                        console.error('Error saving GitHub token:', e);
+                    }
+                }
+                
+                return true;
+            }
+            return false;
+        }
+        return true;
     }
     
     // Add new product
@@ -724,13 +777,11 @@ class ProductManager {
         const success = await this.saveProductsToGitHub();
         if (success) {
             showNotification('המוצר נשמר בהצלחה לשרת!', 'success');
+            return product.id;
         } else {
-            // Fallback to localStorage if GitHub save fails
-            this.saveProducts();
-            showNotification('המוצר נשמר מקומית בלבד.', 'warning');
+            showNotification('שגיאה בשמירת המוצר', 'error');
+            return null;
         }
-        
-        return product.id;
     }
     
     // Update existing product
@@ -741,12 +792,13 @@ class ProductManager {
             
             // Save to GitHub
             const success = await this.saveProductsToGitHub();
-            if (!success) {
-                // Fallback to localStorage
-                this.saveProducts();
+            if (success) {
+                showNotification('המוצר עודכן בהצלחה!', 'success');
+                return true;
+            } else {
+                showNotification('שגיאה בעדכון המוצר', 'error');
+                return false;
             }
-            
-            return true;
         }
         return false;
     }
@@ -758,9 +810,12 @@ class ProductManager {
         
         // Save to GitHub
         const success = await this.saveProductsToGitHub();
-        if (!success) {
-            // Fallback to localStorage
-            this.saveProducts();
+        if (success) {
+            showNotification('המוצר נמחק בהצלחה!', 'success');
+            return true;
+        } else {
+            showNotification('שגיאה במחיקת המוצר', 'error');
+            return false;
         }
     }
     
@@ -790,7 +845,14 @@ class ProductManager {
                 if (response.status === 404) {
                     // File doesn't exist, so create it
                     console.log('Creating products.json file on GitHub...');
-                    await this.saveProductsToGitHub();
+                    const created = await this.saveProductsToGitHub();
+                    if (created) {
+                        showNotification('קובץ מוצרים חדש נוצר בהצלחה!', 'success');
+                        return true;
+                    } else {
+                        showNotification('שגיאה ביצירת קובץ מוצרים', 'error');
+                        return false;
+                    }
                 }
                 throw new Error(`GitHub API error: ${response.status}`);
             }
@@ -804,8 +866,7 @@ class ProductManager {
             return true;
         } catch (error) {
             console.error('Error loading products from GitHub:', error);
-            // Fallback to localStorage
-            this.loadProducts();
+            showNotification('שגיאה בטעינת מוצרים מהשרת', 'error');
             return false;
         }
     }
@@ -828,11 +889,11 @@ class ProductManager {
                 console.log('No existing products.json file found, will create new one');
             }
             
-            // Use public GitHub API (requires authorization token for write operations)
-            // This would use a GitHub token from configuration
-            const githubToken = prompt("To save products to GitHub, please enter your GitHub Personal Access Token with 'repo' permissions.", "");
-            if (!githubToken) {
+            // Ensure we have a GitHub token
+            const hasToken = await this.ensureGitHubToken();
+            if (!hasToken) {
                 console.warn('No GitHub token provided, cannot save to GitHub');
+                showNotification('נדרש GitHub Token לשמירת נתונים', 'warning');
                 return false;
             }
             
@@ -852,7 +913,7 @@ class ProductManager {
             const response = await fetch(apiUrl, {
                 method: 'PUT',
                 headers: {
-                    'Authorization': `token ${githubToken}`,
+                    'Authorization': `token ${this.githubToken}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(body)
@@ -862,6 +923,14 @@ class ProductManager {
                 console.error(`GitHub API error (${response.status}): ${response.statusText}`);
                 const errorData = await response.json();
                 console.error('Error details:', errorData);
+                
+                if (response.status === 401) {
+                    // Token is invalid, clear it and try again
+                    showNotification('GitHub Token לא תקין. אנא הכנס מחדש.', 'error');
+                    this.githubToken = null;
+                    localStorage.removeItem('githubToken');
+                }
+                
                 return false;
             }
             
@@ -869,29 +938,8 @@ class ProductManager {
             return true;
         } catch (error) {
             console.error('Error saving products to GitHub:', error);
+            showNotification('שגיאה בשמירת מוצרים לשרת', 'error');
             return false;
-        }
-    }
-    
-    // Save products to localStorage (fallback)
-    saveProducts() {
-        console.log('Saving products to localStorage, count:', this.products.length);
-        localStorage.setItem('products', JSON.stringify(this.products));
-    }
-    
-    // Load products from localStorage (fallback)
-    loadProducts() {
-        const storedProducts = localStorage.getItem('products');
-        if(storedProducts) {
-            try {
-                this.products = JSON.parse(storedProducts);
-                console.log('Loaded products from localStorage, count:', this.products.length);
-            } catch (e) {
-                console.error('Error parsing products from localStorage:', e);
-                this.products = [];
-            }
-        } else {
-            console.log('No products found in localStorage');
         }
     }
     
@@ -906,7 +954,15 @@ class ProductManager {
                 console.warn(`GitHub API error (${response.status}): ${response.statusText}`);
                 if (response.status === 404) {
                     // File doesn't exist, so create it
-                    await this.saveCategoriesToGitHub();
+                    console.log('Creating categories.json file on GitHub...');
+                    const created = await this.saveCategoriesToGitHub();
+                    if (created) {
+                        showNotification('קובץ קטגוריות חדש נוצר בהצלחה!', 'success');
+                        return true;
+                    } else {
+                        showNotification('שגיאה ביצירת קובץ קטגוריות', 'error');
+                        return false;
+                    }
                 }
                 throw new Error(`GitHub API error: ${response.status}`);
             }
@@ -919,8 +975,7 @@ class ProductManager {
             return true;
         } catch (error) {
             console.error('Error loading categories from GitHub:', error);
-            // Fallback to localStorage
-            this.loadCategories();
+            showNotification('שגיאה בטעינת קטגוריות מהשרת', 'error');
             return false;
         }
     }
@@ -943,11 +998,11 @@ class ProductManager {
                 console.log('No existing categories.json file found, will create new one');
             }
             
-            // Use public GitHub API (requires authorization token for write operations)
-            // This would use a GitHub token from configuration
-            const githubToken = prompt("To save categories to GitHub, please enter your GitHub Personal Access Token with 'repo' permissions.", "");
-            if (!githubToken) {
+            // Ensure we have a GitHub token
+            const hasToken = await this.ensureGitHubToken();
+            if (!hasToken) {
                 console.warn('No GitHub token provided, cannot save to GitHub');
+                showNotification('נדרש GitHub Token לשמירת נתונים', 'warning');
                 return false;
             }
             
@@ -967,7 +1022,7 @@ class ProductManager {
             const response = await fetch(apiUrl, {
                 method: 'PUT',
                 headers: {
-                    'Authorization': `token ${githubToken}`,
+                    'Authorization': `token ${this.githubToken}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(body)
@@ -982,6 +1037,7 @@ class ProductManager {
             return true;
         } catch (error) {
             console.error('Error saving categories to GitHub:', error);
+            showNotification('שגיאה בשמירת קטגוריות לשרת', 'error');
             return false;
         }
     }
@@ -994,12 +1050,13 @@ class ProductManager {
             
             // Save to GitHub
             const success = await this.saveCategoriesToGitHub();
-            if (!success) {
-                // Fallback to localStorage
-                this.saveCategories();
+            if (success) {
+                showNotification('הקטגוריה נוספה בהצלחה!', 'success');
+                return true;
+            } else {
+                showNotification('שגיאה בהוספת קטגוריה', 'error');
+                return false;
             }
-            
-            return true;
         }
         return false;
     }
@@ -1010,47 +1067,19 @@ class ProductManager {
         return this.categories;
     }
     
-    // Load categories from localStorage (fallback)
-    loadCategories() {
-        const storedCategories = localStorage.getItem('categories');
-        if(storedCategories) {
-            try {
-                this.categories = JSON.parse(storedCategories);
-                console.log('Loaded categories from localStorage, count:', this.categories.length);
-            } catch(e) {
-                console.error('Error parsing categories from localStorage:', e);
-                this.categories = [];
-            }
-        } else {
-            console.log('No categories found in localStorage');
-        }
-    }
-    
-    // Save categories to localStorage (fallback)
-    saveCategories() {
-        console.log('Saving categories to localStorage, count:', this.categories.length);
-        localStorage.setItem('categories', JSON.stringify(this.categories));
-    }
-    
     // Add tag
-    addTag(tag) {
-        if(!this.tags.includes(tag)) {
+    async addTag(tag) {
+        if (!this.tags.includes(tag)) {
             this.tags.push(tag);
-            localStorage.setItem('tags', JSON.stringify(this.tags));
+            // Could save tags to GitHub too if needed
+            return true;
         }
+        return false;
     }
     
     // Get all tags
     getAllTags() {
         return this.tags;
-    }
-    
-    // Load tags from localStorage
-    loadTags() {
-        const storedTags = localStorage.getItem('tags');
-        if(storedTags) {
-            this.tags = JSON.parse(storedTags);
-        }
     }
     
     // Filter products
@@ -1074,7 +1103,7 @@ class ProductManager {
         // Filter by tags
         if(filters.tags && filters.tags.length > 0) {
             filteredProducts = filteredProducts.filter(p => {
-                return filters.tags.every(tag => p.tags.includes(tag));
+                return filters.tags.every(tag => p.tags && p.tags.includes(tag));
             });
         }
         
@@ -1083,7 +1112,7 @@ class ProductManager {
             const keyword = filters.keyword.toLowerCase();
             filteredProducts = filteredProducts.filter(p => {
                 return p.name.toLowerCase().includes(keyword) || 
-                       p.description.toLowerCase().includes(keyword);
+                       (p.description && p.description.toLowerCase().includes(keyword));
             });
         }
         
@@ -1097,10 +1126,10 @@ class ProductManager {
                     filteredProducts.sort((a, b) => b.price - a.price);
                     break;
                 case 'newest':
-                    filteredProducts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                    filteredProducts.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
                     break;
                 case 'rating':
-                    filteredProducts.sort((a, b) => b.rating - a.rating);
+                    filteredProducts.sort((a, b) => (b.rating || 0) - (a.rating || 0));
                     break;
             }
         }
@@ -1399,26 +1428,20 @@ const cartManager = new CartManager();
 console.log('Loading data from storage...');
 (async function loadAllData() {
     try {
-        // First try to load from GitHub
-        console.log('Attempting to load products and categories from GitHub...');
-        const productsLoaded = await productManager.loadProductsFromGitHub();
-        const categoriesLoaded = await productManager.loadCategoriesFromGitHub();
+        // First load from GitHub
+        console.log('Loading products and categories from GitHub...');
+        await productManager.loadProductsFromGitHub();
+        await productManager.loadCategoriesFromGitHub();
         
-        // If GitHub failed, the loadProducts/loadCategories methods will have loaded from localStorage as fallback
-        if (!productsLoaded) {
-            console.log('Fallback: Loading products from localStorage...');
-            productManager.loadProducts();
+        // Initialize Supabase if possible
+        try {
+            initSupabase();
+        } catch (error) {
+            console.warn('Failed to initialize Supabase:', error);
         }
         
-        if (!categoriesLoaded) {
-            console.log('Fallback: Loading categories from localStorage...');
-            productManager.loadCategories();
-        }
-        
-        // Always load these from localStorage
-        productManager.loadTags();
-        membershipManager.loadMembers();
-        cartManager.loadCart();
+        // Check user login status
+        checkUserLogin();
         
         // Update cart badge on page load
         const cartCount = cartManager.getItemCount();
@@ -1439,11 +1462,7 @@ console.log('Loading data from storage...');
         
     } catch (error) {
         console.error('Error loading data:', error);
-        // Fallback to localStorage for everything
-        productManager.loadProducts();
-        productManager.loadCategories();
-        productManager.loadTags();
-        membershipManager.loadMembers();
+        showNotification('שגיאה בטעינת נתונים מהשרת', 'error');
     }
 })();
 
@@ -1648,13 +1667,13 @@ async function loadProductsData() {
         
         let productsHTML = '';
         
-        // Default SVG placeholder for images
-        const placeholderSvg = 'data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%20viewBox%3D%220%200%20100%20100%22%3E%3Crect%20fill%3D%22%23CCC%22%20width%3D%22100%22%20height%3D%22100%22%2F%3E%3Ctext%20text-anchor%3D%22middle%22%20x%3D%2250%22%20y%3D%2250%22%20dy%3D%22.3em%22%20fill%3D%22%23555%22%20font-family%3D%22monospace%22%20font-size%3D%2218%22%3EImage%3C%2Ftext%3E%3C%2Fsvg%3E';
+        // Use placeholder.com for placeholder images
+        const placeholderImage = 'https://via.placeholder.com/50?text=Image';
         
         products.forEach(product => {
             productsHTML += `
                 <tr>
-                    <td><img src="${product.image || placeholderSvg}" alt="${product.name}" width="50" height="50"></td>
+                    <td><img src="${product.image || placeholderImage}" alt="${product.name}" width="50" height="50"></td>
                     <td>${product.name}</td>
                     <td>${product.category || 'ללא קטגוריה'}</td>
                     <td>₪${product.price}</td>
@@ -1895,6 +1914,94 @@ function openAddProductModal() {
 function closeAddProductModal() {
     $('#add-product-modal').removeClass('active');
 }
+
+// Handle add product form submission
+$(document).on('submit', '#add-product-form', async function(e) {
+    e.preventDefault();
+    
+    // Get form data
+    const productName = $('#product-name').val();
+    const productCategory = $('#product-category').val();
+    const productPrice = parseFloat($('#product-price').val());
+    const productOldPrice = parseFloat($('#product-old-price').val()) || null;
+    const productStock = parseInt($('#product-stock').val());
+    const productBadge = $('#product-badge').val() || null;
+    const productDescription = $('#product-description').val();
+    
+    // Validate form data
+    if (!productName || !productCategory || isNaN(productPrice) || isNaN(productStock)) {
+        showNotification('אנא מלא את כל השדות הנדרשים', 'error');
+        return;
+    }
+    
+    // Show loading state
+    const $submitBtn = $(this).find('button[type="submit"]');
+    $submitBtn.prop('disabled', true).text('שומר מוצר...');
+    
+    try {
+        // Create product object
+        const newProduct = {
+            name: productName,
+            category: productCategory,
+            price: productPrice,
+            oldPrice: productOldPrice,
+            stock: productStock,
+            badge: productBadge,
+            description: productDescription,
+            image: 'https://via.placeholder.com/300x300?text=' + encodeURIComponent(productName),
+            createdAt: new Date().toISOString()
+        };
+        
+        // Add product through the product manager
+        const productId = await productManager.addProduct(newProduct);
+        
+        if (productId) {
+            // Close modal
+            closeAddProductModal();
+            
+            // Reset form
+            $('#add-product-form')[0].reset();
+            
+            // Refresh product list
+            loadProductsData();
+            
+            showNotification('המוצר נוסף בהצלחה!', 'success');
+        } else {
+            showNotification('שגיאה בהוספת המוצר', 'error');
+        }
+    } catch (error) {
+        console.error('Error adding product:', error);
+        showNotification('שגיאה בהוספת המוצר: ' + error.message, 'error');
+    } finally {
+        // Reset button
+        $submitBtn.prop('disabled', false).text('הוסף מוצר');
+    }
+});
+
+// Handle adding new categories
+$(document).on('click', '#add-category-btn', async function() {
+    const newCategory = prompt('הזן שם קטגוריה חדשה:');
+    if (newCategory && newCategory.trim()) {
+        // Show loading notification
+        showNotification('מוסיף קטגוריה...', 'info');
+        
+        try {
+            // Add category
+            const success = await productManager.addCategory(newCategory.trim());
+            
+            if (success) {
+                // Reload categories data
+                loadCategoriesData();
+                
+                // Update category dropdown
+                updateCategoryDropdown();
+            }
+        } catch (error) {
+            console.error('Error adding category:', error);
+            showNotification('שגיאה בהוספת קטגוריה', 'error');
+        }
+    }
+});
 
 // Add admin panel HTML to the DOM if it doesn't exist
 function addAdminPanelToDOM() {
@@ -2181,6 +2288,36 @@ function addAdminStyles() {
     }
 }
 
+// Add admin menu item to the navigation
+function addAdminMenuItemToNav() {
+    // Only add if it doesn't exist
+    if($('#admin-menu-item').length === 0) {
+        console.log('Adding admin menu item to navigation...');
+        
+        // Find the navigation menu
+        const $nav = $('nav ul');
+        if($nav.length > 0) {
+            // Add admin menu item
+            $nav.append(`
+                <li id="admin-menu-item" style="display: none;">
+                    <a href="#" id="open-admin-btn">
+                        <i class="fas fa-cog"></i>
+                        פאנל ניהול
+                    </a>
+                </li>
+            `);
+            
+            // Add click event to open admin panel
+            $(document).on('click', '#open-admin-btn', function(e) {
+                e.preventDefault();
+                openAdminPanel();
+            });
+        } else {
+            console.warn('Navigation menu not found, cannot add admin menu item');
+        }
+    }
+}
+
 // Document ready event handlers for admin panel
 $(document).ready(function() {
     // Add admin panel elements to DOM
@@ -2200,6 +2337,26 @@ $(document).ready(function() {
         // Show corresponding tab
         const targetTab = $(this).data('target');
         $(`#${targetTab}`).addClass('active');
+    });
+    
+    // Close admin panel button
+    $(document).on('click', '.close-admin-panel', function() {
+        closeAdminPanel();
+    });
+    
+    // Close admin panel when clicking outside
+    $(document).on('click', '.admin-panel-bg', function() {
+        closeAdminPanel();
+    });
+    
+    // Close admin modal (for add product, etc.)
+    $(document).on('click', '.close-admin-modal, .admin-modal-bg', function() {
+        $('.admin-modal').removeClass('active');
+    });
+    
+    // Open add product modal
+    $(document).on('click', '#add-product-btn', function() {
+        openAddProductModal();
     });
 });
 
