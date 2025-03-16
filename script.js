@@ -2205,4 +2205,276 @@ function initializeProductCards() {
         e.preventDefault();
         // Add your quick view or wishlist functionality here
     });
+
+
+// Header functionality JavaScript
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Mobile menu toggle
+    const menuButton = document.querySelector('.menu-bt a');
+    const headMenu = document.querySelector('.head-menu');
+    const closeMenu = document.querySelector('.close-mmenu');
+    
+    if (menuButton) {
+        menuButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            headMenu.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling when menu is open
+        });
+    }
+    
+    if (closeMenu) {
+        closeMenu.addEventListener('click', function() {
+            headMenu.classList.remove('active');
+            document.body.style.overflow = ''; // Re-enable scrolling
+        });
+    }
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', function(e) {
+        if (headMenu && headMenu.classList.contains('active')) {
+            if (!headMenu.contains(e.target) && e.target !== menuButton) {
+                headMenu.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+    });
+    
+    // Shopping cart dropdown
+    const cartButton = document.getElementById('cartButton');
+    const cartDropdown = document.getElementById('cartDropdown');
+    const closeCart = document.querySelector('.close-cart');
+    const continueShoppingBtn = document.querySelector('.btn-continue');
+    
+    if (cartButton && cartDropdown) {
+        cartButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            cartDropdown.classList.toggle('show');
+            e.stopPropagation();
+        });
+    }
+    
+    if (closeCart) {
+        closeCart.addEventListener('click', function() {
+            cartDropdown.classList.remove('show');
+        });
+    }
+    
+    if (continueShoppingBtn) {
+        continueShoppingBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            cartDropdown.classList.remove('show');
+        });
+    }
+    
+    // Close cart when clicking outside
+    document.addEventListener('click', function(e) {
+        if (cartDropdown && cartDropdown.classList.contains('show')) {
+            if (!cartDropdown.contains(e.target) && e.target !== cartButton) {
+                cartDropdown.classList.remove('show');
+            }
+        }
+    });
+    
+    // Mobile submenu toggles
+    const mobileMenuItems = document.querySelectorAll('.mobile-only .head-menu-item.has-children .head-menu-item-top');
+    
+    mobileMenuItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            if (window.innerWidth <= 1024) {
+                e.preventDefault();
+                const parent = this.parentElement;
+                const dropdown = parent.querySelector('.head-menu-dropdown');
+                
+                // Close other open dropdowns
+                document.querySelectorAll('.mobile-only .head-menu-item.has-children .head-menu-dropdown').forEach(el => {
+                    if (el !== dropdown) {
+                        el.style.display = 'none';
+                    }
+                });
+                
+                // Toggle this dropdown
+                if (dropdown) {
+                    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+                }
+            }
+        });
+    });
+    
+    // Add hover effects for desktop dropdowns
+    const desktopMenuItems = document.querySelectorAll('.no-mobile .head-menu-item.has-children');
+    
+    desktopMenuItems.forEach(item => {
+        item.addEventListener('mouseenter', function() {
+            if (window.innerWidth > 1024) {
+                const dropdown = this.querySelector('.head-menu-dropdown');
+                if (dropdown) {
+                    dropdown.style.display = 'block';
+                }
+            }
+        });
+        
+        item.addEventListener('mouseleave', function() {
+            if (window.innerWidth > 1024) {
+                const dropdown = this.querySelector('.head-menu-dropdown');
+                if (dropdown) {
+                    dropdown.style.display = 'none';
+                }
+            }
+        });
+    });
+    
+    // Add glowing effects on scroll
+    window.addEventListener('scroll', function() {
+        const header = document.querySelector('.dark-header');
+        if (header) {
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        }
+    });
+    
+    // Header search animation
+    const searchInputs = document.querySelectorAll('.top-search-input input');
+    
+    searchInputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentElement.classList.add('focused');
+        });
+        
+        input.addEventListener('blur', function() {
+            this.parentElement.classList.remove('focused');
+        });
+    });
+    
+    // Add to cart animation
+    function addToCartAnimation(productId, quantity = 1) {
+        // Update cart count
+        const cartCount = document.querySelector('.cart-num span');
+        if (cartCount) {
+            const currentCount = parseInt(cartCount.textContent);
+            cartCount.textContent = currentCount + quantity;
+            
+            // Animate the count
+            cartCount.classList.add('pulse');
+            setTimeout(() => {
+                cartCount.classList.remove('pulse');
+            }, 500);
+        }
+        
+        // Show notification
+        showNotification('המוצר נוסף לסל בהצלחה', 'success');
+    }
+    
+    // Notification system
+    function showNotification(message, type = 'info') {
+        const existingNotification = document.querySelector('.notification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+        
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        
+        const iconClass = {
+            'success': 'fas fa-check-circle',
+            'error': 'fas fa-exclamation-circle',
+            'warning': 'fas fa-exclamation-triangle',
+            'info': 'fas fa-info-circle'
+        }[type] || 'fas fa-info-circle';
+        
+        notification.innerHTML = `
+            <i class="${iconClass}"></i>
+            <p>${message}</p>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Show notification
+        setTimeout(() => {
+            notification.classList.add('show');
+        }, 10);
+        
+        // Hide and remove notification after delay
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        }, 3000);
+    }
+    
+    // Add CSS animation for notification
+    if (!document.getElementById('notification-style')) {
+        const style = document.createElement('style');
+        style.id = 'notification-style';
+        style.textContent = `
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.2); }
+                100% { transform: scale(1); }
+            }
+            
+            .cart-num span.pulse {
+                animation: pulse 0.5s ease;
+            }
+            
+            .notification {
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                background: rgba(30, 30, 30, 0.9);
+                backdrop-filter: blur(10px);
+                padding: 15px 20px;
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                color: var(--text-color);
+                z-index: 2100;
+                transform: translateX(-120%);
+                transition: transform 0.3s ease;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+                max-width: 300px;
+            }
+            
+            .notification.show {
+                transform: translateX(0);
+            }
+            
+            .notification i {
+                margin-left: 15px;
+                font-size: 18px;
+            }
+            
+            .notification.success i {
+                color: var(--success-color);
+            }
+            
+            .notification.error i {
+                color: var(--error-color);
+            }
+            
+            .notification.warning i {
+                color: var(--warning-color);
+            }
+            
+            .notification.info i {
+                color: var(--primary-color);
+            }
+            
+            .notification p {
+                margin: 0;
+                font-size: 14px;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    // Global window function to expose addToCartAnimation
+    window.addToCartAnimation = addToCartAnimation;
+    window.showNotification = showNotification;
+});
+
 }
