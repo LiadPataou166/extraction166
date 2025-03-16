@@ -40,6 +40,70 @@
         ]
     }
     </script>
+
+    <script>
+
+  /* Add icons and decorative elements script */
+  document.addEventListener('DOMContentLoaded', function() {
+    // Create library decoration elements
+    const libraryDecoration = document.createElement('div');
+    libraryDecoration.className = 'library-decoration';
+    
+    // Add book icons
+    for(let i = 0; i < 20; i++) {
+      const bookIcon = document.createElement('div');
+      bookIcon.className = 'book-icon';
+      bookIcon.innerHTML = '<i class="fas fa-book"></i>';
+      bookIcon.style.top = Math.random() * 100 + '%';
+      bookIcon.style.left = Math.random() * 100 + '%';
+      bookIcon.style.animationDelay = Math.random() * 5 + 's';
+      libraryDecoration.appendChild(bookIcon);
+    }
+    
+    // Add leaf icons
+    for(let i = 0; i < 15; i++) {
+      const leafIcon = document.createElement('div');
+      leafIcon.className = 'leaf-icon';
+      leafIcon.innerHTML = '<i class="fas fa-leaf"></i>';
+      leafIcon.style.top = Math.random() * 100 + '%';
+      leafIcon.style.left = Math.random() * 100 + '%';
+      leafIcon.style.animationDelay = Math.random() * 5 + 's';
+      libraryDecoration.appendChild(leafIcon);
+    }
+    
+    // Add light icons
+    for(let i = 0; i < 10; i++) {
+      const lightIcon = document.createElement('div');
+      lightIcon.className = 'light-icon';
+      lightIcon.innerHTML = '<i class="fas fa-lightbulb"></i>';
+      lightIcon.style.top = Math.random() * 100 + '%';
+      lightIcon.style.right = Math.random() * 100 + '%';
+      lightIcon.style.animationDelay = Math.random() * 5 + 's';
+      libraryDecoration.appendChild(lightIcon);
+    }
+    
+    document.body.appendChild(libraryDecoration);
+    
+    // Initialize progress bars with random values
+    const progressFills = document.querySelectorAll('.progress-fill');
+    progressFills.forEach(fill => {
+      setTimeout(() => {
+        const randomWidth = Math.floor(Math.random() * 70) + 30; // 30-100%
+        fill.style.width = randomWidth + '%';
+      }, 500);
+    });
+    
+    // Mobile sidebar toggle
+    const sidebarToggle = document.querySelector('.sidebar-toggle');
+    if(sidebarToggle) {
+      sidebarToggle.addEventListener('click', function() {
+        const sidebar = document.querySelector('.system-sidebar');
+        sidebar.classList.toggle('active');
+      });
+    }
+  });
+
+    </script>
     
     <!-- CSS Libraries -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
