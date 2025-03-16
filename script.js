@@ -1,5 +1,6 @@
 // Admin Email Configuration
 const ADMIN_EMAIL = 'liad1111@gmail.com';
+let adminPanelInitialized = false; // Track if admin panel is initialized
 
 // Initialize Slick Carousel for Hero
 $(document).ready(function(){
@@ -307,7 +308,7 @@ $(document).ready(function(){
             // Sign out from Supabase if available
             if (supabase) {
                 try {
-            await supabase.auth.signOut();
+                    await supabase.auth.signOut();
                     console.log('Successfully signed out from Supabase');
                 } catch (err) {
                     console.error('Error signing out from Supabase:', err);
@@ -481,6 +482,10 @@ $(document).ready(function(){
             displayProductsOnHomepage();
         }
     }
+
+    // Add necessary styles for admin panel and forms
+    addAdminStyles();
+    addProductFormStyles();
 });
 
 // Auth Helper Functions
@@ -609,54 +614,36 @@ function checkUserLogin() {
         if(parsedUserData.email === ADMIN_EMAIL) {
             console.log('Admin user detected from localStorage');
             isAdmin = true;
-            $('#admin-menu-item').show();
             
             // If admin menu item doesn't exist, add it
             addAdminPanelToDOM();
             addAdminMenuItemToNav();
             
-            // Auto-open panel for admin users:
-            setTimeout(() => {
-                console.log('Auto-opening admin panel for admin user from localStorage');
-                openAdminPanel();
-            }, 500);
+            // Show admin menu item
+            $('#admin-menu-item').show();
+            
+            // Auto-open panel for admin users if it's their first login
+            if (localStorage.getItem('adminPanelShown') !== 'true') {
+                setTimeout(() => {
+                    console.log('Auto-opening admin panel for admin user from localStorage');
+                    openAdminPanel();
+                    localStorage.setItem('adminPanelShown', 'true');
+                }, 500);
+            }
         }
     }
 }
 
-// Override updateUserUI function to include admin check
-const originalUpdateUserUI = updateUserUI;
-updateUserUI = function(userData) {
-    // Call the original function
-    originalUpdateUserUI(userData);
-    
-    // Check if user is admin
-    if (userData && userData.email === ADMIN_EMAIL) {
-        isAdmin = true;
-        
-        // Make sure admin panel elements exist in DOM
-        addAdminPanelToDOM();
-        addAdminStyles();
-        addAdminMenuItemToNav();
-        
-        // Show admin menu item
-        $('#admin-menu-item').show();
-        
-        // If this is first login as admin, show admin panel automatically
-        if (localStorage.getItem('adminPanelShown') !== 'true') {
-            openAdminPanel();
-            localStorage.setItem('adminPanelShown', 'true');
-        }
-    } else {
-        isAdmin = false;
-        $('#admin-menu-item').hide();
-    }
-};
+// Function to check network connection
+function checkNetworkConnection() {
+    return navigator.onLine;
+}
 
+// Update updateUserUI function to include admin check
 function updateUserUI(userData) {
     if(userData) {
         // User is logged in
-        const { name, isVIP } = userData;
+        const { name, isVIP, email } = userData;
         
         // Update header
         $('.auth-links').html(`
@@ -700,12 +687,29 @@ function updateUserUI(userData) {
                 </div>
             </div>
         `);
+        
+        // Check if user is admin
+        if (email === ADMIN_EMAIL) {
+            isAdmin = true;
+            
+            // Make sure admin panel elements exist in DOM
+            addAdminPanelToDOM();
+            addAdminStyles();
+            addAdminMenuItemToNav();
+            
+            // Show admin menu item
+            $('#admin-menu-item').show();
+        }
     } else {
         // User is logged out
         $('.auth-links').html(`
             <a href="#" class="show-login">התחברות</a>
             <a href="#" class="show-register">הרשמה</a>
         `);
+        
+        // Hide admin menu if user was admin
+        isAdmin = false;
+        $('#admin-menu-item').hide();
     }
 }
 
@@ -817,14 +821,14 @@ class ProductManager {
             if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
                 if (typeof displayProductsOnHomepage === 'function') {
                     displayProductsOnHomepage();
-        } else {
+                } else {
                     console.warn('displayProductsOnHomepage function not found');
                 }
             } else {
                 console.log('Not on homepage, skipping displayProductsOnHomepage call');
-        }
+            }
         
-        return product.id;
+            return product.id;
         } else {
             showNotification('שגיאה בשמירת המוצר', 'error');
             return null;
@@ -841,7 +845,7 @@ class ProductManager {
             const success = await this.saveProductsToGitHub();
             if (success) {
                 showNotification('המוצר עודכן בהצלחה!', 'success');
-            return true;
+                return true;
             } else {
                 showNotification('שגיאה בעדכון המוצר', 'error');
                 return false;
@@ -903,16 +907,16 @@ class ProductManager {
                             }
                         }
                         
-            return true;
+                        return true;
                     } else {
                         showNotification('שגיאה ביצירת קובץ מוצרים', 'error');
-            return false;
-        }
+                        return false;
+                    }
                 }
                 throw new Error(`GitHub API error: ${response.status}`);
             }
             
-                    const data = await response.json();
+            const data = await response.json();
             // GitHub returns base64 encoded content - decode it properly for UTF-8
             const content = this.base64ToUtf8(data.content);
             this.products = JSON.parse(content);
@@ -948,11 +952,11 @@ class ProductManager {
                             displayProductsOnHomepage();
                         }
                     }
-            } catch (e) {
-                console.error('Error parsing products from localStorage:', e);
+                } catch (e) {
+                    console.error('Error parsing products from localStorage:', e);
                     showNotification('שגיאה בטעינת מוצרים', 'error');
-            }
-        } else {
+                }
+            } else {
                 showNotification('שגיאה בטעינת מוצרים מהשרת', 'error');
             }
             
@@ -964,11 +968,11 @@ class ProductManager {
     async checkGitHubPath(path) {
         try {
             const apiUrl = `https://api.github.com/repos/${this.githubUser}/${this.githubRepo}/contents/${path}`;
-                const response = await fetch(apiUrl);
+            const response = await fetch(apiUrl);
             return response.ok;
-            } catch (error) {
+        } catch (error) {
             console.error(`Error checking GitHub path ${path}:`, error);
-                return false;
+            return false;
         }
     }
 
@@ -978,7 +982,7 @@ class ProductManager {
             const apiUrl = `https://api.github.com/repos/${this.githubUser}/${this.githubRepo}/contents/${path}`;
             
             // Convert content to base64
-            const base64Content = btoa(content);
+            const base64Content = btoa(unescape(encodeURIComponent(content)));
             
             const response = await fetch(apiUrl, {
                 method: 'PUT',
@@ -1003,6 +1007,170 @@ class ProductManager {
             return true;
         } catch (error) {
             console.error(`Error creating GitHub file ${path}:`, error);
+            return false;
+        }
+    }
+
+    // Get file SHA (needed for updating files)
+    async getGitHubFileSha(path) {
+        try {
+            const apiUrl = `https://api.github.com/repos/${this.githubUser}/${this.githubRepo}/contents/${path}`;
+            const response = await fetch(apiUrl);
+            
+            if (!response.ok) {
+                console.error(`Failed to get SHA for ${path}: ${response.status} ${response.statusText}`);
+                return null;
+            }
+            
+            const data = await response.json();
+            return data.sha;
+        } catch (error) {
+            console.error(`Error getting SHA for ${path}:`, error);
+            return null;
+        }
+    }
+
+    // Update existing file in GitHub repository
+    async updateGitHubFile(path, content, message, token, sha) {
+        try {
+            const apiUrl = `https://api.github.com/repos/${this.githubUser}/${this.githubRepo}/contents/${path}`;
+            
+            // Convert content to base64
+            const base64Content = btoa(unescape(encodeURIComponent(content)));
+            
+            const response = await fetch(apiUrl, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: message,
+                    content: base64Content,
+                    sha: sha,
+                    branch: 'main'
+                })
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error(`GitHub API error (${response.status}): ${response.statusText}`, errorData);
+                return false;
+            }
+            
+            console.log(`Updated GitHub file: ${path}`);
+            return true;
+        } catch (error) {
+            console.error(`Error updating GitHub file ${path}:`, error);
+            return false;
+        }
+    }
+
+    // Create directory in GitHub
+    async createGitHubDirectory(path, message, token) {
+        try {
+            // In GitHub, you create a directory by creating a file inside it
+            const apiUrl = `https://api.github.com/repos/${this.githubUser}/${this.githubRepo}/contents/${path}/.gitkeep`;
+            
+            const response = await fetch(apiUrl, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: message,
+                    content: 'Cg==', // Base64 for empty content
+                    branch: 'main'
+                })
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error(`GitHub API error (${response.status}): ${response.statusText}`, errorData);
+                return false;
+            }
+            
+            console.log(`Created GitHub directory: ${path}`);
+            return true;
+        } catch (error) {
+            console.error(`Error creating GitHub directory ${path}:`, error);
+            return false;
+        }
+    }
+
+    // Save products to GitHub
+    async saveProductsToGitHub() {
+        try {
+            console.log('Saving products to GitHub...');
+            
+            // Check for GitHub token
+            const hasToken = await this.ensureGitHubToken();
+            if (!hasToken) {
+                showNotification('נדרש Token של GitHub כדי לשמור שינויים', 'error');
+                return false;
+            }
+            
+            // Prepare content to save
+            const content = JSON.stringify(this.products, null, 2);
+            
+            // Check if data directory exists
+            const dataDirectoryExists = await this.checkGitHubPath('data');
+            
+            if (!dataDirectoryExists) {
+                // Create data directory first
+                const dirCreated = await this.createGitHubDirectory('data', 'Create data directory', this.githubToken);
+                if (!dirCreated) {
+                    throw new Error('Failed to create data directory');
+                }
+            }
+            
+            // Check if products.json exists
+            const fileExists = await this.checkGitHubPath('data/products.json');
+            
+            if (fileExists) {
+                // Update existing file
+                // Get the SHA of the existing file first
+                const sha = await this.getGitHubFileSha('data/products.json');
+                
+                if (!sha) {
+                    throw new Error('Failed to get file SHA');
+                }
+                
+                // Update file with the SHA
+                const updated = await this.updateGitHubFile(
+                    'data/products.json', 
+                    content, 
+                    'Update products', 
+                    this.githubToken, 
+                    sha
+                );
+                
+                if (!updated) {
+                    throw new Error('Failed to update products file');
+                }
+            } else {
+                // Create new file
+                const created = await this.createGitHubFile(
+                    'data/products.json', 
+                    content, 
+                    'Add products file', 
+                    this.githubToken
+                );
+                
+                if (!created) {
+                    throw new Error('Failed to create products file');
+                }
+            }
+            
+            console.log('Products saved to GitHub successfully');
+            // Save to localStorage as a backup
+            localStorage.setItem('products', JSON.stringify(this.products));
+            
+            return true;
+        } catch (error) {
+            console.error('Error saving products to GitHub:', error);
+            showNotification(`שגיאה בשמירה ל-GitHub: ${error.message}`, 'error');
             return false;
         }
     }
@@ -1097,6 +1265,7 @@ function displayProductsOnHomepage() {
 const SUPABASE_URL = 'https://ebkgbaetsgtzordvkcvf.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVia2diYWV0c2d0em9yZHZrY3ZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxMjAzMTMsImV4cCI6MjA1NzY5NjMxM30.fype9g6RIKCYHJvXJN8b_kFFnkehACo3inpXa382GgI';
 let supabase;
+let isAdmin = false;
 
 // Initialize Supabase client
 function initSupabase() {
@@ -1106,10 +1275,10 @@ function initSupabase() {
         // Check if Supabase is available (loaded through CDN)
         if (typeof window.supabase !== 'undefined') {
             // Create client using the Supabase library
-        const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        supabase = client; // Set the global variable
+            const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            supabase = client; // Set the global variable
             console.log('התחברות ל-Supabase בוצעה בהצלחה');
-        return client;
+            return client;
         } else {
             console.warn('ספריית Supabase לא נטענה. בדוק שקובץ ה-CDN נטען כראוי');
             showNotification('שגיאה בהתחברות למסד הנתונים', 'error');
@@ -1122,11 +1291,17 @@ function initSupabase() {
     }
 }
 
+// FIXED: Improved admin panel implementation with proper event handling
 function addAdminPanelToDOM() {
     // Check if admin panel already exists
-    if ($('#admin-panel').length > 0) {
-        return; // Admin panel already exists, no need to add it again
+    if (adminPanelInitialized || $('#admin-panel').length > 0) {
+        console.log('Admin panel already exists, just attaching event handlers');
+        attachAdminPanelEventHandlers();
+        return;
     }
+    
+    adminPanelInitialized = true;
+    console.log('Adding admin panel to DOM');
     
     const adminPanelHTML = `
     <div id="admin-panel" class="admin-panel">
@@ -1181,11 +1356,20 @@ function addAdminPanelToDOM() {
     
     $('body').append(adminPanelHTML);
     
-    // Attach event handlers for the admin panel
-    $('#close-admin-panel').on('click', closeAdminPanel);
+    // Attach event handlers
+    attachAdminPanelEventHandlers();
+}
+
+// FIXED: Separate function for attaching event handlers to prevent duplication
+function attachAdminPanelEventHandlers() {
+    console.log('Attaching admin panel event handlers');
+    
+    // Close button
+    $('#close-admin-panel').off('click').on('click', closeAdminPanel);
     
     // Tab switching in admin panel
-    $('.admin-tab-btn').on('click', function() {
+    $('.admin-tab-btn').off('click').on('click', function() {
+        console.log('Tab clicked:', $(this).data('target'));
         $('.admin-tab-btn').removeClass('active');
         $(this).addClass('active');
         
@@ -1195,18 +1379,35 @@ function addAdminPanelToDOM() {
     });
     
     // Add product button
-    $('#add-product-btn').on('click', function() {
-        // Implement your add product functionality here
+    $('#add-product-btn').off('click').on('click', function() {
+        console.log('Add product button clicked');
         showProductForm();
     });
     
     // Refresh products button
-    $('#refresh-products-btn').on('click', function() {
+    $('#refresh-products-btn').off('click').on('click', function() {
+        console.log('Refresh products button clicked');
         loadAndDisplayAdminProducts();
+    });
+    
+    // Save settings button
+    $('#save-settings').off('click').on('click', function() {
+        console.log('Save settings button clicked');
+        // Implement settings save functionality
+        const siteName = $('#site-name').val();
+        const siteLogo = $('#site-logo').val();
+        
+        // Save settings to localStorage for now
+        localStorage.setItem('siteSettings', JSON.stringify({
+            name: siteName,
+            logo: siteLogo
+        }));
+        
+        showNotification('הגדרות נשמרו בהצלחה', 'success');
     });
 }
 
-// Helper function for admin panel (also needed)
+// Helper function for admin panel
 function addAdminMenuItemToNav() {
     // Check if admin menu item already exists
     if ($('#admin-menu-item').length > 0) {
@@ -1347,6 +1548,86 @@ function addAdminStyles() {
     }
 }
 
+// Add styles for product form
+function addProductFormStyles() {
+    if ($('#product-form-styles').length === 0) {
+        const styles = `
+        <style id="product-form-styles">
+            .modal {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1001;
+                direction: rtl;
+            }
+            
+            .modal-content {
+                background-color: white;
+                border-radius: 5px;
+                width: 90%;
+                max-width: 600px;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+            
+            .modal-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 15px;
+                border-bottom: 1px solid #eee;
+            }
+            
+            .modal-body {
+                padding: 15px;
+            }
+            
+            .form-group {
+                margin-bottom: 15px;
+            }
+            
+            .form-group label {
+                display: block;
+                margin-bottom: 5px;
+                font-weight: bold;
+            }
+            
+            .form-group input, .form-group select, .form-group textarea {
+                width: 100%;
+                padding: 8px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+            }
+            
+            .form-group textarea {
+                min-height: 100px;
+            }
+            
+            .form-actions {
+                display: flex;
+                justify-content: flex-end;
+                gap: 10px;
+                margin-top: 20px;
+            }
+            
+            .close-modal {
+                background: none;
+                border: none;
+                font-size: 18px;
+                cursor: pointer;
+            }
+        </style>
+        `;
+        $('head').append(styles);
+    }
+}
+
 // Function to load and display products in admin panel
 function loadAndDisplayAdminProducts() {
     console.log('loadAndDisplayAdminProducts called');
@@ -1376,7 +1657,6 @@ function loadAndDisplayAdminProducts() {
             console.log('loadProductsFromGitHub result:', success);
             if (success) {
                 console.log('Products loaded, displaying in admin panel...');
-                console.log('Product count:', productManager.getAllProducts().length);
                 displayProductsInAdminPanel();
             } else {
                 console.error('Failed to load products from GitHub');
@@ -1424,12 +1704,12 @@ function displayProductsInAdminPanel() {
     console.log('HTML set, attaching event handlers');
     
     // Attach event handlers to edit and delete buttons
-    $('.btn-edit-product').on('click', function() {
+    $('.btn-edit-product').off('click').on('click', function() {
         const productId = $(this).data('id');
         editProduct(productId);
     });
     
-    $('.btn-delete-product').on('click', function() {
+    $('.btn-delete-product').off('click').on('click', function() {
         const productId = $(this).data('id');
         if (confirm('האם אתה בטוח שברצונך למחוק מוצר זה?')) {
             deleteProduct(productId);
@@ -1439,11 +1719,131 @@ function displayProductsInAdminPanel() {
     console.log('Admin panel products display complete');
 }
 
-// Function to show product form
+// FIXED: Improved product form
 function showProductForm(productId = null) {
-    // Implement product form functionality (edit/create)
-    // This is just a placeholder - implement according to your needs
-    alert(productId ? 'עריכת מוצר: ' + productId : 'הוספת מוצר חדש');
+    // Make sure styles are added
+    addProductFormStyles();
+    
+    let product = null;
+    
+    if (productId) {
+        // Edit existing product
+        product = productManager.getProduct(productId);
+        if (!product) {
+            showNotification('המוצר לא נמצא', 'error');
+            return;
+        }
+    }
+    
+    // Create a form for adding/editing products
+    const formHTML = `
+    <div id="product-form-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>${product ? 'עריכת מוצר' : 'הוספת מוצר חדש'}</h2>
+                <button class="close-modal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="product-form">
+                    <div class="form-group">
+                        <label for="product-name">שם המוצר</label>
+                        <input type="text" id="product-name" value="${product ? product.name : ''}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-price">מחיר</label>
+                        <input type="number" id="product-price" min="0" step="0.01" value="${product ? product.price : ''}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-old-price">מחיר קודם (למבצע)</label>
+                        <input type="number" id="product-old-price" min="0" step="0.01" value="${product && product.oldPrice ? product.oldPrice : ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="product-category">קטגוריה</label>
+                        <input type="text" id="product-category" value="${product && product.category ? product.category : ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="product-image">תמונה (URL)</label>
+                        <input type="text" id="product-image" value="${product && product.image ? product.image : ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="product-description">תיאור</label>
+                        <textarea id="product-description">${product && product.description ? product.description : ''}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-badge">תגית</label>
+                        <select id="product-badge">
+                            <option value="" ${!product || !product.badge ? 'selected' : ''}>אין</option>
+                            <option value="new" ${product && product.badge === 'new' ? 'selected' : ''}>חדש</option>
+                            <option value="sale" ${product && product.badge === 'sale' ? 'selected' : ''}>מבצע</option>
+                            <option value="hot" ${product && product.badge === 'hot' ? 'selected' : ''}>חם</option>
+                            <option value="out-of-stock" ${product && product.badge === 'out-of-stock' ? 'selected' : ''}>אזל מהמלאי</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">${product ? 'עדכן מוצר' : 'הוסף מוצר'}</button>
+                        <button type="button" class="btn cancel-form">ביטול</button>
+                    </div>
+                    ${product ? `<input type="hidden" id="product-id" value="${product.id}">` : ''}
+                </form>
+            </div>
+        </div>
+    </div>
+    `;
+    
+    // Add the form to the DOM
+    $('body').append(formHTML);
+    
+    // Add event listeners
+    $('.close-modal, .cancel-form').on('click', function() {
+        $('#product-form-modal').remove();
+    });
+    
+    $('#product-form').on('submit', async function(e) {
+        e.preventDefault();
+        
+        // Get form data
+        const formData = {
+            name: $('#product-name').val(),
+            price: parseFloat($('#product-price').val()),
+            oldPrice: $('#product-old-price').val() ? parseFloat($('#product-old-price').val()) : null,
+            category: $('#product-category').val(),
+            image: $('#product-image').val(),
+            description: $('#product-description').val(),
+            badge: $('#product-badge').val()
+        };
+        
+        try {
+            if (product) {
+                // Update existing product
+                const success = await productManager.updateProduct(product.id, formData);
+                if (success) {
+                    showNotification('המוצר עודכן בהצלחה', 'success');
+                    $('#product-form-modal').remove();
+                    displayProductsInAdminPanel();
+                    
+                    // If on homepage, update the products display there too
+                    if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+                        displayProductsOnHomepage();
+                    }
+                }
+            } else {
+                // Add new product
+                const newProductId = await productManager.addProduct(formData);
+                if (newProductId) {
+                    showNotification('המוצר נוסף בהצלחה', 'success');
+                    $('#product-form-modal').remove();
+                    displayProductsInAdminPanel();
+                    
+                    // If on homepage, update the products display there too
+                    if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+                        displayProductsOnHomepage();
+                    }
+                }
+            }
+        } catch (error) {
+            showNotification(`שגיאה: ${error.message}`, 'error');
+        }
+    });
 }
 
 // Function to edit product
@@ -1459,12 +1859,17 @@ function deleteProduct(productId) {
             if (success) {
                 // Refresh the admin products grid
                 displayProductsInAdminPanel();
+                
+                // If on homepage, update the products display there too
+                if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+                    displayProductsOnHomepage();
+                }
             }
         });
     }
 }
 
-// Add these helper functions for displaying products
+// Helper functions for displaying products
 function getRatingStars(rating) {
     let starsHTML = '';
     for (let i = 1; i <= 5; i++) {
@@ -1490,7 +1895,7 @@ function getBadgeText(badge) {
     return badges[badge] || badge;
 }
 
-// Add this function to initialize product cards after they are displayed
+// Function to initialize product cards after they are displayed
 function initializeProductCards() {
     // Product Image Hover Effect
     $('.product-card').hover(
@@ -1503,7 +1908,7 @@ function initializeProductCards() {
     );
     
     // Add to Cart Button
-    $('.add-to-cart').on('click', function(e){
+    $('.add-to-cart').off('click').on('click', function(e){
         e.preventDefault();
         
         // Add to cart animation/logic
@@ -1518,7 +1923,7 @@ function initializeProductCards() {
     });
     
     // Quick view and wishlist buttons
-    $('.quick-view-btn, .wishlist-btn').on('click', function(e) {
+    $('.quick-view-btn, .wishlist-btn').off('click').on('click', function(e) {
         e.preventDefault();
         // Add your quick view or wishlist functionality here
     });
