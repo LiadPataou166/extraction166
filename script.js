@@ -567,6 +567,35 @@ function checkUserLogin() {
     }
 }
 
+// Override updateUserUI function to include admin check
+const originalUpdateUserUI = updateUserUI;
+updateUserUI = function(userData) {
+    // Call the original function
+    originalUpdateUserUI(userData);
+    
+    // Check if user is admin
+    if (userData && userData.email === ADMIN_EMAIL) {
+        isAdmin = true;
+        
+        // Make sure admin panel elements exist in DOM
+        addAdminPanelToDOM();
+        addAdminStyles();
+        addAdminMenuItemToNav();
+        
+        // Show admin menu item
+        $('#admin-menu-item').show();
+        
+        // If this is first login as admin, show admin panel automatically
+        if (localStorage.getItem('adminPanelShown') !== 'true') {
+            openAdminPanel();
+            localStorage.setItem('adminPanelShown', 'true');
+        }
+    } else {
+        isAdmin = false;
+        $('#admin-menu-item').hide();
+    }
+};
+
 function updateUserUI(userData) {
     if(userData) {
         // User is logged in
@@ -658,34 +687,81 @@ class ProductManager {
         this.products = [];
         this.categories = [];
         this.tags = [];
+        this.githubUser = null;
+        this.githubRepo = null;
+        this.initGitHubConfig();
+    }
+    
+    // Initialize GitHub configuration
+    initGitHubConfig() {
+        // Default GitHub config - should be set to your actual GitHub username and repo
+        this.githubUser = "LiadPataou166"; // TODO: Replace with your GitHub username
+        this.githubRepo = "extraction166"; // TODO: Replace with your GitHub repo name
+        
+        // Try to get from localStorage if available (for development purposes)
+        const storedConfig = localStorage.getItem('githubConfig');
+        if (storedConfig) {
+            try {
+                const config = JSON.parse(storedConfig);
+                this.githubUser = config.user || this.githubUser;
+                this.githubRepo = config.repo || this.githubRepo;
+            } catch (e) {
+                console.error('Error parsing GitHub config:', e);
+            }
+        }
+        
+        console.log(`GitHub config: ${this.githubUser}/${this.githubRepo}`);
     }
     
     // Add new product
-    addProduct(product) {
+    async addProduct(product) {
         // Generate unique ID
         product.id = Date.now().toString(36) + Math.random().toString(36).substr(2);
         console.log('Adding product with ID:', product.id);
         this.products.push(product);
-        this.saveProducts();
+        
+        // Save to GitHub
+        const success = await this.saveProductsToGitHub();
+        if (success) {
+            showNotification('המוצר נשמר בהצלחה לשרת!', 'success');
+        } else {
+            // Fallback to localStorage if GitHub save fails
+            this.saveProducts();
+            showNotification('המוצר נשמר מקומית בלבד.', 'warning');
+        }
+        
         return product.id;
     }
     
     // Update existing product
-    updateProduct(productId, updatedData) {
+    async updateProduct(productId, updatedData) {
         const index = this.products.findIndex(p => p.id === productId);
         if(index !== -1) {
             this.products[index] = { ...this.products[index], ...updatedData };
-            this.saveProducts();
+            
+            // Save to GitHub
+            const success = await this.saveProductsToGitHub();
+            if (!success) {
+                // Fallback to localStorage
+                this.saveProducts();
+            }
+            
             return true;
         }
         return false;
     }
     
     // Delete product
-    deleteProduct(productId) {
+    async deleteProduct(productId) {
         console.log('Deleting product with ID:', productId);
         this.products = this.products.filter(p => p.id !== productId);
-        this.saveProducts();
+        
+        // Save to GitHub
+        const success = await this.saveProductsToGitHub();
+        if (!success) {
+            // Fallback to localStorage
+            this.saveProducts();
+        }
     }
     
     // Get product by ID
@@ -699,13 +775,111 @@ class ProductManager {
         return this.products;
     }
     
-    // Save products to localStorage
+    // Load products from GitHub
+    async loadProductsFromGitHub() {
+        try {
+            console.log('Loading products from GitHub...');
+            const apiUrl = `https://api.github.com/repos/${this.githubUser}/${this.githubRepo}/contents/data/products.json`;
+            
+            // Show loading notification
+            showNotification('טוען מוצרים מהשרת...', 'info');
+            
+            const response = await fetch(apiUrl);
+            if (!response.ok) {
+                console.warn(`GitHub API error (${response.status}): ${response.statusText}`);
+                if (response.status === 404) {
+                    // File doesn't exist, so create it
+                    console.log('Creating products.json file on GitHub...');
+                    await this.saveProductsToGitHub();
+                }
+                throw new Error(`GitHub API error: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            // GitHub returns base64 encoded content
+            const content = atob(data.content);
+            this.products = JSON.parse(content);
+            console.log('Loaded products from GitHub, count:', this.products.length);
+            showNotification('מוצרים נטענו בהצלחה!', 'success');
+            return true;
+        } catch (error) {
+            console.error('Error loading products from GitHub:', error);
+            // Fallback to localStorage
+            this.loadProducts();
+            return false;
+        }
+    }
+    
+    // Save products to GitHub
+    async saveProductsToGitHub() {
+        try {
+            console.log('Saving products to GitHub, count:', this.products.length);
+            
+            // First, try to get existing file to get its SHA
+            let sha = null;
+            try {
+                const apiUrl = `https://api.github.com/repos/${this.githubUser}/${this.githubRepo}/contents/data/products.json`;
+                const response = await fetch(apiUrl);
+                if (response.ok) {
+                    const data = await response.json();
+                    sha = data.sha;
+                }
+            } catch (error) {
+                console.log('No existing products.json file found, will create new one');
+            }
+            
+            // Use public GitHub API (requires authorization token for write operations)
+            // This would use a GitHub token from configuration
+            const githubToken = prompt("To save products to GitHub, please enter your GitHub Personal Access Token with 'repo' permissions.", "");
+            if (!githubToken) {
+                console.warn('No GitHub token provided, cannot save to GitHub');
+                return false;
+            }
+            
+            const apiUrl = `https://api.github.com/repos/${this.githubUser}/${this.githubRepo}/contents/data/products.json`;
+            const content = btoa(JSON.stringify(this.products, null, 2)); // Convert to base64
+            
+            const body = {
+                message: "Update products data",
+                content: content,
+                branch: "main"
+            };
+            
+            if (sha) {
+                body.sha = sha;
+            }
+            
+            const response = await fetch(apiUrl, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${githubToken}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(body)
+            });
+            
+            if (!response.ok) {
+                console.error(`GitHub API error (${response.status}): ${response.statusText}`);
+                const errorData = await response.json();
+                console.error('Error details:', errorData);
+                return false;
+            }
+            
+            console.log('Products saved to GitHub successfully');
+            return true;
+        } catch (error) {
+            console.error('Error saving products to GitHub:', error);
+            return false;
+        }
+    }
+    
+    // Save products to localStorage (fallback)
     saveProducts() {
         console.log('Saving products to localStorage, count:', this.products.length);
         localStorage.setItem('products', JSON.stringify(this.products));
     }
     
-    // Load products from localStorage
+    // Load products from localStorage (fallback)
     loadProducts() {
         const storedProducts = localStorage.getItem('products');
         if(storedProducts) {
@@ -721,12 +895,110 @@ class ProductManager {
         }
     }
     
+    // Load categories from GitHub
+    async loadCategoriesFromGitHub() {
+        try {
+            console.log('Loading categories from GitHub...');
+            const apiUrl = `https://api.github.com/repos/${this.githubUser}/${this.githubRepo}/contents/data/categories.json`;
+            
+            const response = await fetch(apiUrl);
+            if (!response.ok) {
+                console.warn(`GitHub API error (${response.status}): ${response.statusText}`);
+                if (response.status === 404) {
+                    // File doesn't exist, so create it
+                    await this.saveCategoriesToGitHub();
+                }
+                throw new Error(`GitHub API error: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            // GitHub returns base64 encoded content
+            const content = atob(data.content);
+            this.categories = JSON.parse(content);
+            console.log('Loaded categories from GitHub, count:', this.categories.length);
+            return true;
+        } catch (error) {
+            console.error('Error loading categories from GitHub:', error);
+            // Fallback to localStorage
+            this.loadCategories();
+            return false;
+        }
+    }
+    
+    // Save categories to GitHub
+    async saveCategoriesToGitHub() {
+        try {
+            console.log('Saving categories to GitHub, count:', this.categories.length);
+            
+            // First, try to get existing file to get its SHA
+            let sha = null;
+            try {
+                const apiUrl = `https://api.github.com/repos/${this.githubUser}/${this.githubRepo}/contents/data/categories.json`;
+                const response = await fetch(apiUrl);
+                if (response.ok) {
+                    const data = await response.json();
+                    sha = data.sha;
+                }
+            } catch (error) {
+                console.log('No existing categories.json file found, will create new one');
+            }
+            
+            // Use public GitHub API (requires authorization token for write operations)
+            // This would use a GitHub token from configuration
+            const githubToken = prompt("To save categories to GitHub, please enter your GitHub Personal Access Token with 'repo' permissions.", "");
+            if (!githubToken) {
+                console.warn('No GitHub token provided, cannot save to GitHub');
+                return false;
+            }
+            
+            const apiUrl = `https://api.github.com/repos/${this.githubUser}/${this.githubRepo}/contents/data/categories.json`;
+            const content = btoa(JSON.stringify(this.categories, null, 2)); // Convert to base64
+            
+            const body = {
+                message: "Update categories data",
+                content: content,
+                branch: "main"
+            };
+            
+            if (sha) {
+                body.sha = sha;
+            }
+            
+            const response = await fetch(apiUrl, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${githubToken}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(body)
+            });
+            
+            if (!response.ok) {
+                console.error(`GitHub API error (${response.status}): ${response.statusText}`);
+                return false;
+            }
+            
+            console.log('Categories saved to GitHub successfully');
+            return true;
+        } catch (error) {
+            console.error('Error saving categories to GitHub:', error);
+            return false;
+        }
+    }
+    
     // Add category
-    addCategory(category) {
+    async addCategory(category) {
         console.log('Adding category:', category);
         if(!this.categories.includes(category)) {
             this.categories.push(category);
-            this.saveCategories();
+            
+            // Save to GitHub
+            const success = await this.saveCategoriesToGitHub();
+            if (!success) {
+                // Fallback to localStorage
+                this.saveCategories();
+            }
+            
             return true;
         }
         return false;
@@ -738,7 +1010,7 @@ class ProductManager {
         return this.categories;
     }
     
-    // Load categories from localStorage
+    // Load categories from localStorage (fallback)
     loadCategories() {
         const storedCategories = localStorage.getItem('categories');
         if(storedCategories) {
@@ -754,7 +1026,7 @@ class ProductManager {
         }
     }
     
-    // Save categories to localStorage
+    // Save categories to localStorage (fallback)
     saveCategories() {
         console.log('Saving categories to localStorage, count:', this.categories.length);
         localStorage.setItem('categories', JSON.stringify(this.categories));
@@ -1123,18 +1395,57 @@ const productManager = new ProductManager();
 const membershipManager = new MembershipManager();
 const cartManager = new CartManager();
 
-// Load data from localStorage
-console.log('Loading data from localStorage...');
-productManager.loadProducts();
-productManager.loadCategories();
-productManager.loadTags();
-membershipManager.loadMembers();
-
-// Update cart badge on page load
-$(document).ready(function(){
-    const cartCount = cartManager.getItemCount();
-    $('.header-icon .badge').eq(1).text(cartCount);
-});
+// Load data from storage
+console.log('Loading data from storage...');
+(async function loadAllData() {
+    try {
+        // First try to load from GitHub
+        console.log('Attempting to load products and categories from GitHub...');
+        const productsLoaded = await productManager.loadProductsFromGitHub();
+        const categoriesLoaded = await productManager.loadCategoriesFromGitHub();
+        
+        // If GitHub failed, the loadProducts/loadCategories methods will have loaded from localStorage as fallback
+        if (!productsLoaded) {
+            console.log('Fallback: Loading products from localStorage...');
+            productManager.loadProducts();
+        }
+        
+        if (!categoriesLoaded) {
+            console.log('Fallback: Loading categories from localStorage...');
+            productManager.loadCategories();
+        }
+        
+        // Always load these from localStorage
+        productManager.loadTags();
+        membershipManager.loadMembers();
+        cartManager.loadCart();
+        
+        // Update cart badge on page load
+        const cartCount = cartManager.getItemCount();
+        $('.header-icon .badge').eq(1).text(cartCount);
+        
+        // Update UI with loaded data
+        if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+            // Refresh product listings on homepage if present
+            if (typeof displayProducts === 'function') {
+                displayProducts();
+            }
+        }
+        
+        // Update admin panel data if it's open
+        if ($('#admin-panel').hasClass('active')) {
+            loadAdminPanelData();
+        }
+        
+    } catch (error) {
+        console.error('Error loading data:', error);
+        // Fallback to localStorage for everything
+        productManager.loadProducts();
+        productManager.loadCategories();
+        productManager.loadTags();
+        membershipManager.loadMembers();
+    }
+})();
 
 // Supabase configuration
 const SUPABASE_URL = 'https://ebkgbaetsgtzordvkcvf.supabase.co';
@@ -1293,6 +1604,9 @@ async function checkUserAuth() {
 // Function to load data for admin panel
 async function loadAdminPanelData() {
     try {
+        // Show loading indicator
+        $('#admin-panel .admin-content').append('<div id="admin-loading" class="admin-loading"><div class="spinner"></div><div>טוען נתונים...</div></div>');
+        
         // Load products data
         await loadProductsData();
         
@@ -1304,9 +1618,13 @@ async function loadAdminPanelData() {
         
         // Load orders data
         await loadOrdersData();
+        
+        // Hide loading indicator
+        $('#admin-loading').remove();
     } catch (error) {
         console.error('Error loading admin data:', error);
         showNotification('שגיאה בטעינת נתוני הניהול', 'error');
+        $('#admin-loading').remove();
     }
 }
 
@@ -1580,638 +1898,294 @@ function closeAddProductModal() {
 
 // Add admin panel HTML to the DOM if it doesn't exist
 function addAdminPanelToDOM() {
-    // Check if admin panel already exists
-    if ($('#admin-panel').length > 0) return;
-    
-    const adminPanelHTML = `
-    <!-- Admin Panel -->
-    <div id="admin-panel" class="admin-panel">
-        <div class="admin-panel-bg"></div>
-        <div class="admin-panel-container">
-            <div class="admin-panel-header">
-                <h2>פאנל ניהול</h2>
-                <button class="close-admin-panel">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <div class="admin-panel-sidebar">
-                <ul>
-                    <li class="admin-menu-item active" data-target="product-management">ניהול מוצרים</li>
-                    <li class="admin-menu-item" data-target="category-management">ניהול קטגוריות</li>
-                    <li class="admin-menu-item" data-target="user-management">ניהול משתמשים</li>
-                    <li class="admin-menu-item" data-target="order-management">ניהול הזמנות</li>
-                    <li class="admin-menu-item" data-target="site-settings">הגדרות אתר</li>
-                </ul>
-            </div>
-            
-            <div class="admin-panel-content">
-                <!-- Product Management -->
-                <div id="product-management" class="admin-tab active">
-                    <h3>ניהול מוצרים</h3>
-                    
-                    <div class="admin-actions">
-                        <button id="add-product-btn" class="admin-btn">הוסף מוצר חדש</button>
-                        <input type="text" id="product-search" placeholder="חפש מוצרים...">
-                    </div>
-                    
-                    <div class="product-list">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>תמונה</th>
-                                    <th>שם המוצר</th>
-                                    <th>קטגוריה</th>
-                                    <th>מחיר</th>
-                                    <th>מלאי</th>
-                                    <th>פעולות</th>
-                                </tr>
-                            </thead>
-                            <tbody id="product-list-body">
-                                <!-- Products will be loaded here -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                
-                <!-- Category Management -->
-                <div id="category-management" class="admin-tab">
-                    <h3>ניהול קטגוריות</h3>
-                    
-                    <div class="admin-actions">
-                        <button id="add-category-btn" class="admin-btn">הוסף קטגוריה חדשה</button>
-                    </div>
-                    
-                    <div class="category-list">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>שם הקטגוריה</th>
-                                    <th>מספר מוצרים</th>
-                                    <th>פעולות</th>
-                                </tr>
-                            </thead>
-                            <tbody id="category-list-body">
-                                <!-- Categories will be loaded here -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                
-                <!-- User Management -->
-                <div id="user-management" class="admin-tab">
-                    <h3>ניהול משתמשים</h3>
-                    
-                    <div class="user-list">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>שם</th>
-                                    <th>אימייל</th>
-                                    <th>סוג חשבון</th>
-                                    <th>תאריך הרשמה</th>
-                                    <th>פעולות</th>
-                                </tr>
-                            </thead>
-                            <tbody id="user-list-body">
-                                <!-- Users will be loaded here -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                
-                <!-- Order Management -->
-                <div id="order-management" class="admin-tab">
-                    <h3>ניהול הזמנות</h3>
-                    
-                    <div class="order-list">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>מספר הזמנה</th>
-                                    <th>לקוח</th>
-                                    <th>תאריך</th>
-                                    <th>סכום</th>
-                                    <th>סטטוס</th>
-                                    <th>פעולות</th>
-                                </tr>
-                            </thead>
-                            <tbody id="order-list-body">
-                                <!-- Orders will be loaded here -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                
-                <!-- Site Settings -->
-                <div id="site-settings" class="admin-tab">
-                    <h3>הגדרות אתר</h3>
-                    
-                    <form id="site-settings-form">
-                        <div class="form-group">
-                            <label for="site-title">כותרת האתר</label>
-                            <input type="text" id="site-title" value="Doctor Instraction - חנות מקצועית">
+    // Only add if it doesn't exist
+    if($('#admin-panel').length === 0) {
+        console.log('Adding admin panel to DOM...');
+        
+        $('body').append(`
+            <!-- Admin Panel -->
+            <div id="admin-panel" class="admin-panel">
+                <div class="admin-panel-bg"></div>
+                <div class="admin-container">
+                    <div class="admin-sidebar">
+                        <div class="admin-header">
+                            <h3>פאנל ניהול</h3>
+                            <button class="close-admin-panel"><i class="fas fa-times"></i></button>
                         </div>
-                        
-                        <div class="form-group">
-                            <label for="site-description">תיאור האתר</label>
-                            <textarea id="site-description">חנות מקצועית ומובילה עם מוצרים איכותיים במחירים אטרקטיביים. הצטרפו למועדון ה-VIP וקבלו הטבות בלעדיות.</textarea>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="site-logo">לוגו האתר</label>
-                            <div class="logo-preview">
-                                <img src="/api/placeholder/40/40" alt="Site Logo">
+                        <ul class="admin-menu">
+                            <li class="admin-menu-item active" data-target="products-tab">
+                                <i class="fas fa-box-open"></i>
+                                <span>מוצרים</span>
+                            </li>
+                            <li class="admin-menu-item" data-target="categories-tab">
+                                <i class="fas fa-tags"></i>
+                                <span>קטגוריות</span>
+                            </li>
+                            <li class="admin-menu-item" data-target="users-tab">
+                                <i class="fas fa-users"></i>
+                                <span>משתמשים</span>
+                            </li>
+                            <li class="admin-menu-item" data-target="orders-tab">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span>הזמנות</span>
+                            </li>
+                            <li class="admin-menu-item" data-target="settings-tab">
+                                <i class="fas fa-cog"></i>
+                                <span>הגדרות</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="admin-content">
+                        <!-- Products Tab -->
+                        <div id="products-tab" class="admin-tab active">
+                            <div class="admin-tab-header">
+                                <h2>ניהול מוצרים</h2>
+                                <div class="admin-actions">
+                                    <div class="search-box">
+                                        <input type="text" id="product-search" placeholder="חיפוש מוצרים...">
+                                        <i class="fas fa-search"></i>
+                                    </div>
+                                    <button id="add-product-btn" class="admin-btn"><i class="fas fa-plus"></i> הוסף מוצר</button>
+                                </div>
                             </div>
-                            <input type="file" id="site-logo">
+                            <div class="admin-table-container">
+                                <table class="admin-table">
+                                    <thead>
+                                        <tr>
+                                            <th>תמונה</th>
+                                            <th>שם</th>
+                                            <th>קטגוריה</th>
+                                            <th>מחיר</th>
+                                            <th>מלאי</th>
+                                            <th>פעולות</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="product-list-body">
+                                        <!-- Product rows will be added here dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                         
-                        <button type="submit" class="admin-btn">שמור שינויים</button>
-                    </form>
+                        <!-- Categories Tab -->
+                        <div id="categories-tab" class="admin-tab">
+                            <div class="admin-tab-header">
+                                <h2>ניהול קטגוריות</h2>
+                                <div class="admin-actions">
+                                    <button id="add-category-btn" class="admin-btn"><i class="fas fa-plus"></i> הוסף קטגוריה</button>
+                                </div>
+                            </div>
+                            <div class="admin-table-container">
+                                <table class="admin-table">
+                                    <thead>
+                                        <tr>
+                                            <th>שם קטגוריה</th>
+                                            <th>מספר מוצרים</th>
+                                            <th>פעולות</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="category-list-body">
+                                        <!-- Category rows will be added here dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Users Tab -->
+                        <div id="users-tab" class="admin-tab">
+                            <div class="admin-tab-header">
+                                <h2>ניהול משתמשים</h2>
+                                <div class="admin-actions">
+                                    <div class="search-box">
+                                        <input type="text" id="user-search" placeholder="חיפוש משתמשים...">
+                                        <i class="fas fa-search"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="admin-table-container">
+                                <table class="admin-table">
+                                    <thead>
+                                        <tr>
+                                            <th>שם</th>
+                                            <th>אימייל</th>
+                                            <th>סוג משתמש</th>
+                                            <th>תאריך הצטרפות</th>
+                                            <th>פעולות</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="user-list-body">
+                                        <!-- User rows will be added here dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Orders Tab -->
+                        <div id="orders-tab" class="admin-tab">
+                            <div class="admin-tab-header">
+                                <h2>ניהול הזמנות</h2>
+                                <div class="admin-actions">
+                                    <div class="search-box">
+                                        <input type="text" id="order-search" placeholder="חיפוש הזמנות...">
+                                        <i class="fas fa-search"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="admin-table-container">
+                                <table class="admin-table">
+                                    <thead>
+                                        <tr>
+                                            <th>מספר הזמנה</th>
+                                            <th>לקוח</th>
+                                            <th>תאריך</th>
+                                            <th>סכום</th>
+                                            <th>סטטוס</th>
+                                            <th>פעולות</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="order-list-body">
+                                        <!-- Order rows will be added here dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Settings Tab -->
+                        <div id="settings-tab" class="admin-tab">
+                            <div class="admin-tab-header">
+                                <h2>הגדרות אתר</h2>
+                            </div>
+                            <div class="admin-form-container">
+                                <form id="site-settings-form">
+                                    <div class="form-group">
+                                        <label for="site-title">כותרת האתר</label>
+                                        <input type="text" id="site-title" value="חנות אקסטרים אונליין">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="site-description">תיאור האתר</label>
+                                        <textarea id="site-description" rows="3">החנות המובילה למוצרי אקסטרים ברשת</textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="github-user">שם משתמש GitHub</label>
+                                        <input type="text" id="github-user" value="${productManager?.githubUser || ''}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="github-repo">שם מאגר GitHub</label>
+                                        <input type="text" id="github-repo" value="${productManager?.githubRepo || ''}">
+                                    </div>
+                                    <button type="submit" class="admin-btn">שמור הגדרות</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-    
-    <!-- Add Product Modal -->
-    <div id="add-product-modal" class="admin-modal">
-        <div class="admin-modal-bg"></div>
-        <div class="admin-modal-container">
-            <div class="admin-modal-header">
-                <h3>הוסף מוצר חדש</h3>
-                <button class="close-admin-modal">
-                    <i class="fas fa-times"></i>
-                </button>
+            
+            <!-- Add Product Modal -->
+            <div id="add-product-modal" class="admin-modal">
+                <div class="admin-modal-bg"></div>
+                <div class="admin-modal-container">
+                    <div class="admin-modal-header">
+                        <h3>הוסף מוצר חדש</h3>
+                        <button class="close-admin-modal"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="admin-modal-content">
+                        <form id="add-product-form">
+                            <div class="form-group">
+                                <label for="product-name">שם המוצר</label>
+                                <input type="text" id="product-name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="product-category">קטגוריה</label>
+                                <select id="product-category" required>
+                                    <option value="">בחר קטגוריה</option>
+                                </select>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group half">
+                                    <label for="product-price">מחיר (₪)</label>
+                                    <input type="number" id="product-price" min="0" step="0.01" required>
+                                </div>
+                                <div class="form-group half">
+                                    <label for="product-old-price">מחיר קודם (₪) - אופציונלי</label>
+                                    <input type="number" id="product-old-price" min="0" step="0.01">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group half">
+                                    <label for="product-stock">מלאי</label>
+                                    <input type="number" id="product-stock" min="0" required>
+                                </div>
+                                <div class="form-group half">
+                                    <label for="product-badge">תווית (חדש/מבצע) - אופציונלי</label>
+                                    <select id="product-badge">
+                                        <option value="">ללא תווית</option>
+                                        <option value="new">חדש</option>
+                                        <option value="sale">מבצע</option>
+                                        <option value="hot">חם</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="product-description">תיאור המוצר</label>
+                                <textarea id="product-description" rows="4" required></textarea>
+                            </div>
+                            <button type="submit" class="admin-btn">הוסף מוצר</button>
+                        </form>
+                    </div>
+                </div>
             </div>
-            
-            <form id="add-product-form">
-                <div class="form-group">
-                    <label for="product-name">שם המוצר</label>
-                    <input type="text" id="product-name" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="product-category">קטגוריה</label>
-                    <select id="product-category" required>
-                        <option value="">בחר קטגוריה</option>
-                        <option value="1">קטגוריה 1</option>
-                        <option value="2">קטגוריה 2</option>
-                        <option value="3">קטגוריה 3</option>
-                        <option value="4">קטגוריה 4</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="product-price">מחיר</label>
-                    <input type="number" id="product-price" step="0.01" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="product-old-price">מחיר קודם (אופציונלי)</label>
-                    <input type="number" id="product-old-price" step="0.01">
-                </div>
-                
-                <div class="form-group">
-                    <label for="product-stock">מלאי</label>
-                    <input type="number" id="product-stock" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="product-description">תיאור</label>
-                    <textarea id="product-description" required></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label for="product-image">תמונה</label>
-                    <input type="file" id="product-image" accept="image/*" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="product-badge">תג (אופציונלי)</label>
-                    <select id="product-badge">
-                        <option value="">ללא תג</option>
-                        <option value="new">חדש</option>
-                        <option value="hot">מבצע</option>
-                        <option value="sale">מכירה</option>
-                        <option value="vip">VIP</option>
-                    </select>
-                </div>
-                
-                <button type="submit" class="admin-btn">הוסף מוצר</button>
-            </form>
-        </div>
-    </div>
-    `;
-    
-    $('body').append(adminPanelHTML);
-    
-    // Add CSS for admin panel
-    const adminPanelCSS = `
-    <style>
-        /* Admin Panel Styles */
-        .admin-panel {
-            position: fixed;
-            top: 0;
-            right: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 3000;
-            display: none;
-        }
-
-        .admin-panel.active {
-            display: block;
-        }
-
-        .admin-panel-bg {
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-        }
-
-        .admin-panel-container {
-            position: absolute;
-            top: 50%;
-            right: 50%;
-            transform: translate(50%, -50%);
-            width: 90%;
-            max-width: 1200px;
-            height: 80%;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .admin-panel-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 20px;
-            background-color: #2c3e50;
-            color: #fff;
-        }
-
-        .admin-panel-header h2 {
-            margin: 0;
-            font-size: 1.5rem;
-        }
-
-        .close-admin-panel {
-            background: none;
-            border: none;
-            color: #fff;
-            font-size: 1.2rem;
-            cursor: pointer;
-            padding: 5px;
-        }
-
-        .admin-panel-sidebar {
-            width: 220px;
-            background-color: #34495e;
-            color: #fff;
-            position: absolute;
-            top: 63px;
-            right: 0;
-            bottom: 0;
-            overflow-y: auto;
-        }
-
-        .admin-panel-sidebar ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .admin-panel-sidebar .admin-menu-item {
-            padding: 15px 20px;
-            cursor: pointer;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            transition: background-color 0.3s;
-        }
-
-        .admin-panel-sidebar .admin-menu-item:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-
-        .admin-panel-sidebar .admin-menu-item.active {
-            background-color: #3498db;
-        }
-
-        .admin-panel-content {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            margin-right: 220px;
-        }
-
-        .admin-tab {
-            display: none;
-        }
-
-        .admin-tab.active {
-            display: block;
-        }
-
-        .admin-actions {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        .admin-btn {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .admin-btn:hover {
-            background-color: #2980b9;
-        }
-
-        .admin-panel table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .admin-panel th, .admin-panel td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: right;
-        }
-
-        .admin-panel th {
-            background-color: #f5f5f5;
-            font-weight: 600;
-        }
-
-        .admin-panel tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-        .admin-panel tr:hover {
-            background-color: #f1f1f1;
-        }
-
-        .action-btn {
-            background: none;
-            border: none;
-            color: #3498db;
-            margin-right: 5px;
-            cursor: pointer;
-        }
-
-        .delete-btn {
-            color: #e74c3c;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-
-        .form-group input[type="text"],
-        .form-group input[type="number"],
-        .form-group input[type="file"],
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
-        }
-
-        .form-group textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-
-        .logo-preview {
-            margin-bottom: 10px;
-        }
-
-        .logo-preview img {
-            max-width: 100px;
-            height: auto;
-        }
-
-        /* Admin Modal */
-        .admin-modal {
-            position: fixed;
-            top: 0;
-            right: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 3100;
-            display: none;
-        }
-
-        .admin-modal.active {
-            display: block;
-        }
-
-        .admin-modal-bg {
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-        }
-
-        .admin-modal-container {
-            position: absolute;
-            top: 50%;
-            right: 50%;
-            transform: translate(50%, -50%);
-            width: 90%;
-            max-width: 600px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-        }
-
-        .admin-modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 20px;
-            background-color: #2c3e50;
-            color: #fff;
-        }
-
-        .admin-modal-header h3 {
-            margin: 0;
-        }
-
-        .close-admin-modal {
-            background: none;
-            border: none;
-            color: #fff;
-            font-size: 1.2rem;
-            cursor: pointer;
-            padding: 5px;
-        }
-
-        .admin-modal form {
-            padding: 20px;
-        }
-        
-        /* Status badges for orders */
-        .status-badge {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 3px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            text-align: center;
-        }
-        
-        .status-badge.completed {
-            background-color: rgba(46, 204, 113, 0.2);
-            color: #2ecc71;
-        }
-        
-        .status-badge.pending {
-            background-color: rgba(243, 156, 18, 0.2);
-            color: #f39c12;
-        }
-        
-        .status-badge.cancelled {
-            background-color: rgba(231, 76, 60, 0.2);
-            color: #e74c3c;
-        }
-    </style>
-    `;
-    
-    $('head').append(adminPanelCSS);
+        `);
+    }
 }
 
-// Add admin menu item to the navigation
-function addAdminMenuItemToNav() {
-    // Check if admin menu item already exists
-    if ($('#admin-menu-item').length > 0) return;
-    
-    // Add admin menu item to navigation
-    $('nav ul').append('<li id="admin-menu-item" style="display: none;"><a href="#" class="admin-panel-btn">פאנל ניהול</a></li>');
+// Add CSS for admin loading spinner
+function addAdminStyles() {
+    // Only add if it doesn't exist
+    if($('#admin-styles').length === 0) {
+        console.log('Adding admin styles...');
+        
+        $('head').append(`
+            <style id="admin-styles">
+                /* Admin Loading Spinner */
+                .admin-loading {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background-color: rgba(255,255,255,0.8);
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 1000;
+                }
+                
+                .admin-loading .spinner {
+                    width: 50px;
+                    height: 50px;
+                    border: 5px solid #f3f3f3;
+                    border-top: 5px solid #3498db;
+                    border-radius: 50%;
+                    animation: spin 1s linear infinite;
+                    margin-bottom: 15px;
+                }
+                
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            </style>
+        `);
+    }
 }
-
-// Override updateUserUI function to include admin check
-const originalUpdateUserUI = updateUserUI;
-updateUserUI = function(userData) {
-    // Call the original function
-    originalUpdateUserUI(userData);
-    
-    // Check if user is admin
-    if (userData && userData.email === ADMIN_EMAIL) {
-        isAdmin = true;
-        
-        // Make sure admin panel elements exist in DOM
-        addAdminPanelToDOM();
-        addAdminMenuItemToNav();
-        
-        // Show admin menu item
-        $('#admin-menu-item').show();
-        
-        // If this is first login as admin, show admin panel automatically
-        if (localStorage.getItem('adminPanelShown') !== 'true') {
-            openAdminPanel();
-            localStorage.setItem('adminPanelShown', 'true');
-        }
-    } else {
-        isAdmin = false;
-        $('#admin-menu-item').hide();
-    }
-};
-
-// Override login function to check for admin
-const originalLoginForm = $('#login-form').on('submit');
-$('#login-form').off('submit').on('submit', async function(e) {
-    e.preventDefault();
-    clearAuthErrors();
-    
-    const email = $('#login-email').val();
-    const password = $('#login-password').val();
-    
-    console.log('Login attempt:', email);
-    
-    try {
-        const supabase = initSupabase();
-        if (!supabase) {
-            showAuthError('login', 'Unable to connect to authentication service');
-            return;
-        }
-        
-        // Show loading state
-        $('#login-submit').prop('disabled', true).text('מעבד...');
-        
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email: email,
-            password: password
-        });
-        
-        if (error) throw error;
-        
-        const userData = {
-            email: data.user.email,
-            name: data.user.user_metadata && data.user.user_metadata.full_name ? data.user.user_metadata.full_name : data.user.email.split('@')[0],
-            isVIP: data.user.user_metadata && data.user.user_metadata.isVIP ? data.user.user_metadata.isVIP : false
-        };
-        
-        console.log('Login successful for:', userData.email);
-        showNotification('התחברת בהצלחה!', 'success');
-        hideAuthModal();
-        updateUserUI(userData);
-        
-        // Save user data to localStorage
-        localStorage.setItem('user', JSON.stringify(userData));
-        
-        // Check if user is admin and open admin panel immediately
-        if (email === ADMIN_EMAIL) {
-            console.log('Admin user detected, opening admin panel...');
-            // Ensure admin panel exists in DOM
-            addAdminPanelToDOM();
-            isAdmin = true;
-            $('#admin-menu-item').show();
-            
-            // Open admin panel immediately
-            setTimeout(() => {
-                console.log('Triggering admin panel open...');
-                openAdminPanel();
-            }, 300);
-        }
-        
-    } catch (error) {
-        console.error('Login error:', error);
-        showAuthError('login', error.message || 'Failed to login. Please check your credentials.');
-    } finally {
-        // Reset button state
-        $('#login-submit').prop('disabled', false).text('התחברות');
-    }
-});
 
 // Document ready event handlers for admin panel
 $(document).ready(function() {
     // Add admin panel elements to DOM
     addAdminPanelToDOM();
+    addAdminStyles();
     addAdminMenuItemToNav();
     
     // Admin panel tab switching
@@ -2227,241 +2201,154 @@ $(document).ready(function() {
         const targetTab = $(this).data('target');
         $(`#${targetTab}`).addClass('active');
     });
-    
-    // Admin panel open/close
-    $(document).on('click', '.admin-panel-btn', function(e) {
-        e.preventDefault();
-        openAdminPanel();
-    });
-    
-    $(document).on('click', '.close-admin-panel', function() {
-        closeAdminPanel();
-    });
-    
-    $(document).on('click', '.admin-panel-bg', function() {
-        closeAdminPanel();
-    });
-    
-    // Add product button
-    $(document).on('click', '#add-product-btn', function() {
-        openAddProductModal();
-    });
-    
-    // Close modal buttons
-    $(document).on('click', '.close-admin-modal', function() {
-        closeAddProductModal();
-    });
-    
-    $(document).on('click', '.admin-modal-bg', function() {
-        closeAddProductModal();
-    });
-    
-    // Add product form submission
-    $(document).on('submit', '#add-product-form', function(e) {
-        e.preventDefault();
-        
-        // Get form data
-        const productName = $('#product-name').val();
-        const productCategory = $('#product-category').val();
-        const productPrice = parseFloat($('#product-price').val());
-        const productOldPrice = $('#product-old-price').val() ? parseFloat($('#product-old-price').val()) : null;
-        const productStock = parseInt($('#product-stock').val());
-        const productDescription = $('#product-description').val();
-        const productBadge = $('#product-badge').val();
-        
-        // Create product object
-        const newProduct = {
-            name: productName,
-            category: productCategory,
-            price: productPrice,
-            oldPrice: productOldPrice,
-            stock: productStock,
-            description: productDescription,
-            badge: productBadge,
-            // Use a data URI for a simple placeholder instead of an external URL
-            image: 'data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%20viewBox%3D%220%200%20100%20100%22%3E%3Crect%20fill%3D%22%23CCC%22%20width%3D%22100%22%20height%3D%22100%22%2F%3E%3Ctext%20text-anchor%3D%22middle%22%20x%3D%2250%22%20y%3D%2250%22%20dy%3D%22.3em%22%20fill%3D%22%23555%22%20font-family%3D%22monospace%22%20font-size%3D%2218%22%3EImage%3C%2Ftext%3E%3C%2Fsvg%3E',
-            createdAt: new Date()
-        };
-        
-        console.log('Adding new product:', newProduct);
-        
-        // Add to product manager
-        const productId = productManager.addProduct(newProduct);
-        
-        // Show success notification
-        showNotification('המוצר נוסף בהצלחה!', 'success');
-        closeAddProductModal();
-        
-        // Reload product list
-        loadProductsData();
-        
-        // Clear form
-        $('#add-product-form')[0].reset();
-    });
-    
-    // Save site settings form
-    $(document).on('submit', '#site-settings-form', function(e) {
-        e.preventDefault();
-        
-        const siteTitle = $('#site-title').val();
-        const siteDescription = $('#site-description').val();
-        
-        // In a real implementation, you would save these settings to the database
-        
-        showNotification('הגדרות האתר נשמרו בהצלחה!', 'success');
-    });
-    
-    // Delete product button
-    $(document).on('click', '.delete-btn', function() {
-        const id = $(this).data('id');
-        const itemType = determineItemType($(this));
-        
-        if (confirm(`האם אתה בטוח שברצונך למחוק ${itemType === 'product' ? 'מוצר' : itemType === 'category' ? 'קטגוריה' : itemType === 'user' ? 'משתמש' : 'פריט'} זה?`)) {
-            
-            // Handle different item types
-            switch(itemType) {
-                case 'product':
-                    // Delete product from product manager
-                    productManager.deleteProduct(id);
-                    // Reload product list
-                    loadProductsData();
-                    break;
-                    
-                case 'category':
-                    // Get current categories
-                    const categories = productManager.getAllCategories();
-                    // Remove the category
-                    const newCategories = categories.filter((cat, index) => index.toString() !== id.toString());
-                    // Update localStorage
-                    localStorage.setItem('categories', JSON.stringify(newCategories));
-                    // Reload categories
-                    loadCategoriesData();
-                    // Update category dropdown
-                    updateCategoryDropdown();
-                    break;
-                    
-                case 'user':
-                    // Cannot delete the admin user
-                    if (id === 'admin') {
-                        showNotification('לא ניתן למחוק את חשבון המנהל', 'error');
-                        return;
-                    }
-                    // Remove user from membership manager if exists
-                    const memberIndex = membershipManager.members.findIndex(m => m.id === id);
-                    if (memberIndex !== -1) {
-                        membershipManager.members.splice(memberIndex, 1);
-                        membershipManager.saveMembers();
-                    }
-                    // Reload users
-                    loadUsersData();
-                    break;
-                    
-                case 'order':
-                    // Get current orders
-                    let orders = [];
-                    const storedOrders = localStorage.getItem('orders');
-                    if (storedOrders) {
-                        orders = JSON.parse(storedOrders);
-                    }
-                    // Remove the order
-                    const newOrders = orders.filter(order => order.id !== id);
-                    // Update localStorage
-                    localStorage.setItem('orders', JSON.stringify(newOrders));
-                    // Reload orders
-                    loadOrdersData();
-                    break;
-            }
-            
-            showNotification('הפריט נמחק בהצלחה', 'success');
-        }
-    });
-    
-    // Edit product button (placeholder functionality)
-    $(document).on('click', '.edit-btn', function() {
-        const id = $(this).data('id');
-        showNotification('עריכת פריט #' + id + ' תהיה זמינה בקרוב', 'info');
-    });
-    
-    // Product search functionality
-    $(document).on('keyup', '#product-search', function() {
-        const searchTerm = $(this).val().toLowerCase();
-        $('#product-list-body tr').each(function() {
-            const productName = $(this).find('td:nth-child(2)').text().toLowerCase();
-            const productCategory = $(this).find('td:nth-child(3)').text().toLowerCase();
-            
-            if (productName.includes(searchTerm) || productCategory.includes(searchTerm)) {
-                $(this).show();
-            } else {
-                $(this).hide();
-            }
-        });
-    });
-    
-    // Add category button (placeholder functionality)
-    $(document).on('click', '#add-category-btn', function() {
-        const categoryName = prompt('הזן שם קטגוריה:');
-        if (categoryName && categoryName.trim()) {
-            // Add category to product manager
-            productManager.addCategory(categoryName.trim());
-            
-            // Show success notification
-            showNotification('הקטגוריה נוספה בהצלחה', 'success');
-            
-            // Reload categories
-            loadCategoriesData();
-            
-            // Update category dropdown in the add product form
-            updateCategoryDropdown();
-        }
-    });
-    
-    // Check for admin on page load
-    checkUserAuth();
-    
-    // Check login status on page load also for admin
-    const checkAdminStatus = async function() {
-        try {
-            if (!supabase) return;
-            
-            const { data, error } = await supabase.auth.getSession();
-            if (error) throw error;
-            
-            if (data && data.session) {
-                const user = data.session.user;
-                if (user.email === ADMIN_EMAIL) {
-                    // User is admin, make sure admin menu is shown
-                    isAdmin = true;
-                    $('#admin-menu-item').show();
-                    
-                    // Open admin panel if user is already logged in as admin
-                    setTimeout(() => {
-                        openAdminPanel();
-                    }, 500);
-                }
-            }
-        } catch (error) {
-            console.error('Error checking admin status:', error);
-        }
-    };
-    
-    // Run admin check
-    checkAdminStatus();
 });
 
-// Helper function to determine which item type is being deleted
-function determineItemType(buttonElement) {
-    // Check which table contains this button
-    const $row = buttonElement.closest('tr');
+// Save site settings form
+$(document).on('submit', '#site-settings-form', async function(e) {
+    e.preventDefault();
     
-    if ($row.closest('#product-list-body').length) {
-        return 'product';
-    } else if ($row.closest('#category-list-body').length) {
-        return 'category';
-    } else if ($row.closest('#user-list-body').length) {
-        return 'user';
-    } else if ($row.closest('#order-list-body').length) {
-        return 'order';
+    const siteTitle = $('#site-title').val();
+    const siteDescription = $('#site-description').val();
+    const githubUser = $('#github-user').val();
+    const githubRepo = $('#github-repo').val();
+    
+    // Disable submit button to prevent double submission
+    const $submitBtn = $(this).find('button[type="submit"]');
+    $submitBtn.prop('disabled', true).text('שומר...');
+    
+    try {
+        // Save GitHub settings to localStorage for next time
+        if (githubUser && githubRepo) {
+            const githubConfig = {
+                user: githubUser,
+                repo: githubRepo
+            };
+            localStorage.setItem('githubConfig', JSON.stringify(githubConfig));
+            
+            // Update product manager config
+            productManager.githubUser = githubUser;
+            productManager.githubRepo = githubRepo;
+            
+            showNotification('הגדרות GitHub נשמרו בהצלחה!', 'success');
+            
+            // Initialize GitHub repository structure
+            const repoInitialized = await initGitHubRepository();
+            if (repoInitialized) {
+                showNotification('מבנה מאגר GitHub אותחל בהצלחה!', 'success');
+                
+                // Try to load data from GitHub with new settings
+                await productManager.loadProductsFromGitHub();
+                await productManager.loadCategoriesFromGitHub();
+                
+                // Refresh admin panel data
+                await loadAdminPanelData();
+            }
+        }
+        
+        showNotification('הגדרות האתר נשמרו בהצלחה!', 'success');
+    } catch (error) {
+        console.error('Error saving settings:', error);
+        showNotification('שגיאה בשמירת ההגדרות: ' + error.message, 'error');
+    } finally {
+        // Re-enable submit button
+        $submitBtn.prop('disabled', false).text('שמור הגדרות');
     }
-    
-    return 'unknown';
+});
+
+// Initialize GitHub repository structure
+async function initGitHubRepository() {
+    try {
+        if (!productManager.githubUser || !productManager.githubRepo) {
+            console.log('GitHub configuration missing, skipping repository initialization');
+            return false;
+        }
+        
+        console.log('Checking GitHub repository structure...');
+        
+        // Check if data folder exists, if not create it with initial files
+        const dataFolderCheck = await checkGitHubPath('data');
+        if (!dataFolderCheck) {
+            // We'll need to ask for a GitHub token to create folders
+            const githubToken = prompt("To initialize GitHub repository structure, please enter your GitHub Personal Access Token with 'repo' permissions.", "");
+            if (!githubToken) {
+                console.warn('No GitHub token provided, cannot initialize repository');
+                return false;
+            }
+            
+            // Create 'data' folder with README
+            await createGitHubFile('data/README.md', 
+                '# Data Directory\n\nThis directory contains JSON data files for the store:\n\n' +
+                '- products.json - Store products\n' +
+                '- categories.json - Product categories\n', 
+                'Initialize data directory', 
+                githubToken);
+                
+            // Create empty products.json
+            await createGitHubFile('data/products.json', 
+                '[]', 
+                'Initialize empty products database', 
+                githubToken);
+                
+            // Create empty categories.json
+            await createGitHubFile('data/categories.json', 
+                '[]', 
+                'Initialize empty categories database', 
+                githubToken);
+                
+            console.log('GitHub repository structure initialized');
+            return true;
+        }
+        
+        return true;
+    } catch (error) {
+        console.error('Error initializing GitHub repository:', error);
+        return false;
+    }
+}
+
+// Check if a path exists in GitHub repository
+async function checkGitHubPath(path) {
+    try {
+        const apiUrl = `https://api.github.com/repos/${productManager.githubUser}/${productManager.githubRepo}/contents/${path}`;
+        const response = await fetch(apiUrl);
+        return response.ok;
+    } catch (error) {
+        console.error(`Error checking GitHub path ${path}:`, error);
+        return false;
+    }
+}
+
+// Create a file in GitHub repository
+async function createGitHubFile(path, content, message, token) {
+    try {
+        const apiUrl = `https://api.github.com/repos/${productManager.githubUser}/${productManager.githubRepo}/contents/${path}`;
+        
+        // Convert content to base64
+        const base64Content = btoa(content);
+        
+        const response = await fetch(apiUrl, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `token ${token}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                message: message,
+                content: base64Content,
+                branch: 'main'
+            })
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error(`GitHub API error (${response.status}): ${response.statusText}`, errorData);
+            return false;
+        }
+        
+        console.log(`Created GitHub file: ${path}`);
+        return true;
+    } catch (error) {
+        console.error(`Error creating GitHub file ${path}:`, error);
+        return false;
+    }
 }
