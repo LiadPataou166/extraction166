@@ -150,6 +150,24 @@
     <script>
         // Admin Panel JavaScript
         $(document).ready(function() {
+            // Check if user is logged in and is admin
+            const userInfo = JSON.parse(localStorage.getItem('currentUser'));
+            if (userInfo && userInfo.isAdmin) {
+                // User is an admin, automatically show the admin panel
+                $('#login-section').hide();
+                $('#admin-panel').show();
+                $('#admin-header-welcome').show();
+                $('#admin-name').text(userInfo.name);
+                
+                // Pre-fill login form for convenience
+                $('#email').val(userInfo.email);
+            } else {
+                // Not logged in or not admin, show login form
+                $('#login-section').show();
+                $('#admin-panel').hide();
+                $('#admin-header-welcome').hide();
+            }
+            
             // Set Current Date
             const now = new Date();
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -168,6 +186,14 @@
                     $('#admin-panel').show();
                     $('#admin-header-welcome').show();
                     $('#admin-name').text('ליעד');
+                    
+                    // Store user info in localStorage
+                    const userInfo = {
+                        email: email,
+                        name: 'ליעד',
+                        isAdmin: true
+                    };
+                    localStorage.setItem('currentUser', JSON.stringify(userInfo));
                 } else {
                     $('#login-error').text('דוא"ל או סיסמה שגויים').show();
                 }
