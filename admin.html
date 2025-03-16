@@ -161,6 +161,9 @@
                 
                 // Pre-fill login form for convenience
                 $('#email').val(userInfo.email);
+                
+                // Create and show floating admin panel
+                createFloatingAdminPanel();
             } else {
                 // Not logged in or not admin, show login form
                 $('#login-section').show();
@@ -194,18 +197,124 @@
                         isAdmin: true
                     };
                     localStorage.setItem('currentUser', JSON.stringify(userInfo));
+                    
+                    // Create and show floating admin panel
+                    createFloatingAdminPanel();
                 } else {
                     $('#login-error').text('דוא"ל או סיסמה שגויים').show();
                 }
             });
             
-            // Logout Button
+            // Create floating admin panel function
+            function createFloatingAdminPanel() {
+                // Remove existing panel if it exists
+                $('#floating-admin-panel').remove();
+                
+                // Create floating panel HTML
+                const floatingPanel = `
+                    <div id="floating-admin-panel" class="card shadow-lg" style="position: fixed; bottom: 20px; right: 20px; width: 300px; z-index: 9999; border-radius: 10px; overflow: hidden;">
+                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                            <h5 class="m-0">פאנל ניהול מהיר</h5>
+                            <div>
+                                <button id="minimize-admin-panel" class="btn btn-sm btn-light me-1"><i class="fas fa-minus"></i></button>
+                                <button id="close-admin-panel" class="btn btn-sm btn-light"><i class="fas fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="list-group">
+                                <button id="quick-add-product" class="list-group-item list-group-item-action"><i class="fas fa-plus"></i> הוסף מוצר חדש</button>
+                                <button id="quick-edit-settings" class="list-group-item list-group-item-action"><i class="fas fa-cog"></i> הגדרות אתר</button>
+                                <button id="quick-categories" class="list-group-item list-group-item-action"><i class="fas fa-tags"></i> ניהול קטגוריות</button>
+                                <button id="quick-users" class="list-group-item list-group-item-action"><i class="fas fa-users"></i> ניהול משתמשים</button>
+                            </div>
+                        </div>
+                        <div class="card-footer text-center">
+                            <span class="badge bg-success">מחובר כמנהל</span>
+                        </div>
+                    </div>
+                    <button id="expand-admin-panel" class="btn btn-primary position-fixed" style="bottom: 20px; right: 20px; z-index: 9999; display: none;">
+                        <i class="fas fa-cog"></i> פאנל ניהול
+                    </button>
+                `;
+                
+                // Add panel to body
+                $('body').append(floatingPanel);
+                
+                // Add event listeners
+                $('#minimize-admin-panel').on('click', function() {
+                    $('#floating-admin-panel').hide();
+                    $('#expand-admin-panel').show();
+                });
+                
+                $('#expand-admin-panel').on('click', function() {
+                    $('#floating-admin-panel').show();
+                    $('#expand-admin-panel').hide();
+                });
+                
+                $('#close-admin-panel').on('click', function() {
+                    $('#floating-admin-panel').remove();
+                    $('#expand-admin-panel').remove();
+                });
+                
+                // Quick actions
+                $('#quick-add-product').on('click', function() {
+                    $('#productModalTitle').text('הוספת מוצר חדש');
+                    $('#product-form')[0].reset();
+                    $('#product-id').val('');
+                    $('#product-image-preview').hide();
+                    var productModal = new bootstrap.Modal(document.getElementById('productModal'));
+                    productModal.show();
+                });
+                
+                $('#quick-edit-settings').on('click', function() {
+                    // Show settings section in main admin panel
+                    $('.admin-sidebar li').removeClass('active');
+                    $('.admin-sidebar li[data-section="settings"]').addClass('active');
+                    $('.admin-section').removeClass('active');
+                    $('#settings-section').addClass('active');
+                    // Scroll to settings
+                    $('html, body').animate({
+                        scrollTop: $('#settings-section').offset().top - 100
+                    }, 500);
+                });
+                
+                $('#quick-categories').on('click', function() {
+                    // Show categories section in main admin panel
+                    $('.admin-sidebar li').removeClass('active');
+                    $('.admin-sidebar li[data-section="categories"]').addClass('active');
+                    $('.admin-section').removeClass('active');
+                    $('#categories-section').addClass('active');
+                    // Scroll to categories
+                    $('html, body').animate({
+                        scrollTop: $('#categories-section').offset().top - 100
+                    }, 500);
+                });
+                
+                $('#quick-users').on('click', function() {
+                    // Show users section in main admin panel
+                    $('.admin-sidebar li').removeClass('active');
+                    $('.admin-sidebar li[data-section="users"]').addClass('active');
+                    $('.admin-section').removeClass('active');
+                    $('#users-section').addClass('active');
+                    // Scroll to users
+                    $('html, body').animate({
+                        scrollTop: $('#users-section').offset().top - 100
+                    }, 500);
+                });
+            }
+            
+            // Logout Button - update to also remove floating panel
             $('#logout-btn').on('click', function() {
                 $('#admin-panel').hide();
                 $('#admin-header-welcome').hide();
                 $('#login-section').show();
                 $('#login-form')[0].reset();
                 $('#login-error').hide();
+                // Remove floating admin panel
+                $('#floating-admin-panel').remove();
+                $('#expand-admin-panel').remove();
+                // Clear local storage
+                localStorage.removeItem('currentUser');
             });
             
             // Sidebar Navigation
