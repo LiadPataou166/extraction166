@@ -41,11 +41,6 @@
     }
     </script>
     
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
     <!-- CSS Libraries -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
@@ -117,62 +112,6 @@
         </div>
     </header>
     
-    <!-- Main Categories Section - NEW SECTION -->
-    <section class="main-categories">
-        <div class="container">
-            <h2 class="main-categories-title">קטגוריות ראשיות</h2>
-            
-            <div class="main-categories-grid" id="dynamic-categories">
-                <!-- These category bubbles will be populated dynamically from admin panel -->
-                
-                <!-- Default/Placeholder Category Bubbles (will be replaced by dynamic content) -->
-                <div class="category-bubble-card" data-category="electronics">
-                    <img src="/api/placeholder/800/800" alt="אלקטרוניקה" class="category-bubble-bg">
-                    <div class="category-bubble-icon">
-                        <i class="fas fa-laptop"></i>
-                    </div>
-                    <div class="category-bubble-content">
-                        <h3 class="category-bubble-title">אלקטרוניקה</h3>
-                        <div class="category-bubble-count">42 מוצרים</div>
-                    </div>
-                </div>
-                
-                <div class="category-bubble-card" data-category="fashion">
-                    <img src="/api/placeholder/800/800" alt="אופנה" class="category-bubble-bg">
-                    <div class="category-bubble-icon">
-                        <i class="fas fa-tshirt"></i>
-                    </div>
-                    <div class="category-bubble-content">
-                        <h3 class="category-bubble-title">אופנה</h3>
-                        <div class="category-bubble-count">67 מוצרים</div>
-                    </div>
-                </div>
-                
-                <div class="category-bubble-card" data-category="home">
-                    <img src="/api/placeholder/800/800" alt="בית וגן" class="category-bubble-bg">
-                    <div class="category-bubble-icon">
-                        <i class="fas fa-home"></i>
-                    </div>
-                    <div class="category-bubble-content">
-                        <h3 class="category-bubble-title">בית וגן</h3>
-                        <div class="category-bubble-count">53 מוצרים</div>
-                    </div>
-                </div>
-                
-                <div class="category-bubble-card" data-category="beauty">
-                    <img src="/api/placeholder/800/800" alt="טיפוח ויופי" class="category-bubble-bg">
-                    <div class="category-bubble-icon">
-                        <i class="fas fa-spa"></i>
-                    </div>
-                    <div class="category-bubble-content">
-                        <h3 class="category-bubble-title">טיפוח ויופי</h3>
-                        <div class="category-bubble-count">38 מוצרים</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    
     <!-- Hero Section -->
     <section class="hero">
         <div class="hero-slide">
@@ -188,12 +127,52 @@
         </div>
     </section>
     
+    <!-- Category Bubbles Section -->
+    <section class="category-bubbles">
+        <div class="container">
+            <h2 class="section-title">קטגוריות מובילות</h2>
+            <div class="bubbles-container">
+                <div class="category-bubble" data-category="electronics">
+                    <div class="bubble-icon">
+                        <i class="fas fa-laptop"></i>
+                    </div>
+                    <h3 class="bubble-title">אלקטרוניקה</h3>
+                    <p class="bubble-count">42 מוצרים</p>
+                </div>
+                
+                <div class="category-bubble" data-category="fashion">
+                    <div class="bubble-icon">
+                        <i class="fas fa-tshirt"></i>
+                    </div>
+                    <h3 class="bubble-title">אופנה</h3>
+                    <p class="bubble-count">67 מוצרים</p>
+                </div>
+                
+                <div class="category-bubble" data-category="home">
+                    <div class="bubble-icon">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <h3 class="bubble-title">בית וגן</h3>
+                    <p class="bubble-count">53 מוצרים</p>
+                </div>
+                
+                <div class="category-bubble" data-category="beauty">
+                    <div class="bubble-icon">
+                        <i class="fas fa-spa"></i>
+                    </div>
+                    <h3 class="bubble-title">טיפוח ויופי</h3>
+                    <p class="bubble-count">38 מוצרים</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
     <!-- Features Section -->
     <section class="features">
         <div class="container">
             <h2 class="section-title">למה לבחור בנו?</h2>
             <div class="row">
-                <div class="feature-box fade-in fade-in-delay-1">
+                <div class="feature-box">
                     <div class="feature-icon">
                         <i class="fas fa-shipping-fast"></i>
                     </div>
@@ -201,7 +180,7 @@
                     <p class="feature-text">משלוח חינם לכל הארץ בהזמנות מעל 300 ש"ח</p>
                 </div>
                 
-                <div class="feature-box fade-in fade-in-delay-2">
+                <div class="feature-box">
                     <div class="feature-icon">
                         <i class="fas fa-shield-alt"></i>
                     </div>
@@ -209,7 +188,7 @@
                     <p class="feature-text">מערכת תשלום מאובטחת לחלוטין</p>
                 </div>
                 
-                <div class="feature-box fade-in fade-in-delay-3">
+                <div class="feature-box">
                     <div class="feature-icon">
                         <i class="fas fa-undo-alt"></i>
                     </div>
@@ -217,12 +196,60 @@
                     <p class="feature-text">30 יום החזרה ללא שאלות</p>
                 </div>
                 
-                <div class="feature-box fade-in fade-in-delay-3">
+                <div class="feature-box">
                     <div class="feature-icon">
                         <i class="fas fa-headset"></i>
                     </div>
                     <h3 class="feature-title">תמיכה 24/7</h3>
                     <p class="feature-text">צוות התמיכה שלנו זמין 24/7</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Categories Section -->
+    <section class="categories">
+        <div class="container">
+            <h2 class="section-title">קטגוריות פופולריות</h2>
+            <div class="row">
+                <div class="category-card">
+                    <div class="category-img">
+                        <img src="/api/placeholder/300/180" alt="Category 1">
+                    </div>
+                    <div class="category-content">
+                        <h3 class="category-title">קטגוריה 1</h3>
+                        <p class="category-count">24 מוצרים</p>
+                    </div>
+                </div>
+                
+                <div class="category-card">
+                    <div class="category-img">
+                        <img src="/api/placeholder/300/180" alt="Category 2">
+                    </div>
+                    <div class="category-content">
+                        <h3 class="category-title">קטגוריה 2</h3>
+                        <p class="category-count">18 מוצרים</p>
+                    </div>
+                </div>
+                
+                <div class="category-card">
+                    <div class="category-img">
+                        <img src="/api/placeholder/300/180" alt="Category 3">
+                    </div>
+                    <div class="category-content">
+                        <h3 class="category-title">קטגוריה 3</h3>
+                        <p class="category-count">32 מוצרים</p>
+                    </div>
+                </div>
+                
+                <div class="category-card">
+                    <div class="category-img">
+                        <img src="/api/placeholder/300/180" alt="Category 4">
+                    </div>
+                    <div class="category-content">
+                        <h3 class="category-title">קטגוריה 4</h3>
+                        <p class="category-count">16 מוצרים</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -250,8 +277,312 @@
                 </select>
             </div>
             
-            <div class="products-grid" id="products-grid">
-                <!-- Products will be populated dynamically from script.js -->
+            <div class="products-grid">
+                <!-- Product 1 -->
+                <div class="product-card">
+                    <div class="product-badge new">חדש</div>
+                    <div class="product-img">
+                        <img src="https://via.placeholder.com/300x300?text=Product%201" alt="Product 1">
+                    </div>
+                    <div class="product-actions">
+                        <div class="product-action-btn">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <div class="product-action-btn">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <div class="product-action-btn">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                    </div>
+                    <div class="product-content">
+                        <div class="product-category">קטגוריה 1</div>
+                        <h3 class="product-title">מוצר 1</h3>
+                        <div class="product-rating">
+                            <div class="rating-stars">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                            </div>
+                            <div class="rating-count">(15)</div>
+                        </div>
+                        <div class="product-price">
+                            <div class="current-price">₪149.99</div>
+                            <div class="old-price">₪189.99</div>
+                            <div class="price-discount">-20%</div>
+                        </div>
+                        <button class="add-to-cart">הוסף לסל</button>
+                    </div>
+                </div>
+                
+                <!-- Product 2 -->
+                <div class="product-card">
+                    <div class="product-badge hot">מבצע</div>
+                    <div class="product-img">
+                        <img src="/api/placeholder/300/300" alt="Product 2">
+                    </div>
+                    <div class="product-actions">
+                        <div class="product-action-btn">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <div class="product-action-btn">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <div class="product-action-btn">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                    </div>
+                    <div class="product-content">
+                        <div class="product-category">קטגוריה 2</div>
+                        <h3 class="product-title">מוצר 2</h3>
+                        <div class="product-rating">
+                            <div class="rating-stars">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="far fa-star"></i>
+                            </div>
+                            <div class="rating-count">(8)</div>
+                        </div>
+                        <div class="product-price">
+                            <div class="current-price">₪89.99</div>
+                            <div class="old-price">₪129.99</div>
+                            <div class="price-discount">-30%</div>
+                        </div>
+                        <button class="add-to-cart">הוסף לסל</button>
+                    </div>
+                </div>
+                
+                <!-- Product 3 -->
+                <div class="product-card">
+                    <div class="product-badge vip">VIP</div>
+                    <div class="product-img">
+                        <img src="/api/placeholder/300/300" alt="Product 3">
+                    </div>
+                    <div class="product-actions">
+                        <div class="product-action-btn">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <div class="product-action-btn">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <div class="product-action-btn">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                    </div>
+                    <div class="product-content">
+                        <div class="product-category">קטגוריה 1</div>
+                        <h3 class="product-title">מוצר 3</h3>
+                        <div class="product-rating">
+                            <div class="rating-stars">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="rating-count">(22)</div>
+                        </div>
+                        <div class="product-price">
+                            <div class="current-price">₪199.99</div>
+                            <div class="old-price">₪249.99</div>
+                            <div class="price-discount">-20%</div>
+                        </div>
+                        <button class="add-to-cart">הוסף לסל</button>
+                    </div>
+                </div>
+                
+                <!-- Product 4 -->
+                <div class="product-card">
+                    <div class="product-img">
+                        <img src="/api/placeholder/300/300" alt="Product 4">
+                    </div>
+                    <div class="product-actions">
+                        <div class="product-action-btn">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <div class="product-action-btn">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <div class="product-action-btn">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                    </div>
+                    <div class="product-content">
+                        <div class="product-category">קטגוריה 3</div>
+                        <h3 class="product-title">מוצר 4</h3>
+                        <div class="product-rating">
+                            <div class="rating-stars">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                                <i class="far fa-star"></i>
+                            </div>
+                            <div class="rating-count">(12)</div>
+                        </div>
+                        <div class="product-price">
+                            <div class="current-price">₪79.99</div>
+                        </div>
+                        <button class="add-to-cart">הוסף לסל</button>
+                    </div>
+                </div>
+                
+                <!-- Product 5 -->
+                <div class="product-card">
+                    <div class="product-badge sale">מבצע</div>
+                    <div class="product-img">
+                        <img src="/api/placeholder/300/300" alt="Product 5">
+                    </div>
+                    <div class="product-actions">
+                        <div class="product-action-btn">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <div class="product-action-btn">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <div class="product-action-btn">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                    </div>
+                    <div class="product-content">
+                        <div class="product-category">קטגוריה 2</div>
+                        <h3 class="product-title">מוצר 5</h3>
+                        <div class="product-rating">
+                            <div class="rating-stars">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="far fa-star"></i>
+                            </div>
+                            <div class="rating-count">(18)</div>
+                        </div>
+                        <div class="product-price">
+                            <div class="current-price">₪129.99</div>
+                            <div class="old-price">₪159.99</div>
+                            <div class="price-discount">-15%</div>
+                        </div>
+                        <button class="add-to-cart">הוסף לסל</button>
+                    </div>
+                </div>
+                
+                <!-- Product 6 -->
+                <div class="product-card">
+                    <div class="product-img">
+                        <img src="/api/placeholder/300/300" alt="Product 6">
+                    </div>
+                    <div class="product-actions">
+                        <div class="product-action-btn">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <div class="product-action-btn">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <div class="product-action-btn">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                    </div>
+                    <div class="product-content">
+                        <div class="product-category">קטגוריה 4</div>
+                        <h3 class="product-title">מוצר 6</h3>
+                        <div class="product-rating">
+                            <div class="rating-stars">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="far fa-star"></i>
+                            </div>
+                            <div class="rating-count">(10)</div>
+                        </div>
+                        <div class="product-price">
+                            <div class="current-price">₪99.99</div>
+                        </div>
+                        <button class="add-to-cart">הוסף לסל</button>
+                    </div>
+                </div>
+                
+                <!-- Product 7 -->
+                <div class="product-card">
+                    <div class="product-badge new">חדש</div>
+                    <div class="product-img">
+                        <img src="/api/placeholder/300/300" alt="Product 7">
+                    </div>
+                    <div class="product-actions">
+                        <div class="product-action-btn">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <div class="product-action-btn">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <div class="product-action-btn">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                    </div>
+                    <div class="product-content">
+                        <div class="product-category">קטגוריה 1</div>
+                        <h3 class="product-title">מוצר 7</h3>
+                        <div class="product-rating">
+                            <div class="rating-stars">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                            </div>
+                            <div class="rating-count">(14)</div>
+                        </div>
+                        <div class="product-price">
+                            <div class="current-price">₪169.99</div>
+                            <div class="old-price">₪199.99</div>
+                            <div class="price-discount">-15%</div>
+                        </div>
+                        <button class="add-to-cart">הוסף לסל</button>
+                    </div>
+                </div>
+                
+                <!-- Product 8 -->
+                <div class="product-card">
+                    <div class="product-badge vip">VIP</div>
+                    <div class="product-img">
+                        <img src="/api/placeholder/300/300" alt="Product 8">
+                    </div>
+                    <div class="product-actions">
+                        <div class="product-action-btn">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <div class="product-action-btn">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <div class="product-action-btn">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                    </div>
+                    <div class="product-content">
+                        <div class="product-category">קטגוריה 3</div>
+                        <h3 class="product-title">מוצר 8</h3>
+                        <div class="product-rating">
+                            <div class="rating-stars">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="rating-count">(25)</div>
+                        </div>
+                        <div class="product-price">
+                            <div class="current-price">₪219.99</div>
+                            <div class="old-price">₪279.99</div>
+                            <div class="price-discount">-25%</div>
+                        </div>
+                        <button class="add-to-cart">הוסף לסל</button>
+                    </div>
+                </div>
             </div>
             
             <!-- Pagination -->
@@ -276,6 +607,51 @@
         </div>
     </section>
     
+    <!-- VIP Club Section -->
+    <section class="vip-club">
+        <div class="container">
+            <div class="vip-content">
+                <h2 class="vip-title">מועדון VIP</h2>
+                <p class="vip-subtitle">הצטרפו למועדון ה-VIP שלנו וקבלו הטבות בלעדיות!</p>
+                
+                <div class="vip-features">
+                    <div class="vip-feature">
+                        <div class="vip-feature-icon">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                        <h3 class="vip-feature-title">הנחות קבועות</h3>
+                        <p class="vip-feature-text">הנחה קבועה של 10% על כל הזמנה</p>
+                    </div>
+                    
+                    <div class="vip-feature">
+                        <div class="vip-feature-icon">
+                            <i class="fas fa-gift"></i>
+                        </div>
+                        <h3 class="vip-feature-title">מתנות חודשיות</h3>
+                        <p class="vip-feature-text">מתנה חודשית בכל הזמנה</p>
+                    </div>
+                    
+                    <div class="vip-feature">
+                        <div class="vip-feature-icon">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                        <h3 class="vip-feature-title">משלוח חינם</h3>
+                        <p class="vip-feature-text">משלוח חינם בכל קנייה</p>
+                    </div>
+                    
+                    <div class="vip-feature">
+                        <div class="vip-feature-icon">
+                            <i class="fas fa-tag"></i>
+                        </div>
+                        <h3 class="vip-feature-title">מבצעים בלעדיים</h3>
+                        <p class="vip-feature-text">גישה למבצעים בלעדיים</p>
+                    </div>
+                </div>
+                
+                <a href="#" class="btn-vip">הצטרפו עכשיו</a>
+            </div>
+        </div>
+    </section>
     
     <!-- Blog Section -->
     <section class="blog">
@@ -284,7 +660,7 @@
             
             <div class="blog-grid">
                 <!-- Blog Post 1 -->
-                <div class="blog-card fade-in fade-in-delay-1">
+                <div class="blog-card">
                     <div class="blog-img">
                         <img src="/api/placeholder/400/200" alt="Blog Post 1">
                     </div>
@@ -303,7 +679,7 @@
                 </div>
                 
                 <!-- Blog Post 2 -->
-                <div class="blog-card fade-in fade-in-delay-2">
+                <div class="blog-card">
                     <div class="blog-img">
                         <img src="/api/placeholder/400/200" alt="Blog Post 2">
                     </div>
@@ -322,7 +698,7 @@
                 </div>
                 
                 <!-- Blog Post 3 -->
-                <div class="blog-card fade-in fade-in-delay-3">
+                <div class="blog-card">
                     <div class="blog-img">
                         <img src="/api/placeholder/400/200" alt="Blog Post 3">
                     </div>
@@ -614,123 +990,327 @@
         </div>
     </div>
     
-    <!-- Admin Panel -->
-    <div id="admin-panel" class="admin-panel">
-        <div class="admin-panel-bg"></div>
-        <div class="admin-panel-container">
-            <div class="admin-panel-header">
-                <h2>פאנל ניהול</h2>
-                <button id="close-admin-panel" class="close-admin-panel"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="admin-panel-sidebar">
-                <ul>
-                    <li class="admin-menu-item active" data-target="products-tab">
-                        <i class="fas fa-box"></i> מוצרים
-                    </li>
-                    <li class="admin-menu-item" data-target="orders-tab">
-                        <i class="fas fa-shopping-bag"></i> הזמנות
-                    </li>
-                    <li class="admin-menu-item" data-target="users-tab">
-                        <i class="fas fa-users"></i> משתמשים
-                    </li>
-                    <li class="admin-menu-item" data-target="categories-tab">
-                        <i class="fas fa-tags"></i> קטגוריות
-                    </li>
-                    <li class="admin-menu-item" data-target="settings-tab">
-                        <i class="fas fa-cog"></i> הגדרות
-                    </li>
-                </ul>
-            </div>
-            <div class="admin-panel-content">
-                <div id="products-tab" class="admin-tab active">
-                    <h3>ניהול מוצרים</h3>
-                    <div class="admin-actions">
-                        <button id="add-product-btn" class="admin-btn">הוסף מוצר חדש</button>
-                        <button id="refresh-products-btn" class="admin-btn">רענן מוצרים</button>
-                    </div>
-                    <div id="admin-products-grid" class="admin-products-grid">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>תמונה</th>
-                                    <th>שם מוצר</th>
-                                    <th>קטגוריה</th>
-                                    <th>מחיר</th>
-                                    <th>מלאי</th>
-                                    <th>פעולות</th>
-                                </tr>
-                            </thead>
-                            <tbody id="products-table-body">
-                                <tr>
-                                    <td colspan="6" class="loading">טוען מוצרים...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div id="orders-tab" class="admin-tab">
-                    <h3>ניהול הזמנות</h3>
-                    <p>פונקציונליות זו תהיה זמינה בקרוב.</p>
-                </div>
-                <div id="users-tab" class="admin-tab">
-                    <h3>ניהול משתמשים</h3>
-                    <p>פונקציונליות זו תהיה זמינה בקרוב.</p>
-                </div>
-                <div id="categories-tab" class="admin-tab">
-                    <h3>ניהול קטגוריות</h3>
-                    <div class="admin-actions">
-                        <button id="add-category-btn" class="admin-btn">הוסף קטגוריה חדשה</button>
-                        <button id="refresh-categories-btn" class="admin-btn">רענן קטגוריות</button>
-                    </div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>שם קטגוריה</th>
-                                <th>אייקון</th>
-                                <th>מספר מוצרים</th>
-                                <th>פעולות</th>
-                            </tr>
-                        </thead>
-                        <tbody id="categories-table-body">
-                            <tr>
-                                <td colspan="4" class="loading">טוען קטגוריות...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div id="settings-tab" class="admin-tab">
-                    <h3>הגדרות האתר</h3>
-                    <div class="form-group">
-                        <label>שם האתר</label>
-                        <input type="text" id="site-name" placeholder="שם האתר">
-                    </div>
-                    <div class="form-group">
-                        <label>לוגו האתר</label>
-                        <div class="logo-preview">
-                            <img src="/api/placeholder/100/40" alt="Site Logo Preview">
-                        </div>
-                        <input type="file" id="site-logo">
-                    </div>
-                    <div class="form-group">
-                        <label>צבע ראשי</label>
-                        <input type="color" id="primary-color" value="#6366f1">
-                    </div>
-                    <div class="form-group">
-                        <label>צבע משני</label>
-                        <input type="color" id="secondary-color" value="#4ade80">
-                    </div>
-                    <button id="save-settings" class="admin-btn">שמור הגדרות</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <style>
+        /* Notification System */
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(30, 30, 30, 0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            border-radius: 5px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            color: var(--text-color);
+            z-index: 2100;
+            transform: translateX(-120%);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification i {
+            margin-left: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .notification.success i {
+            color: var(--success-color);
+        }
+        
+        .notification.error i {
+            color: var(--error-color);
+        }
+        
+        .notification.warning i {
+            color: var(--warning-color);
+        }
+        
+        .notification.info i {
+            color: var(--accent-color);
+        }
+        
+        .auth-error {
+            background-color: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+        }
 
-    <!-- Notification System -->
-    <div class="notification success" style="display:none;">
-        <i class="fas fa-check-circle"></i>
-        <p>פעולה בוצעה בהצלחה!</p>
-    </div>
-    
-    <script src="script.js"></script>
+        /* Admin Panel Styles */
+        .admin-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 3000;
+            display: none;
+        }
+
+        .admin-panel.active {
+            display: block;
+        }
+
+        .admin-panel-bg {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+
+        .admin-panel-container {
+            position: absolute;
+            top: 50%;
+            right: 50%;
+            transform: translate(50%, -50%);
+            width: 90%;
+            max-width: 1200px;
+            height: 80%;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .admin-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: #2c3e50;
+            color: #fff;
+        }
+
+        .admin-panel-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .close-admin-panel {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .admin-panel-sidebar {
+            width: 220px;
+            background-color: #34495e;
+            color: #fff;
+            position: absolute;
+            top: 63px;
+            right: 0;
+            bottom: 0;
+            overflow-y: auto;
+        }
+
+        .admin-panel-sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .admin-panel-sidebar .admin-menu-item {
+            padding: 15px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: background-color 0.3s;
+        }
+
+        .admin-panel-sidebar .admin-menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .admin-panel-sidebar .admin-menu-item.active {
+            background-color: #3498db;
+        }
+
+        .admin-panel-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            margin-right: 220px;
+        }
+
+        .admin-tab {
+            display: none;
+        }
+
+        .admin-tab.active {
+            display: block;
+        }
+
+        .admin-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .admin-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .admin-btn:hover {
+            background-color: #2980b9;
+        }
+
+        .admin-panel table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .admin-panel th, .admin-panel td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: right;
+        }
+
+        .admin-panel th {
+            background-color: #f5f5f5;
+            font-weight: 600;
+        }
+
+        .admin-panel tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .admin-panel tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: #3498db;
+            margin-right: 5px;
+            cursor: pointer;
+        }
+
+        .delete-btn {
+            color: #e74c3c;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group input[type="file"],
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .logo-preview {
+            margin-bottom: 10px;
+        }
+
+        .logo-preview img {
+            max-width: 100px;
+            height: auto;
+        }
+
+        /* Admin Modal */
+        .admin-modal {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 3100;
+            display: none;
+        }
+
+        .admin-modal.active {
+            display: block;
+        }
+
+        .admin-modal-bg {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .admin-modal-container {
+            position: absolute;
+            top: 50%;
+            right: 50%;
+            transform: translate(50%, -50%);
+            width: 90%;
+            max-width: 600px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .admin-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: #2c3e50;
+            color: #fff;
+        }
+
+        .admin-modal-header h3 {
+            margin: 0;
+        }
+
+        .close-admin-modal {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .admin-modal form {
+            padding: 20px;
+        }
+    </style>
+        <script src="script.js"></script>
 </body>
 </html>
