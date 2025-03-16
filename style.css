@@ -2613,6 +2613,7 @@
 }
 
 .puffiz-title {
+    margin-top: 35px;
     font-size: 48px;
     font-weight: 800;
     color: var(--primary-color);
