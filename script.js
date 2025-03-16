@@ -1271,6 +1271,7 @@ function displayProductsOnHomepage() {
 const SUPABASE_URL = 'https://ebkgbaetsgtzordvkcvf.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVia2diYWV0c2d0em9yZHZrY3ZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxMjAzMTMsImV4cCI6MjA1NzY5NjMxM30.fype9g6RIKCYHJvXJN8b_kFFnkehACo3inpXa382GgI';
 let supabase;
+let isAdmin = false;
 
 // Initialize Supabase client
 function initSupabase() {
@@ -1514,6 +1515,12 @@ function addAdminMenuItemToNav() {
 // Function to open the admin panel
 function openAdminPanel() {
     console.log('Opening admin panel...');
+    
+    // Make sure admin panel elements exist and attach handlers
+    if (!adminPanelInitialized) {
+        addAdminPanelToDOM();
+    }
+    
     $('#admin-panel').addClass('active');
     
     // Check if productManager exists and initialize it if needed
@@ -1522,17 +1529,14 @@ function openAdminPanel() {
         window.productManager = new ProductManager();
     }
     
-    // Make sure admin panel elements exist and attach handlers
-    if (!adminPanelInitialized) {
-        addAdminPanelToDOM();
-    }
-    
     // Clear any previous content and show loading state
     $('#products-table-body').html('<tr><td colspan="6" class="loading">טוען מוצרים...</td></tr>');
     
     // Load and display products in admin panel
     console.log('Loading products from GitHub...');
-    loadAndDisplayAdminProducts();
+    setTimeout(() => {
+        loadAndDisplayAdminProducts();
+    }, 500);
     
     // Also load categories
     loadCategories();
@@ -1685,61 +1689,62 @@ function addAdminStyles() {
     if ($('#admin-styles').length === 0) {
         const adminStyles = `
         <style id="admin-styles">
-            .admin-panel {
-                position: fixed;
-                top: 0;
-                right: -100%;
-                width: 90%;
-                max-width: 1000px;
-                height: 100vh;
-                background: white;
-                box-shadow: -5px 0 15px rgba(0,0,0,0.2);
-                z-index: 1000;
-                transition: right 0.3s ease;
-                overflow-y: auto;
-                padding: 20px;
-                direction: rtl;
-            }
-            
-            .admin-panel.active {
-                right: 0;
-            }
-            
-            .admin-panel-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
+            /* Admin panel custom styles (beyond what's in HTML) */
+            .admin-panel table {
+                width: 100%;
+                border-collapse: collapse;
                 margin-bottom: 20px;
-                border-bottom: 1px solid #eee;
-                padding-bottom: 10px;
             }
             
-            .admin-tabs {
-                display: flex;
-                margin-bottom: 20px;
-                border-bottom: 1px solid #eee;
+            .admin-panel th, .admin-panel td {
+                border: 1px solid #ddd;
+                padding: 12px;
+                text-align: right;
             }
             
-            .admin-tab-btn {
-                padding: 10px 15px;
+            .admin-panel th {
+                background-color: #f5f5f5;
+                font-weight: 600;
+            }
+            
+            .admin-panel tr:nth-child(even) {
+                background-color: #f9f9f9;
+            }
+            
+            .admin-panel tr:hover {
+                background-color: #f1f1f1;
+            }
+            
+            .action-btn {
                 background: none;
                 border: none;
-                cursor: pointer;
+                color: #3498db;
                 margin-right: 5px;
-                border-bottom: 2px solid transparent;
+                cursor: pointer;
             }
             
-            .admin-tab-btn.active {
-                border-bottom: 2px solid var(--primary-color);
-                font-weight: bold;
+            .delete-btn {
+                color: #e74c3c;
             }
             
-            .admin-tab-pane {
-                display: none;
+            .admin-btn {
+                background-color: #3498db;
+                color: white;
+                border: none;
+                padding: 10px 15px;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: background-color 0.3s;
+                margin-right: 5px;
             }
             
-            .admin-tab-pane.active {
-                display: block;
+            .admin-btn:hover {
+                background-color: #2980b9;
+            }
+            
+            .admin-tab h3 {
+                margin-top: 0;
+                margin-bottom: 20px;
             }
             
             .admin-actions {
@@ -1748,37 +1753,37 @@ function addAdminStyles() {
                 gap: 10px;
             }
             
-            .admin-products-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-                gap: 20px;
-            }
-            
-            .admin-product-card {
-                border: 1px solid #eee;
-                border-radius: 5px;
-                padding: 10px;
-                position: relative;
-            }
-            
-            .admin-product-image {
-                height: 150px;
-                width: 100%;
-                object-fit: cover;
-                margin-bottom: 10px;
-                border-radius: 3px;
-            }
-            
-            .admin-product-actions {
+            .form-actions {
                 display: flex;
-                justify-content: space-between;
-                margin-top: 10px;
+                justify-content: flex-end;
+                gap: 10px;
+                margin-top: 20px;
             }
             
-            .loading {
+            .loading, .empty, .error {
                 text-align: center;
                 padding: 20px;
                 color: #888;
+            }
+            
+            .error {
+                color: #e74c3c;
+            }
+            
+            /* Admin modal styles */
+            .admin-modal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 3100;
+                direction: rtl;
+            }
+            
+            .admin-modal.active {
+                display: block;
             }
         </style>
         `;
@@ -1873,7 +1878,7 @@ function loadAndDisplayAdminProducts() {
     // Check if productManager exists
     if (typeof productManager === 'undefined' || !productManager) {
         console.error('ProductManager not initialized!');
-        $('#admin-products-grid').html('<div class="error">מנהל המוצרים לא מאותחל</div>');
+        $('#products-table-body').html('<tr><td colspan="6" class="error">מנהל המוצרים לא מאותחל</td></tr>');
         
         // Try to initialize it
         try {
@@ -1885,7 +1890,7 @@ function loadAndDisplayAdminProducts() {
         }
     }
     
-    $('#admin-products-grid').html('<div class="loading">טוען מוצרים...</div>');
+    $('#products-table-body').html('<tr><td colspan="6" class="loading">טוען מוצרים...</td></tr>');
     
     console.log('Calling loadProductsFromGitHub...');
     
@@ -1895,15 +1900,17 @@ function loadAndDisplayAdminProducts() {
             console.log('loadProductsFromGitHub result:', success);
             if (success) {
                 console.log('Products loaded, displaying in admin panel...');
+                const products = productManager.getAllProducts();
+                console.log('Number of products loaded:', products ? products.length : 0);
                 displayProductsInAdminPanel();
             } else {
                 console.error('Failed to load products from GitHub');
-                $('#admin-products-grid').html('<div class="error">שגיאה בטעינת מוצרים</div>');
+                $('#products-table-body').html('<tr><td colspan="6" class="error">שגיאה בטעינת מוצרים</td></tr>');
             }
         })
         .catch(error => {
             console.error('Error in loadProductsFromGitHub:', error);
-            $('#admin-products-grid').html(`<div class="error">שגיאה בטעינת מוצרים: ${error.message}</div>`);
+            $('#products-table-body').html(`<tr><td colspan="6" class="error">שגיאה בטעינת מוצרים: ${error.message}</td></tr>`);
         });
 }
 
@@ -1911,7 +1918,7 @@ function loadAndDisplayAdminProducts() {
 function displayProductsInAdminPanel() {
     console.log('displayProductsInAdminPanel called');
     const products = productManager.getAllProducts();
-    console.log('Products to display:', products.length, products);
+    console.log('Products to display:', products ? products.length : 0);
     
     if (!products || products.length === 0) {
         console.warn('No products to display in admin panel');
@@ -1921,23 +1928,39 @@ function displayProductsInAdminPanel() {
     
     let productsHTML = '';
     
-    products.forEach(product => {
-        console.log('Adding product to HTML:', product.name);
+    // Debug info about the products
+    for (let i = 0; i < products.length; i++) {
+        let product = products[i];
+        console.log(`Product ${i+1}:`, product.id, product.name, product.price);
+    }
+    
+    products.forEach((product, index) => {
+        console.log(`Processing product ${index+1}:`, product.name);
+        // Ensure all product properties exist to avoid errors
+        const safeProduct = {
+            id: product.id || `product-${index}`,
+            name: product.name || 'מוצר ללא שם',
+            category: product.category || 'כללי',
+            price: product.price || 0,
+            stock: product.stock || 'בלתי מוגבל',
+            image: product.image || ''
+        };
+        
         productsHTML += `
-            <tr data-id="${product.id}">
+            <tr data-id="${safeProduct.id}">
                 <td>
-                    <img src="${product.image || 'https://via.placeholder.com/50x50?text=' + encodeURIComponent(product.name)}" 
-                         alt="${product.name}" style="width: 50px; height: 50px; object-fit: cover;">
+                    <img src="${safeProduct.image || 'https://via.placeholder.com/50x50?text=' + encodeURIComponent(safeProduct.name)}" 
+                         alt="${safeProduct.name}" style="width: 50px; height: 50px; object-fit: cover;">
                 </td>
-                <td>${product.name}</td>
-                <td>${product.category || 'כללי'}</td>
-                <td>₪${product.price ? product.price.toFixed(2) : '0.00'}</td>
-                <td>${product.stock || 'בלתי מוגבל'}</td>
+                <td>${safeProduct.name}</td>
+                <td>${safeProduct.category}</td>
+                <td>₪${typeof safeProduct.price === 'number' ? safeProduct.price.toFixed(2) : '0.00'}</td>
+                <td>${safeProduct.stock}</td>
                 <td>
-                    <button class="action-btn edit-product-btn" data-id="${product.id}">
+                    <button class="action-btn edit-product-btn" data-id="${safeProduct.id}">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="action-btn delete-btn delete-product-btn" data-id="${product.id}">
+                    <button class="action-btn delete-btn delete-product-btn" data-id="${safeProduct.id}">
                         <i class="fas fa-trash-alt"></i>
                     </button>
                 </td>
