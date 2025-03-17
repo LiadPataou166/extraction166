@@ -4566,3 +4566,30 @@ h1, h2, h3, h4, h5, h6 {
     visibility: visible;
     opacity: 1;
 }
+
+/* Category description for hover */
+.puffiz-category-description {
+  display: none;
+  margin-top: 10px;
+  font-size: 16px;
+  color: #ffffff;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  max-width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.4;
+}
+
+.puffiz-category-item:hover .puffiz-category-description {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Improve animation for category title on hover */
+.puffiz-category-item:hover .puffiz-category-title {
+  transform: translateY(-10px);
+}

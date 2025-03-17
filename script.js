@@ -651,21 +651,33 @@ function fixVisibility() {
 
 // פונקציה לתיקון כפתור פאנל מנהל
 function fixAdminButton() {
-    // וידוא שהכפתור של פאנל המנהל לחיץ
-    $('#admin-menu-item, .admin-link, .admin-panel-btn').css({
-        'display': 'block',
-        'visibility': 'visible',
-        'opacity': '1',
-        'cursor': 'pointer',
-        'pointer-events': 'auto'
-    });
+    // בדיקה אם המשתמש הוא מנהל
+    const userData = JSON.parse(localStorage.getItem('userData')) || {};
     
-    // הוספת אירוע לחיצה מחדש
-    $('.admin-panel-btn').off('click').on('click', function(e) {
-        e.preventDefault();
-        openAdminPanel();
-        return false;
-    });
+    // הצג את כפתור המנהל רק אם המשתמש הוא מנהל
+    if (userData && userData.isAdmin) {
+        // וידוא שהכפתור של פאנל המנהל לחיץ
+        $('#admin-menu-item, .admin-link, .admin-panel-btn').css({
+            'display': 'block',
+            'visibility': 'visible',
+            'opacity': '1',
+            'cursor': 'pointer',
+            'pointer-events': 'auto'
+        });
+        
+        // הוספת אירוע לחיצה מחדש
+        $('.admin-panel-btn').off('click').on('click', function(e) {
+            e.preventDefault();
+            openAdminPanel();
+            return false;
+        });
+    } else {
+        // הסתר את כפתור המנהל אם המשתמש אינו מנהל
+        $('#admin-menu-item, .admin-link, .admin-panel-btn').css({
+            'display': 'none',
+            'visibility': 'hidden'
+        });
+    }
 }
 
 // פונקציה לעיצוב כפתור הרשמה
@@ -1916,26 +1928,38 @@ function attachAdminPanelEventHandlers() {
 
 // Helper function for admin panel
 function addAdminMenuItemToNav() {
+    // Check if user is admin
+    const userData = JSON.parse(localStorage.getItem('userData')) || {};
+    const isAdmin = userData && userData.isAdmin;
+    
     // Check if admin menu item already exists
     if ($('#admin-menu-item').length > 0) {
-        // Update the click handler
-        $('#admin-menu-item a').off('click').on('click', function(e) {
+        // Update the click handler and visibility
+        if (isAdmin) {
+            $('#admin-menu-item').show();
+            $('#admin-menu-item a').off('click').on('click', function(e) {
+                e.preventDefault();
+                openAdminPanel();
+                return false;
+            });
+        } else {
+            $('#admin-menu-item').hide();
+        }
+        return; // Already exists
+    }
+    
+    // Admin menu item doesn't exist, add it (hidden by default)
+    $('nav ul').append('<li id="admin-menu-item" style="display:none;"><a href="#" class="admin-panel-btn">פאנל ניהול</a></li>');
+    
+    // Show if admin and add click handler
+    if (isAdmin) {
+        $('#admin-menu-item').show();
+        $('.admin-panel-btn').off('click').on('click', function(e) {
             e.preventDefault();
             openAdminPanel();
             return false;
         });
-        return; // Already exists
     }
-    
-    // Admin menu item doesn't exist, add it
-    $('nav ul').append('<li id="admin-menu-item" style="display:none;"><a href="#" class="admin-panel-btn">פאנל ניהול</a></li>');
-    
-    // Add click handler to the admin panel button
-    $('.admin-panel-btn').off('click').on('click', function(e) {
-        e.preventDefault();
-        openAdminPanel();
-        return false;
-    });
 }
 
 // Function to open the admin panel
