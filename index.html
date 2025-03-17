@@ -1878,11 +1878,6 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         </div>
         
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Header -->            
-
-           
         <!-- Right Product Sidebar -->
         <div class="product-sidebar">
             <div class="sidebar-section">
@@ -1983,116 +1978,121 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
         </div>
-    </div>
-    
-    <!-- Sidebar Toggle Button -->
-    <div class="sidebar-toggle">
-        <i class="fas fa-bars"></i>
-    </div>
-    
-    <!-- Chat Widget -->
-    <div class="chat-widget">
-        <div class="chat-button">
-            <i class="fas fa-comments"></i>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->            
+
+           
+        <!-- Sidebar Toggle Button -->
+        <div class="sidebar-toggle">
+            <i class="fas fa-bars"></i>
         </div>
-    </div>
-    
-    <!-- Library decorative elements added by JavaScript -->
-    
-    <script>
-        // Example script to initialize sidebar progress bars
-        document.addEventListener('DOMContentLoaded', function() {
-            // Add library decoration elements
-            const libraryDecoration = document.createElement('div');
-            libraryDecoration.className = 'library-decoration';
-            
-            // Add book icons
-            for(let i = 0; i < 20; i++) {
-                const bookIcon = document.createElement('div');
-                bookIcon.className = 'book-icon';
-                bookIcon.innerHTML = '<i class="fas fa-book"></i>';
-                bookIcon.style.top = Math.random() * 100 + '%';
-                bookIcon.style.left = Math.random() * 100 + '%';
-                bookIcon.style.animationDelay = Math.random() * 5 + 's';
-                libraryDecoration.appendChild(bookIcon);
-            }
-            
-            // Add leaf icons
-            for(let i = 0; i < 15; i++) {
-                const leafIcon = document.createElement('div');
-                leafIcon.className = 'leaf-icon';
-                leafIcon.innerHTML = '<i class="fas fa-leaf"></i>';
-                leafIcon.style.top = Math.random() * 100 + '%';
-                leafIcon.style.left = Math.random() * 100 + '%';
-                leafIcon.style.animationDelay = Math.random() * 5 + 's';
-                libraryDecoration.appendChild(leafIcon);
-            }
-            
-            // Add light icons
-            for(let i = 0; i < 10; i++) {
-                const lightIcon = document.createElement('div');
-                lightIcon.className = 'light-icon';
-                lightIcon.innerHTML = '<i class="fas fa-lightbulb"></i>';
-                lightIcon.style.top = Math.random() * 100 + '%';
-                lightIcon.style.right = Math.random() * 100 + '%';
-                lightIcon.style.animationDelay = Math.random() * 5 + 's';
-                libraryDecoration.appendChild(lightIcon);
-            }
-            
-            document.body.appendChild(libraryDecoration);
-            
-            // Initialize progress bars
-            const progressFills = document.querySelectorAll('.progress-fill');
-            progressFills.forEach(fill => {
-                setTimeout(() => {
-                    const randomWidth = Math.floor(Math.random() * 30) + 70; // 70-100%
-                    fill.style.width = randomWidth + '%';
-                }, 500);
-            });
-            
-            // Mobile sidebar toggle
-            const sidebarToggle = document.querySelector('.sidebar-toggle');
-            if(sidebarToggle) {
-                sidebarToggle.addEventListener('click', function() {
-                    const sidebar = document.querySelector('.system-sidebar');
-                    sidebar.classList.toggle('active');
-                });
-            }
-            
-            // Product action buttons
-            const actionButtons = document.querySelectorAll('.product-action-btn');
-            actionButtons.forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const icon = this.querySelector('i');
-                    if(icon.classList.contains('fa-heart')) {
-                        icon.classList.toggle('fas');
-                        icon.classList.toggle('far');
-                    }
-                });
-            });
-            
-            // Add to cart button
-            const addToCartButtons = document.querySelectorAll('.add-to-cart');
-            addToCartButtons.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const originalText = this.textContent;
-                    this.innerHTML = '<i class="fas fa-check"></i> נוסף לסל';
-                    
+        
+        <!-- Chat Widget -->
+        <div class="chat-widget">
+            <div class="chat-button">
+                <i class="fas fa-comments"></i>
+            </div>
+        </div>
+        
+        <!-- Library decorative elements added by JavaScript -->
+        
+        <script>
+            // Example script to initialize sidebar progress bars
+            document.addEventListener('DOMContentLoaded', function() {
+                // Add library decoration elements
+                const libraryDecoration = document.createElement('div');
+                libraryDecoration.className = 'library-decoration';
+                
+                // Add book icons
+                for(let i = 0; i < 20; i++) {
+                    const bookIcon = document.createElement('div');
+                    bookIcon.className = 'book-icon';
+                    bookIcon.innerHTML = '<i class="fas fa-book"></i>';
+                    bookIcon.style.top = Math.random() * 100 + '%';
+                    bookIcon.style.left = Math.random() * 100 + '%';
+                    bookIcon.style.animationDelay = Math.random() * 5 + 's';
+                    libraryDecoration.appendChild(bookIcon);
+                }
+                
+                // Add leaf icons
+                for(let i = 0; i < 15; i++) {
+                    const leafIcon = document.createElement('div');
+                    leafIcon.className = 'leaf-icon';
+                    leafIcon.innerHTML = '<i class="fas fa-leaf"></i>';
+                    leafIcon.style.top = Math.random() * 100 + '%';
+                    leafIcon.style.left = Math.random() * 100 + '%';
+                    leafIcon.style.animationDelay = Math.random() * 5 + 's';
+                    libraryDecoration.appendChild(leafIcon);
+                }
+                
+                // Add light icons
+                for(let i = 0; i < 10; i++) {
+                    const lightIcon = document.createElement('div');
+                    lightIcon.className = 'light-icon';
+                    lightIcon.innerHTML = '<i class="fas fa-lightbulb"></i>';
+                    lightIcon.style.top = Math.random() * 100 + '%';
+                    lightIcon.style.right = Math.random() * 100 + '%';
+                    lightIcon.style.animationDelay = Math.random() * 5 + 's';
+                    libraryDecoration.appendChild(lightIcon);
+                }
+                
+                document.body.appendChild(libraryDecoration);
+                
+                // Initialize progress bars
+                const progressFills = document.querySelectorAll('.progress-fill');
+                progressFills.forEach(fill => {
                     setTimeout(() => {
-                        this.textContent = originalText;
-                    }, 2000);
-                    
-                    // Update cart count in header
-                    const cartBadge = document.querySelector('.header-icon:nth-child(2) .badge');
-                    if(cartBadge) {
-                        let count = parseInt(cartBadge.textContent);
-                        cartBadge.textContent = count + 1;
-                    }
+                        const randomWidth = Math.floor(Math.random() * 30) + 70; // 70-100%
+                        fill.style.width = randomWidth + '%';
+                    }, 500);
+                });
+                
+                // Mobile sidebar toggle
+                const sidebarToggle = document.querySelector('.sidebar-toggle');
+                if(sidebarToggle) {
+                    sidebarToggle.addEventListener('click', function() {
+                        const sidebar = document.querySelector('.system-sidebar');
+                        sidebar.classList.toggle('active');
+                    });
+                }
+                
+                // Product action buttons
+                const actionButtons = document.querySelectorAll('.product-action-btn');
+                actionButtons.forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const icon = this.querySelector('i');
+                        if(icon.classList.contains('fa-heart')) {
+                            icon.classList.toggle('fas');
+                            icon.classList.toggle('far');
+                        }
+                    });
+                });
+                
+                // Add to cart button
+                const addToCartButtons = document.querySelectorAll('.add-to-cart');
+                addToCartButtons.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const originalText = this.textContent;
+                        this.innerHTML = '<i class="fas fa-check"></i> נוסף לסל';
+                        
+                        setTimeout(() => {
+                            this.textContent = originalText;
+                        }, 2000);
+                        
+                        // Update cart count in header
+                        const cartBadge = document.querySelector('.header-icon:nth-child(2) .badge');
+                        if(cartBadge) {
+                            let count = parseInt(cartBadge.textContent);
+                            cartBadge.textContent = count + 1;
+                        }
+                    });
                 });
             });
-        });
-    </script>
+        </script>
+    </main>
 </body>
 
         <script src="script.js"></script>
