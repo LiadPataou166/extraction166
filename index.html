@@ -148,14 +148,15 @@
         }
         
         .welcome-container {
-            background-color: #1a1a1a;
-            border-radius: 10px;
+            background-color: rgba(20, 20, 20, 0.85);
+            border-radius: 15px;
             padding: 40px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
             max-width: 1200px;
             margin: 0 auto;
             position: relative;
             z-index: 2;
+            border: 1px solid rgba(74, 124, 89, 0.3);
         }
         
         .welcome-content {
@@ -165,11 +166,12 @@
         }
         
         .welcome-heading {
-            color: #e0b270;
-            font-size: 2.5rem;
+            color: #f7b32b;
+            font-size: 2.8rem;
             margin-bottom: 20px;
             font-weight: 600;
             text-align: center;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
         
         .welcome-text-container p {
@@ -188,29 +190,31 @@
             bottom: 0;
             z-index: 1;
             overflow: hidden;
-            opacity: 0.3;
+            opacity: 0.15;
+            pointer-events: none;
         }
         
         .cannabis-leaf {
             position: absolute;
             color: #4a7c59;
             font-size: 30px;
-            opacity: 0.6;
-            animation: float-leaf 15s infinite ease-in-out;
+            opacity: 0.8;
+            animation: float-leaf 20s infinite ease-in-out;
+            filter: drop-shadow(0 0 5px rgba(74, 124, 89, 0.7));
         }
         
         @keyframes float-leaf {
             0%, 100% {
-                transform: translateY(0) rotate(0deg);
+                transform: translateY(0) rotate(0deg) scale(1);
             }
             25% {
-                transform: translateY(-50px) rotate(45deg);
+                transform: translateY(-70px) rotate(45deg) scale(1.05);
             }
             50% {
-                transform: translateY(-100px) rotate(90deg);
+                transform: translateY(-140px) rotate(90deg) scale(1.1);
             }
             75% {
-                transform: translateY(-50px) rotate(135deg);
+                transform: translateY(-70px) rotate(135deg) scale(1.05);
             }
         }
         
@@ -218,40 +222,47 @@
         .puffiz-grid-2x2 {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            grid-gap: 20px;
-            margin-top: 40px;
+            grid-gap: 25px;
+            margin-top: 50px;
         }
         
         .puffiz-category-item {
-            height: 250px;
+            height: 280px;
             position: relative;
             overflow: hidden;
-            border-radius: 10px;
+            border-radius: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
             text-decoration: none;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            transition: all 0.4s ease;
             background-size: cover;
             background-position: center;
+            border: 1px solid rgba(74, 124, 89, 0.2);
+        }
+        
+        .puffiz-category-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            border-color: rgba(247, 179, 43, 0.4);
         }
         
         /* Default background images - can be overridden with custom URLs */
         #category1 {
-            background-image: url('/api/placeholder/400/300');
+            background-image: url('https://images.unsplash.com/photo-1503262028195-93c528f03218?q=80&w=2071&auto=format');
         }
         
         #category2 {
-            background-image: url('/api/placeholder/400/300');
+            background-image: url('https://images.unsplash.com/photo-1567698325409-29c98169d7ad?q=80&w=2074&auto=format');
         }
         
         #category3 {
-            background-image: url('/api/placeholder/400/300');
+            background-image: url('https://images.unsplash.com/photo-1536128649879-1ffa69e3d685?q=80&w=2070&auto=format');
         }
         
         #category4 {
-            background-image: url('/api/placeholder/400/300');
+            background-image: url('https://images.unsplash.com/photo-1591292083787-7ede7a7449c8?q=80&w=2072&auto=format');
         }
         
         .puffiz-category-item:hover {
@@ -700,7 +711,59 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
     </header>
 
-
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="hero">
+                <!-- Hero Cannabis Decoration -->
+                <div class="hero-cannabis">
+                    <i class="fas fa-cannabis cannabis-leaf-hero"></i>
+                    <i class="fas fa-cannabis cannabis-leaf-hero"></i>
+                    <i class="fas fa-cannabis cannabis-leaf-hero"></i>
+                    <i class="fas fa-cannabis cannabis-leaf-hero"></i>
+                </div>
+                
+                <!-- Hero Slide 1 -->
+                <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1624815588853-d5f2b057c1fb?q=80&w=2071&auto=format');">
+                    <div class="hero-content">
+                        <span class="hero-badge">מוצרים חדשים</span>
+                        <h1 class="hero-title">השיטה המושלמת לגידול מקצועי</h1>
+                        <p class="hero-description">מוצרי איכות לגידול מקצועי עם מגוון רחב של פתרונות לכל סוגי המגדלים. משלוח חינם בהזמנה מעל 300₪</p>
+                        <a href="#products" class="hero-btn">
+                            <i class="fas fa-leaf"></i>
+                            גלה עכשיו
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Hero Slide 2 -->
+                <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1583842763173-d2163e247c4c?q=80&w=2071&auto=format');">
+                    <div class="hero-content">
+                        <span class="hero-badge">VIP הטבות</span>
+                        <h1 class="hero-title">הצטרף למועדון ה-VIP שלנו</h1>
+                        <p class="hero-description">קבל הנחות בלעדיות, מבצעים מיוחדים והטבות למועדון החברים. חיסכון של עד 25% על כל הזמנה!</p>
+                        <a href="#vip" class="hero-btn">
+                            <i class="fas fa-crown"></i>
+                            הצטרף עכשיו
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Hero Slide 3 -->
+                <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1585661030178-1521d0f80517?q=80&w=2070&auto=format');">
+                    <div class="hero-content">
+                        <span class="hero-badge">מדריכים מקצועיים</span>
+                        <h1 class="hero-title">לומדים יחד לגדל בצורה מקצועית</h1>
+                        <p class="hero-description">מדריכים מפורטים, טיפים מקצועיים וסדנאות אונליין עם המומחים הטובים ביותר בתחום</p>
+                        <a href="#guides" class="hero-btn">
+                            <i class="fas fa-book"></i>
+                            למד עוד
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <!-- Welcome Section similar to Puffiz -->
     <section class="welcome-section">
@@ -733,33 +796,37 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="puffiz-grid puffiz-grid-2x2">
                 <!-- Category 1 -->
                 <a href="#" class="puffiz-category-item" id="category1">
-                    <div class="puffiz-overlay gold-text"></div>
-                    <div class="puffiz-content">
-                        <h2 class="puffiz-category-title gold-text">גריינדרים</h2>
+                    <div class="puffiz-category-overlay"></div>
+                    <div class="puffiz-category-content">
+                        <h2 class="puffiz-category-title">גריינדרים</h2>
+                        <p class="puffiz-category-description">מגוון גריינדרים באיכות גבוהה לטחינה מושלמת</p>
                     </div>
                 </a>
                 
                 <!-- Category 2 -->
                 <a href="#" class="puffiz-category-item" id="category2">
-                    <div class="puffiz-overlay gold-text"></div>
-                    <div class="puffiz-content">
-                        <h2 class="puffiz-category-title gold-text">ניירות גלגול</h2>
+                    <div class="puffiz-category-overlay"></div>
+                    <div class="puffiz-category-content">
+                        <h2 class="puffiz-category-title">ניירות גלגול</h2>
+                        <p class="puffiz-category-description">ניירות גלגול איכותיים במגוון גדלים וסוגים</p>
                     </div>
                 </a>
                 
                 <!-- Category 3 -->
                 <a href="#" class="puffiz-category-item" id="category3">
-                    <div class="puffiz-overlay gold-text"></div>
-                    <div class="puffiz-content">
-                        <h2 class="puffiz-category-title gold-text">קופסאות וצנצנות</h2>
+                    <div class="puffiz-category-overlay"></div>
+                    <div class="puffiz-category-content">
+                        <h2 class="puffiz-category-title">קופסאות וצנצנות</h2>
+                        <p class="puffiz-category-description">פתרונות אחסון איכותיים לשמירה על טריות</p>
                     </div>
                 </a>
                 
                 <!-- Category 4 -->
                 <a href="#" class="puffiz-category-item" id="category4">
-                    <div class="puffiz-overlay"></div>
-                    <div class="puffiz-content">
+                    <div class="puffiz-category-overlay"></div>
+                    <div class="puffiz-category-content">
                         <h2 class="puffiz-category-title">מקטרות</h2>
+                        <p class="puffiz-category-description">מקטרות איכותיות במגוון צורות וגדלים</p>
                     </div>
                 </a>
             </div>
