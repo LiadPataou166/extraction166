@@ -47,5 +47,22 @@
     "updated": "2025-03-17T22:39:49.580Z",
     "id": "cat_174225118958051",
     "createdAt": "2025-03-17T22:39:49.580Z"
+  },
+  {
+    "name": "גגגגגגגג",
+    "description": "ג",
+    "slug": "gidul11",
+    "icon": "fas fa-water",
+    "image": "/api/placeholder/400/300",
+    "bgColor": "#23599f",
+    "textColor": "#ed2c2c",
+    "order": 0,
+    "featured": true,
+    "vipOnly": true,
+    "columnLayout": "1",
+    "created": "2025-03-17T22:56:11.166Z",
+    "updated": "2025-03-17T22:56:11.166Z",
+    "id": "cat_174225217116674",
+    "createdAt": "2025-03-17T22:56:11.166Z"
   }
 ]
