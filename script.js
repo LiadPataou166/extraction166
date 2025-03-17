@@ -1862,7 +1862,7 @@ function showCategoryForm(categoryId = null) {
                 <h3>${category ? 'עריכת קטגוריה' : 'הוספת קטגוריה חדשה'}</h3>
                 <button class="close-admin-modal"><i class="fas fa-times"></i></button>
             </div>
-            <form id="category-form">
+            <form id="category-form" class="admin-form">
                 <div class="form-group">
                     <label for="category-name">שם הקטגוריה</label>
                     <input type="text" id="category-name" value="${category ? category.name : ''}" required>
@@ -1870,6 +1870,11 @@ function showCategoryForm(categoryId = null) {
                 <div class="form-group">
                     <label for="category-description">תיאור הקטגוריה</label>
                     <textarea id="category-description" rows="3">${category && category.description ? category.description : ''}</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="category-slug">מזהה בכתובת URL (slug)</label>
+                    <input type="text" id="category-slug" value="${category && category.slug ? category.slug : ''}" placeholder="לדוגמה: electronic-products">
+                    <small>אותיות לטיניות ומקפים בלבד, ללא רווחים</small>
                 </div>
                 <div class="form-group">
                     <label for="category-icon">אייקון</label>
@@ -1901,13 +1906,29 @@ function showCategoryForm(categoryId = null) {
                 </div>
                 <div class="form-group">
                     <label for="category-order">סדר הצגה</label>
-                    <input type="number" id="category-order" value="${category && category.order ? category.order : '0'}" min="0">
+                    <input type="number" id="category-order" value="${category && category.order ? category.order : '0'}">
                     <small>קטגוריות עם מספר נמוך יותר יוצגו קודם</small>
+                </div>
+                <div class="form-group">
+                    <label for="category-column-layout">פריסת עמודות במסך הקטגוריה</label>
+                    <select id="category-column-layout">
+                        <option value="1" ${category && category.columnLayout === '1' ? 'selected' : ''}>עמודה אחת (מתאים למסכים קטנים)</option>
+                        <option value="2" ${category && category.columnLayout === '2' ? 'selected' : ''}>שתי עמודות</option>
+                        <option value="3" ${category && category.columnLayout === '3' ? 'selected' : ''}>שלוש עמודות</option>
+                        <option value="4" ${category && category.columnLayout === '4' ? 'selected' : ''}>ארבע עמודות</option>
+                        <option value="masonry" ${category && category.columnLayout === 'masonry' ? 'selected' : ''}>פריסת Masonry (בלוקים)</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="category-featured">
                         <input type="checkbox" id="category-featured" ${category && category.featured ? 'checked' : ''}>
                         הצג בעמוד הבית
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label for="category-vip-only">
+                        <input type="checkbox" id="category-vip-only" ${category && category.vipOnly ? 'checked' : ''}>
+                        קטגוריה בלעדית לחברי VIP
                     </label>
                 </div>
                 <div class="form-actions">
@@ -1921,6 +1942,30 @@ function showCategoryForm(categoryId = null) {
     
     $('body').append(formHTML);
     
+    // Auto-generate slug from name
+    $('#category-name').on('input', function() {
+        const name = $(this).val();
+        if (!name) return;
+        
+        // Only auto-generate if slug field is empty or hasn't been manually edited
+        const currentSlug = $('#category-slug').val();
+        if (!currentSlug || currentSlug === generateSlug($(this).val())) {
+            $('#category-slug').val(generateSlug(name));
+        }
+    });
+    
+    // Helper function to generate slug
+    function generateSlug(text) {
+        return text
+            .toString()
+            .toLowerCase()
+            .replace(/\s+/g, '-')       // Replace spaces with -
+            .replace(/[^\w\-]+/g, '')   // Remove all non-word chars
+            .replace(/\-\-+/g, '-')     // Replace multiple - with single -
+            .replace(/^-+/, '')         // Trim - from start of text
+            .replace(/-+$/, '');        // Trim - from end of text
+    }
+    
     // Attach event handlers
     $('.close-admin-modal, .cancel-btn').on('click', function() {
         $('#category-form-modal').remove();
@@ -1931,36 +1976,53 @@ function showCategoryForm(categoryId = null) {
         
         const name = $('#category-name').val();
         const description = $('#category-description').val();
+        const slug = $('#category-slug').val() || generateSlug(name);
         const icon = $('#category-icon').val();
         const image = $('#category-image').val();
         const bgColor = $('#category-bg-color').val();
         const textColor = $('#category-text-color').val();
         const order = parseInt($('#category-order').val()) || 0;
         const featured = $('#category-featured').is(':checked');
+        const vipOnly = $('#category-vip-only').is(':checked');
+        const columnLayout = $('#category-column-layout').val();
         
         const categoryData = {
             name,
             description,
+            slug,
             icon,
             image,
             bgColor,
             textColor,
             order,
-            featured
+            featured,
+            vipOnly,
+            columnLayout,
+            created: new Date().toISOString(),
+            updated: new Date().toISOString()
         };
         
         if (category) {
             // Update existing category
+            categoryData.id = category.id;
+            categoryData.created = category.created; // Preserve original creation date
+            
             productManager.updateCategory(category.id, categoryData).then(success => {
                 if (success) {
                     showNotification(`הקטגוריה "${name}" עודכנה בהצלחה`, 'success');
                     loadCategories(); // Reload categories list
+                    
+                    // Update category page in GitHub
+                    updateCategoryPage(categoryData);
                 } else {
                     showNotification('שגיאה בעדכון הקטגוריה', 'error');
                 }
             });
         } else {
             // Add new category
+            // Generate a unique ID
+            categoryData.id = 'cat_' + Date.now() + Math.floor(Math.random() * 1000);
+            
             productManager.addCategory(categoryData).then(success => {
                 if (success) {
                     showNotification(`הקטגוריה "${name}" נוספה בהצלחה`, 'success');
@@ -1999,8 +2061,8 @@ function deleteCategory(categoryId) {
 // Function to create a category page file in GitHub
 async function createCategoryPage(categoryData) {
     try {
-        const { name, description, icon } = categoryData;
-        const safeName = name.replace(/\s+/g, '-').toLowerCase().replace(/[^\w\-]/g, '');
+        const { name, description, icon, slug, columnLayout, vipOnly } = categoryData;
+        const safeName = slug || name.replace(/\s+/g, '-').toLowerCase().replace(/[^\w\-]/g, '');
         const path = `data/categories/${safeName}.html`;
         
         // Check if directory exists first
@@ -2018,20 +2080,72 @@ async function createCategoryPage(categoryData) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${name} - Doctor Instraction</title>
     <meta name="description" content="${description || `מוצרי ${name} באיכות גבוהה`}">
+    <meta property="og:title" content="${name} - Doctor Instraction">
+    <meta property="og:description" content="${description || `מוצרי ${name} באיכות גבוהה`}">
+    <meta property="og:image" content="${categoryData.image || '/images/logo.png'}">
     <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../fix.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        .category-banner {
+            background-color: ${categoryData.bgColor || '#1a1d21'};
+            color: ${categoryData.textColor || '#ffffff'};
+        }
+        
+        .category-products-grid {
+            display: grid;
+            grid-template-columns: repeat(${columnLayout === 'masonry' ? 'auto-fill, minmax(300px, 1fr)' : columnLayout || '3'}, 1fr);
+            gap: 20px;
+        }
+        
+        @media (max-width: 992px) {
+            .category-products-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .category-products-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
-<body class="category-page">
+<body class="category-page" data-category="${safeName}" ${vipOnly ? 'data-vip-only="true"' : ''}>
     <header id="header"></header>
     
     <main>
         <div class="category-banner">
-            <h1><i class="${icon}"></i> ${name}</h1>
-            <p>${description || ''}</p>
+            <div class="container">
+                <h1><i class="${icon || 'fas fa-leaf'}"></i> ${name}</h1>
+                <p>${description || ''}</p>
+            </div>
         </div>
         
         <div class="category-products">
-            <div id="products-container"></div>
+            <div class="container">
+                <div class="category-products-controls">
+                    <div class="category-filters">
+                        <button class="filter-btn active" data-filter="all">הכל</button>
+                        <button class="filter-btn" data-filter="new">חדש</button>
+                        <button class="filter-btn" data-filter="sale">מבצע</button>
+                        ${vipOnly ? '' : '<button class="filter-btn" data-filter="vip">בלעדי ל-VIP</button>'}
+                    </div>
+                    
+                    <div class="category-sorting">
+                        <select class="sort-select">
+                            <option value="recommended">מומלצים</option>
+                            <option value="price-low">מחיר: מהנמוך לגבוה</option>
+                            <option value="price-high">מחיר: מהגבוה לנמוך</option>
+                            <option value="newest">חדשים ביותר</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="category-products-grid" id="products-container">
+                    <!-- Products will be loaded here via JavaScript -->
+                </div>
+            </div>
         </div>
     </main>
     
@@ -2046,6 +2160,7 @@ async function createCategoryPage(categoryData) {
                 .then(response => response.text())
                 .then(data => {
                     document.getElementById('header').innerHTML = data;
+                    initializeHeader();
                 });
                 
             fetch('../footer.html')
@@ -2057,62 +2172,272 @@ async function createCategoryPage(categoryData) {
             // Load products for this category
             productManager.loadProductsFromGitHub().then(success => {
                 if (success) {
-                    const products = productManager.products.filter(p => p.category === '${name}');
-                    displayCategoryProducts(products);
+                    const categoryName = "${name}";
+                    const products = productManager.products.filter(p => p.category === categoryName);
+                    
+                    if (products.length === 0) {
+                        document.getElementById('products-container').innerHTML = '<div class="empty-category">אין מוצרים בקטגוריה זו עדיין</div>';
+                        return;
+                    }
+                    
+                    let productsHTML = '';
+                    products.forEach(product => {
+                        productsHTML += createProductCard(product);
+                    });
+                    
+                    document.getElementById('products-container').innerHTML = productsHTML;
+                    
+                    // Initialize filter and sort functionality
+                    initializeProductFilters();
                 }
             });
         });
         
-        function displayCategoryProducts(products) {
-            const container = document.getElementById('products-container');
-            
-            if (products.length === 0) {
-                container.innerHTML = '<p class="no-products">אין מוצרים בקטגוריה זו כרגע.</p>';
-                return;
+        // VIP protection
+        if (${vipOnly}) {
+            if (!userData || !userData.isVIP) {
+                window.location.href = '../index.html?error=vip_required';
             }
-            
-            let html = '<div class="products-grid">';
-            
-            products.forEach(product => {
-                html += \`
-                    <div class="product-card">
-                        <div class="product-image">
-                            <img src="\${product.image || '/api/placeholder/300/300'}" alt="\${product.name}">
-                        </div>
-                        <div class="product-details">
-                            <h3 class="product-title">\${product.name}</h3>
-                            <div class="product-price">₪\${product.price}</div>
-                            <div class="product-description">\${product.description}</div>
-                            <button class="add-to-cart-btn" data-id="\${product.id}">הוסף לסל</button>
-                        </div>
-                    </div>
-                \`;
-            });
-            
-            html += '</div>';
-            container.innerHTML = html;
         }
     </script>
 </body>
 </html>
 `;
         
-        // Create the file
-        const created = await productManager.createGitHubFile(
-            path,
-            content,
-            `Create category page for ${name}`,
+        // Upload to GitHub
+        await productManager.createGitHubFile(
+            path, 
+            content, 
+            `Add category page for: ${name}`, 
             productManager.githubToken
         );
         
-        if (created) {
-            console.log(`Category page created at ${path}`);
-        } else {
-            console.error(`Failed to create category page at ${path}`);
-        }
+        console.log(`Category page created: ${path}`);
+        
+        // Also add the category to the categories list file
+        await updateCategoriesListFile(categoryData);
+        
     } catch (error) {
         console.error('Error creating category page:', error);
+        showNotification('שגיאה ביצירת דף הקטגוריה', 'error');
     }
+}
+
+// Function to update an existing category page
+async function updateCategoryPage(categoryData) {
+    try {
+        const { name, slug, id } = categoryData;
+        const safeName = slug || name.replace(/\s+/g, '-').toLowerCase().replace(/[^\w\-]/g, '');
+        const path = `data/categories/${safeName}.html`;
+        
+        // Check if the file exists
+        const fileExists = await productManager.checkGitHubFile(path);
+        
+        if (fileExists) {
+            // Update existing file
+            const existingFile = await productManager.getGitHubFile(path);
+            const updatedContent = createCategoryPageContent(categoryData, existingFile);
+            
+            await productManager.updateGitHubFile(
+                path,
+                updatedContent,
+                `Update category page for: ${name}`,
+                productManager.githubToken,
+                existingFile.sha
+            );
+        } else {
+            // Create new file
+            createCategoryPage(categoryData);
+        }
+        
+        // Update the categories list file
+        await updateCategoriesListFile(categoryData);
+        
+    } catch (error) {
+        console.error('Error updating category page:', error);
+        showNotification('שגיאה בעדכון דף הקטגוריה', 'error');
+    }
+}
+
+// Function to update the categories list file (for nav menus, etc.)
+async function updateCategoriesListFile(categoryData) {
+    try {
+        const path = 'data/categories.json';
+        let categories = [];
+        
+        // Try to get existing categories file
+        try {
+            const existingFile = await productManager.getGitHubFile(path);
+            if (existingFile && existingFile.content) {
+                categories = JSON.parse(atob(existingFile.content));
+            }
+        } catch (error) {
+            console.log('No existing categories file, creating new one');
+        }
+        
+        // Find if the category already exists
+        const existingIndex = categories.findIndex(c => c.id === categoryData.id);
+        
+        if (existingIndex >= 0) {
+            // Update existing category
+            categories[existingIndex] = categoryData;
+        } else {
+            // Add new category
+            categories.push(categoryData);
+        }
+        
+        // Sort by order
+        categories.sort((a, b) => (a.order || 0) - (b.order || 0));
+        
+        // Save to GitHub
+        await productManager.createOrUpdateGitHubFile(
+            path,
+            JSON.stringify(categories, null, 2),
+            `Update categories list`,
+            productManager.githubToken
+        );
+        
+    } catch (error) {
+        console.error('Error updating categories list:', error);
+    }
+}
+
+// Helper function to create content for a category page
+function createCategoryPageContent(categoryData, existingFile = null) {
+    const { name, description, icon, slug, columnLayout, vipOnly, bgColor, textColor, image } = categoryData;
+    const safeName = slug || name.replace(/\s+/g, '-').toLowerCase().replace(/[^\w\-]/g, '');
+    
+    return `
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${name} - Doctor Instraction</title>
+    <meta name="description" content="${description || `מוצרי ${name} באיכות גבוהה`}">
+    <meta property="og:title" content="${name} - Doctor Instraction">
+    <meta property="og:description" content="${description || `מוצרי ${name} באיכות גבוהה`}">
+    <meta property="og:image" content="${image || '/images/logo.png'}">
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../fix.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        .category-banner {
+            background-color: ${bgColor || '#1a1d21'};
+            color: ${textColor || '#ffffff'};
+        }
+        
+        .category-products-grid {
+            display: grid;
+            grid-template-columns: repeat(${columnLayout === 'masonry' ? 'auto-fill, minmax(300px, 1fr)' : columnLayout || '3'}, 1fr);
+            gap: 20px;
+        }
+        
+        @media (max-width: 992px) {
+            .category-products-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .category-products-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="category-page" data-category="${safeName}" ${vipOnly ? 'data-vip-only="true"' : ''}>
+    <header id="header"></header>
+    
+    <main>
+        <div class="category-banner">
+            <div class="container">
+                <h1><i class="${icon || 'fas fa-leaf'}"></i> ${name}</h1>
+                <p>${description || ''}</p>
+            </div>
+        </div>
+        
+        <div class="category-products">
+            <div class="container">
+                <div class="category-products-controls">
+                    <div class="category-filters">
+                        <button class="filter-btn active" data-filter="all">הכל</button>
+                        <button class="filter-btn" data-filter="new">חדש</button>
+                        <button class="filter-btn" data-filter="sale">מבצע</button>
+                        ${vipOnly ? '' : '<button class="filter-btn" data-filter="vip">בלעדי ל-VIP</button>'}
+                    </div>
+                    
+                    <div class="category-sorting">
+                        <select class="sort-select">
+                            <option value="recommended">מומלצים</option>
+                            <option value="price-low">מחיר: מהנמוך לגבוה</option>
+                            <option value="price-high">מחיר: מהגבוה לנמוך</option>
+                            <option value="newest">חדשים ביותר</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="category-products-grid" id="products-container">
+                    <!-- Products will be loaded here via JavaScript -->
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer id="footer"></footer>
+    
+    <script src="../script.js"></script>
+    <script>
+        // Load products for this category
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load header and footer
+            fetch('../header.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('header').innerHTML = data;
+                    initializeHeader();
+                });
+                
+            fetch('../footer.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('footer').innerHTML = data;
+                });
+            
+            // Load products for this category
+            productManager.loadProductsFromGitHub().then(success => {
+                if (success) {
+                    const categoryName = "${name}";
+                    const products = productManager.products.filter(p => p.category === categoryName);
+                    
+                    if (products.length === 0) {
+                        document.getElementById('products-container').innerHTML = '<div class="empty-category">אין מוצרים בקטגוריה זו עדיין</div>';
+                        return;
+                    }
+                    
+                    let productsHTML = '';
+                    products.forEach(product => {
+                        productsHTML += createProductCard(product);
+                    });
+                    
+                    document.getElementById('products-container').innerHTML = productsHTML;
+                    
+                    // Initialize filter and sort functionality
+                    initializeProductFilters();
+                }
+            });
+        });
+        
+        // VIP protection
+        if (${vipOnly}) {
+            if (!userData || !userData.isVIP) {
+                window.location.href = '../index.html?error=vip_required';
+            }
+        }
+    </script>
+</body>
+</html>
+`;
 }
 
 // Add admin styles if not already in the document
@@ -2753,8 +3078,7 @@ function addVIPStyles() {
 
 // Function to show VIP signup form
 function showVIPSignupForm() {
-    // Create modal form
-    const formHTML = `
+    $('body').append(`
     <div id="vip-signup-modal" class="admin-modal active">
         <div class="admin-modal-bg"></div>
         <div class="admin-modal-container">
@@ -2767,30 +3091,31 @@ function showVIPSignupForm() {
                     <h4>הטבות חברי VIP</h4>
                     <ul>
                         <li><i class="fas fa-check"></i> הנחה קבועה של 10% על כל הזמנה</li>
-                        <li><i class="fas fa-check"></i> מתנה חודשית בכל הזמנה</li>
+                        <li><i class="fas fa-check"></i> גישה למוצרים בלעדיים</li>
                         <li><i class="fas fa-check"></i> משלוח חינם בכל קנייה</li>
-                        <li><i class="fas fa-check"></i> גישה למבצעים בלעדיים</li>
                         <li><i class="fas fa-check"></i> שירות לקוחות VIP</li>
                     </ul>
                 </div>
                 <div class="vip-pricing">
-                    <h4>מחיר החברות</h4>
-                    <p>לצורך בדיקת המערכת, החברות ניתנת בחינם!</p>
-                    <p class="regular-price"><s>₪99 לחודש</s></p>
+                    <h4>מחיר</h4>
+                    <p>רגיל: 199₪ לשנה</p>
                     <p class="vip-price">חינם לתקופת ההשקה</p>
                 </div>
-                <form id="vip-signup-form">
-                    <button type="submit" class="admin-btn">הצטרף עכשיו</button>
-                    <button type="button" class="admin-btn cancel-btn">ביטול</button>
+                <form id="vip-signup-form" class="admin-form">
+                    <div class="form-group">
+                        <label for="vip-phone">טלפון לקבלת עדכונים (אופציונלי)</label>
+                        <input type="text" id="vip-phone" placeholder="הזן מספר טלפון">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="admin-btn">הצטרף עכשיו (חינם)</button>
+                        <button type="button" class="admin-btn cancel-btn">ביטול</button>
+                    </div>
                 </form>
             </div>
         </div>
     </div>
-    `;
+    `);
     
-    $('body').append(formHTML);
-    
-    // Attach event handlers
     $('.close-admin-modal, .cancel-btn').on('click', function() {
         $('#vip-signup-modal').remove();
     });
@@ -2798,24 +3123,120 @@ function showVIPSignupForm() {
     $('#vip-signup-form').on('submit', function(e) {
         e.preventDefault();
         
-        // Get current user data
-        const userData = JSON.parse(localStorage.getItem('userData'));
+        const phone = $('#vip-phone').val();
         
         // Update VIP status
         userData.isVIP = true;
         
-        // Save updated data
-        localStorage.setItem('userData', JSON.stringify(userData));
+        // Save to localStorage
+        localStorage.setItem('user_data', JSON.stringify(userData));
         
         // Close modal
         $('#vip-signup-modal').remove();
         
-        // Show success notification
+        // Show confirmation
         showNotification('ברכות! הצטרפת בהצלחה למועדון ה-VIP', 'success');
         
-        // Update UI
-        updateUserUI(userData);
+        // Update UI to reflect VIP status
+        updateVIPStatus();
+        
+        // Generate VIP entry in GitHub if available
+        if (productManager.githubToken) {
+            createVIPUserFile(userData);
+        }
     });
+}
+
+// Function to update UI with VIP status
+function updateVIPStatus() {
+    // Update user menu to show VIP badge
+    if (userData.isVIP) {
+        $('.user-greeting').html(`
+            שלום, ${userData.name || 'אורח'} 
+            <span class="vip-badge">VIP</span>
+        `);
+        
+        // Enable VIP features
+        $('.vip-only').removeClass('disabled');
+        
+        // Add VIP discount to products if not already applied
+        productManager.products.forEach(product => {
+            if (product.vipDiscount === undefined) {
+                product.vipDiscount = 10; // 10% discount for VIP members
+                product.vipPrice = product.price - (product.price * (product.vipDiscount / 100));
+            }
+        });
+        
+        // Update UI to show VIP prices if in product view
+        if ($('.product-price').length > 0) {
+            updateProductPricesForVIP();
+        }
+    } else {
+        $('.user-greeting').html(`שלום, ${userData.name || 'אורח'}`);
+    }
+}
+
+// Function to update product prices for VIP members
+function updateProductPricesForVIP() {
+    if (!userData.isVIP) return;
+    
+    $('.product-card').each(function() {
+        const productId = $(this).data('id');
+        const product = productManager.getProduct(productId);
+        
+        if (product && product.vipPrice) {
+            const priceEl = $(this).find('.product-price');
+            const currentPriceEl = priceEl.find('.current-price');
+            
+            // Check if we already added VIP price
+            if (!priceEl.find('.vip-price-tag').length) {
+                const originalPrice = currentPriceEl.text();
+                currentPriceEl.html(`${product.vipPrice}₪ <span class="vip-price-tag">מחיר VIP</span>`);
+                
+                if (!priceEl.find('.old-price').length) {
+                    currentPriceEl.after(`<span class="old-price">${originalPrice}</span>`);
+                }
+            }
+        }
+    });
+}
+
+// Function to create a VIP user file in GitHub
+async function createVIPUserFile(userData) {
+    try {
+        const { name, email, isVIP } = userData;
+        const phone = $('#vip-phone').val() || 'לא הוזן';
+        const timestamp = new Date().toISOString();
+        const safeName = (name || 'guest').replace(/\s+/g, '-').toLowerCase().replace(/[^\w\-]/g, '');
+        const path = `data/vip_members/${safeName}-${Date.now()}.json`;
+        
+        // Check if directory exists first
+        const dirExists = await productManager.checkGitHubPath('data/vip_members');
+        if (!dirExists) {
+            await productManager.createGitHubDirectory('data/vip_members', 'Create VIP members directory', productManager.githubToken);
+        }
+        
+        // Prepare user data for GitHub
+        const content = JSON.stringify({
+            name: name || 'אורח',
+            email: email || 'לא הוזן',
+            phone,
+            joinDate: timestamp,
+            isVIP: true
+        }, null, 2);
+        
+        // Upload to GitHub
+        await productManager.createGitHubFile(
+            path, 
+            content, 
+            `Add VIP member: ${name || 'Guest user'}`, 
+            productManager.githubToken
+        );
+        
+        console.log(`VIP user data saved to GitHub: ${path}`);
+    } catch (error) {
+        console.error('Error saving VIP data to GitHub:', error);
+    }
 }
 
 // Setup sidebar toggles
