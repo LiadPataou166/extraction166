@@ -357,37 +357,55 @@
         .phone-interface {
             width: 100%;
             height: 100%;
-            background: #fff;
+            background: #121212;
             border-radius: 30px;
             overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            border: 8px solid #333;
+            box-shadow: 0 10px 30px rgba(218, 165, 32, 0.4);
+            border: 8px solid #222;
             display: flex;
             flex-direction: column;
+            position: relative;
+        }
+        
+        .phone-interface::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(218, 165, 32, 0.1), transparent 80%);
+            z-index: 0;
+            pointer-events: none;
         }
         
         .phone-header {
-            background: #333;
+            background: linear-gradient(to right, #111, #222);
             padding: 15px;
             text-align: center;
             position: relative;
-            color: white;
+            color: #DAA520;
+            border-bottom: 1px solid rgba(218, 165, 32, 0.3);
         }
         
         .phone-notch {
             width: 150px;
             height: 25px;
-            background: #333;
+            background: #222;
             border-radius: 0 0 15px 15px;
             position: absolute;
             top: 0;
             left: 50%;
             transform: translateX(-50%);
+            border-bottom: 1px solid rgba(218, 165, 32, 0.3);
         }
         
         .phone-title {
             margin-top: 15px;
             font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
         }
         
         .chatbot-container {
@@ -395,8 +413,12 @@
             display: flex;
             flex-direction: column;
             padding: 15px;
-            background: #f5f5f5;
+            background: #121212;
+            background-image: 
+                radial-gradient(circle at 25% 30%, rgba(218, 165, 32, 0.05) 5%, transparent 8%),
+                radial-gradient(circle at 75% 60%, rgba(218, 165, 32, 0.05) 5%, transparent 8%);
             overflow: hidden;
+            position: relative;
         }
         
         .chat-messages {
@@ -405,62 +427,190 @@
             padding: 10px;
             display: flex;
             flex-direction: column;
+            scrollbar-width: thin;
+            scrollbar-color: #DAA520 #222;
+        }
+        
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .chat-messages::-webkit-scrollbar-track {
+            background: #222;
+        }
+        
+        .chat-messages::-webkit-scrollbar-thumb {
+            background-color: #DAA520;
+            border-radius: 6px;
         }
         
         .message {
-            max-width: 80%;
-            padding: 10px 15px;
-            margin-bottom: 10px;
-            border-radius: 15px;
+            max-width: 85%;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            border-radius: 18px;
             line-height: 1.4;
             word-wrap: break-word;
+            animation: fadeIn 0.3s ease-out;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         .bot-message {
-            background: #8dc63f;
-            color: white;
+            background: linear-gradient(135deg, #DAA520, #B8860B);
+            color: #000;
             align-self: flex-start;
             border-bottom-left-radius: 5px;
+            margin-right: 15px;
+        }
+        
+        .bot-message::before {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: -10px;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, transparent 50%, #B8860B 50%);
+            border-radius: 0 0 20px 0;
         }
         
         .user-message {
-            background: #e5e5ea;
-            color: #333;
+            background: #333;
+            color: #fff;
             align-self: flex-end;
             border-bottom-right-radius: 5px;
+            margin-left: 15px;
+            border: 1px solid rgba(218, 165, 32, 0.3);
+        }
+        
+        .user-message::before {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            right: -10px;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(225deg, transparent 50%, #333 50%);
+            border-radius: 0 0 0 20px;
         }
         
         .chat-input {
             display: flex;
-            padding: 10px 5px;
-            background: white;
-            border-top: 1px solid #ddd;
-            border-radius: 0 0 30px 30px;
+            padding: 15px 10px;
+            background: #222;
+            border-top: 1px solid rgba(218, 165, 32, 0.3);
+            border-radius: 0 0 22px 22px;
         }
         
         .chat-input input {
             flex: 1;
-            padding: 10px 15px;
-            border: 1px solid #ddd;
+            padding: 12px 15px;
+            border: 1px solid rgba(218, 165, 32, 0.3);
             border-radius: 20px;
             outline: none;
             font-size: 14px;
+            background: #333;
+            color: #fff;
+        }
+        
+        .chat-input input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
         }
         
         .chat-input button {
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             margin-right: 5px;
-            background: #8dc63f;
-            color: white;
+            background: linear-gradient(135deg, #DAA520, #B8860B);
+            color: #000;
             border: none;
             border-radius: 50%;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
         
         .chat-input button:hover {
-            background: #7ab32e;
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(218, 165, 32, 0.4);
+        }
+        
+        /* Suggested Questions */
+        .suggested-questions {
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            padding: 10px 0;
+            margin-bottom: 10px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        
+        .suggested-questions::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .suggested-question {
+            flex: 0 0 auto;
+            padding: 8px 12px;
+            margin-left: 8px;
+            background: rgba(218, 165, 32, 0.15);
+            border: 1px solid rgba(218, 165, 32, 0.3);
+            border-radius: 15px;
+            color: #DAA520;
+            font-size: 12px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .suggested-question:hover {
+            background: rgba(218, 165, 32, 0.25);
+            transform: translateY(-2px);
+        }
+        
+        /* Typing indicator */
+        .typing-indicator {
+            display: flex;
+            padding: 10px 15px;
+            background: rgba(218, 165, 32, 0.15);
+            border-radius: 15px;
+            align-self: flex-start;
+            margin-bottom: 10px;
+        }
+        
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: #DAA520;
+            border-radius: 50%;
+            display: inline-block;
+            margin: 0 2px;
+            opacity: 0.6;
+        }
+        
+        .typing-indicator span:nth-child(1) {
+            animation: typing 1s infinite 0.1s;
+        }
+        
+        .typing-indicator span:nth-child(2) {
+            animation: typing 1s infinite 0.3s;
+        }
+        
+        .typing-indicator span:nth-child(3) {
+            animation: typing 1s infinite 0.5s;
+        }
+        
+        @keyframes typing {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+            100% { transform: translateY(0); }
         }
         
         @media (max-width: 1200px) {
@@ -470,8 +620,8 @@
                 top: 0;
                 transform: none;
                 margin: 20px auto;
-                width: 280px;
-                height: 500px;
+                width: 320px;
+                height: 550px;
             }
         }
         /* End of Phone Interface Styles */
@@ -864,6 +1014,13 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div class="message bot-message">
                                 שלום! אני כאן לענות על שאלות בנוגע למוצרים שלנו. במה אוכל לעזור?
                             </div>
+                        </div>
+                        <div class="suggested-questions" id="suggestedQuestions">
+                            <div class="suggested-question" data-question="אילו זני קנאביס אתם מציעים?">אילו זני קנאביס אתם מציעים?</div>
+                            <div class="suggested-question" data-question="מה המחירים שלכם?">מה המחירים שלכם?</div>
+                            <div class="suggested-question" data-question="מה הטבות מועדון ה-VIP?">הטבות VIP</div>
+                            <div class="suggested-question" data-question="אילו וופורייזרים מומלצים?">וופורייזרים מומלצים</div>
+                            <div class="suggested-question" data-question="איך עובד המשלוח?">מידע על משלוחים</div>
                         </div>
                         <div class="chat-input">
                             <input type="text" id="userInput" placeholder="שאל אותי על המוצרים שלנו..." />
@@ -2364,25 +2521,235 @@ document.addEventListener('DOMContentLoaded', function() {
             const chatMessages = document.getElementById('chatMessages');
             const userInput = document.getElementById('userInput');
             const sendButton = document.getElementById('sendMessage');
+            const suggestedQuestions = document.getElementById('suggestedQuestions');
+            
+            // Add FontAwesome for better icons
+            if (!document.getElementById('fontawesome-css')) {
+                const fontAwesomeLink = document.createElement('link');
+                fontAwesomeLink.id = 'fontawesome-css';
+                fontAwesomeLink.rel = 'stylesheet';
+                fontAwesomeLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css';
+                document.head.appendChild(fontAwesomeLink);
+            }
+            
+            // Add Animate.css for smoother animations
+            if (!document.getElementById('animate-css')) {
+                const animateCssLink = document.createElement('link');
+                animateCssLink.id = 'animate-css';
+                animateCssLink.rel = 'stylesheet';
+                animateCssLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css';
+                document.head.appendChild(animateCssLink);
+            }
             
             // Product information for the chatbot to use in responses
             const productInfo = {
-                'קנאביס': 'אנו מציעים מגוון רחב של זני קנאביס איכותיים, כולל סאטיבה, אינדיקה והיברידים.',
-                'מקטרות': 'יש לנו מבחר של מקטרות איכותיות מחומרים שונים כמו זכוכית, עץ ומתכת.',
-                'וופורייזר': 'מכשירי וופורייזר מאפשרים שימוש ללא שריפה. אנו מציעים דגמים שונים לכל תקציב.',
-                'אביזרים': 'האביזרים שלנו כוללים מטחנות, נייר גלגול, פילטרים ועוד.',
-                'מחירים': 'המחירים משתנים לפי המוצר. חברי מועדון ה-VIP שלנו נהנים מהנחות של עד 25%!',
-                'משלוח': 'אנו מציעים משלוח מהיר ודיסקרטי לכל חלקי הארץ.'
+                'קנאביס': {
+                    text: 'אנו מציעים מגוון רחב של זני פרימיום קנאביס איכותיים, כולל סאטיבה, אינדיקה והיברידים. הזנים הפופולריים ביותר שלנו כוללים:<br><br>• <strong>OG Kush</strong> - היבריד עוצמתי עם ארומה ייחודית.<br>• <strong>Girl Scout Cookies</strong> - מאזן מושלם בין הרגעה לאנרגיה.<br>• <strong>White Widow</strong> - קלאסי עם אפקט מאוזן.<br>• <strong>Purple Haze</strong> - סאטיבה מעוררת עם טעמי פירות.<br>• <strong>Northern Lights</strong> - אינדיקה מרגיעה מאוד.',
+                    icon: 'cannabis'
+                },
+                'מקטרות': {
+                    text: 'יש לנו מבחר של מקטרות איכותיות מחומרים שונים המתאימים לכל העדפה וסגנון:<br><br>• <strong>מקטרות זכוכית</strong> - במגוון צבעים וצורות ייחודיות<br>• <strong>מקטרות עץ</strong> - בעבודת יד מעץ מייפל ודובדבן<br>• <strong>מקטרות סיליקון</strong> - עמידות ונוחות לניקוי<br>• <strong>בונגים</strong> - במגוון גדלים עם מסננים מתקדמים<br>• <strong>מקטרות מים</strong> - לחוויית עישון חלקה במיוחד',
+                    icon: 'smoking'
+                },
+                'וופורייזר': {
+                    text: 'מכשירי וופורייזר מאפשרים שימוש ללא שריפה. הדגמים המובילים שלנו:<br><br>• <strong>PAX 3</strong> - קומפקטי ורב-שימושי עם חימום מהיר<br>• <strong>Volcano</strong> - מכשיר שולחני איכותי לחוויה מושלמת<br>• <strong>DynaVap</strong> - וופורייזר חסכוני ללא סוללה<br>• <strong>MIGHTY+</strong> - עוצמתי עם סוללה ארוכה במיוחד<br>• <strong>Firefly</strong> - חימום מדויק לחוויה מלאה בטרפנים',
+                    icon: 'wind'
+                },
+                'אביזרים': {
+                    text: 'האביזרים שלנו כוללים את כל מה שצריך להשלמת החוויה:<br><br>• <strong>מטחנות פרימיום</strong> - מאלומיניום איכותי בחיתוך CNC<br>• <strong>נייר גלגול אורגני</strong> - כולל מגוון גדלים וטעמים<br>• <strong>פילטרים מנייר ופחם</strong> - לחוויה נקייה יותר<br>• <strong>כלי ניקוי וניקיון</strong> - לשמירה על הציוד<br>• <strong>תיקי נשיאה ואחסון</strong> - דיסקרטיים עם בקרת ריח',
+                    icon: 'toolbox'
+                },
+                'מחירים': {
+                    text: 'המחירים שלנו תחרותיים ומשתנים לפי המוצר והאיכות:<br><br>• <strong>זני פרימיום:</strong> ₪60-120 לגרם, תלוי בזן<br>• <strong>מקטרות זכוכית:</strong> החל מ-₪80 ועד ₪500 לפריטי אספנות<br>• <strong>וופורייזרים:</strong> ₪250-1,200, תלוי בדגם והתכונות<br>• <strong>אביזרים:</strong> ₪30-200<br><br>חברי מועדון ה-VIP שלנו נהנים מהנחות של עד 25% על כל המוצרים!',
+                    icon: 'tag'
+                },
+                'משלוח': {
+                    text: 'אנו מציעים משלוח מהיר, בטוח ודיסקרטי לכל חלקי הארץ:<br><br>• <strong>משלוח רגיל:</strong> 3-5 ימי עסקים (₪30)<br>• <strong>משלוח מהיר:</strong> עד 48 שעות (₪50)<br>• <strong>משלוח אקספרס:</strong> עד הבית תוך 24 שעות (₪70)<br><br>משלוח חינם בהזמנות מעל ₪350!<br>האריזות שלנו דיסקרטיות לחלוטין ואטומות לריח.',
+                    icon: 'truck'
+                },
+                'מועדון': {
+                    text: 'מועדון ה-VIP שלנו מציע חוויה בלתי נשכחת:<br><br>• <strong>הנחה קבועה של 15%</strong> על כל הזמנה<br>• <strong>מבצעים בלעדיים</strong> למועדון בלבד<br>• <strong>מוצר חינם</strong> בכל הזמנה רביעית<br>• <strong>גישה מוקדמת</strong> למוצרים חדשים<br>• <strong>משלוח חינם</strong> בהזמנות מעל ₪250 (במקום ₪350)<br>• <strong>נקודות נאמנות</strong> בכל רכישה<br><br>עלות החברות: ₪199 לשנה או ₪19.90 לחודש',
+                    icon: 'crown'
+                },
+                'מבצעים': {
+                    text: 'המבצעים העכשוויים שלנו:<br><br>• <strong>1+1 על זני הבית</strong> בימי שלישי<br>• <strong>20% הנחה</strong> על כל המקטרות בסוף שבוע<br>• <strong>שלישי חופשי</strong> - קנה שניים קבל שלישי חינם על אביזרים<br>• <strong>חבר מביא חבר</strong> - קבלו שניכם 15% הנחה<br>• <strong>הטבת הצטרפות</strong> - 30% הנחה בהזמנה ראשונה לחברי מועדון חדשים',
+                    icon: 'gift'
+                },
+                'איכות': {
+                    text: 'האיכות והבטיחות הם בראש סדר העדיפויות שלנו:<br><br>• כל המוצרים עוברים <strong>בדיקות מעבדה</strong> קפדניות<br>• המוצרים הטריים מתחדשים <strong>פעמיים בשבוע</strong><br>• זני הפרימיום שלנו מגודלים בתנאים אופטימליים עם <strong>בקרת איכות מחמירה</strong><br>• אנו עובדים רק עם <strong>ספקים מובילים ואמינים</strong><br>• כל המוצרים מגיעים עם <strong>אחריות מלאה</strong>',
+                    icon: 'certificate'
+                },
+                'מידע': {
+                    text: 'שאלות נפוצות:<br><br>• <strong>האם ניתן לבטל הזמנה?</strong> כן, עד 24 שעות לפני המשלוח<br>• <strong>איך מצטרפים למועדון?</strong> דרך האתר או בקנייה בחנות<br>• <strong>יש לכם חנויות פיזיות?</strong> כן, בתל אביב, חיפה וירושלים<br>• <strong>האם ניתן לשלם במזומן?</strong> כן, בעת קבלת המשלוח<br>• <strong>האם אתם מקבלים החזרות?</strong> בתוך 14 יום באריזה מקורית',
+                    icon: 'circle-info'
+                }
             };
             
-            // Function to add a message to the chat
-            function addMessage(message, isUser) {
+            // Additional questions and answers for variety
+            const additionalResponses = {
+                'ברוכים': 'ברוכים הבאים ל-Doctor Instraction! אנחנו שמחים שהגעת. במה אוכל לעזור לך היום?',
+                'שלום': 'שלום! איך אוכל לעזור לך היום? אני כאן לענות על כל שאלה על המוצרים שלנו.',
+                'היי': 'היי! שמח לראות אותך. איך אוכל לסייע לך היום בבחירת המוצרים המושלמים?',
+                'תודה': 'בשמחה! אני תמיד כאן לענות על השאלות שלך. האם יש משהו נוסף שאוכל לעזור בו?',
+                'בחנות': 'החנויות הפיזיות שלנו נמצאות בתל אביב (דיזנגוף 150), חיפה (הנמל 24) וירושלים (יפו 45). שעות הפתיחה: א\'-ה\' 10:00-22:00, ו\' 10:00-15:00.',
+                'זמני': 'זמני המשלוחים שלנו: משלוח רגיל: 3-5 ימי עסקים, משלוח מהיר: עד 48 שעות, משלוח אקספרס: עד 24 שעות. ניתן לבחור בזמן ההזמנה.',
+                'ביטול': 'ניתן לבטל הזמנה עד 24 שעות לפני המשלוח ללא עלות. לביטול יש ליצור קשר עם שירות הלקוחות בטלפון או במייל.',
+                'פופולרי': 'המוצרים הפופולריים ביותר שלנו כעת הם: 1. OG Kush 2. מקטרת הזכוכית "אוריון" 3. וופורייזר PAX 3 4. מטחנת "קוסמוס" מאלומיניום',
+                'חדש': 'המוצרים החדשים שלנו החודש: 1. זן Gelato #33 2. מקטרות קרמיקה בעבודת יד 3. מארזי VIP חדשים 4. סדרת אביזרי פרימיום מעוצבים',
+                'הנחה': 'קוד ההנחה השבועי שלנו: GOLD15 - מעניק 15% על כל האתר (בתוקף עד סוף השבוע). חברי מועדון מקבלים 5% נוספים!',
+                'שעות': 'שעות הפעילות שלנו: החנויות: א\'-ה\' 10:00-22:00, ו\' 10:00-15:00. שירות לקוחות: א\'-ה\' 9:00-23:00, ו\' 9:00-14:00'
+            };
+            
+            // Product recommendations for personalization
+            const recommendations = {
+                'מתחילים': 'למתחילים אנו ממליצים על:<br>• זן Blue Dream - מאוזן ועדין<br>• מקטרת זכוכית בסיסית<br>• מטחנה קומפקטית<br>• סדנת הדרכה מקוונת חינם',
+                'מתקדמים': 'למשתמשים מתקדמים אנו ממליצים על:<br>• זני פרימיום כמו OG Kush<br>• וופורייזר Mighty+<br>• מקטרת מים מסוננת<br>• מטחנת 4 חלקים עם תא לקיף',
+                'רפואי': 'למשתמשים רפואיים:<br>• זנים עשירים ב-CBD כמו Harlequin<br>• וופורייזר באיכות רפואית<br>• שמנים וטינקטורות<br>• מינון מדויק עם אביזרים ייעודיים',
+                'נדיר': 'לאספנים ומחפשי הנדיר:<br>• זנים אקזוטיים במהדורה מוגבלת<br>• מקטרות בעבודת יד מזכוכית צבעונית<br>• פריטי אספנות מיוחדים<br>• מהדורות מוגבלות של מיצויים'
+            };
+            
+            // Typing indicator function
+            function showTypingIndicator() {
+                const typingIndicator = document.createElement('div');
+                typingIndicator.className = 'typing-indicator';
+                typingIndicator.id = 'typingIndicator';
+                typingIndicator.innerHTML = '<span></span><span></span><span></span>';
+                chatMessages.appendChild(typingIndicator);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                return typingIndicator;
+            }
+            
+            // Function to add a message to the chat with more formatting and animations
+            function addMessage(message, isUser, icon = null) {
                 const messageDiv = document.createElement('div');
                 messageDiv.classList.add('message');
                 messageDiv.classList.add(isUser ? 'user-message' : 'bot-message');
-                messageDiv.textContent = message;
+                messageDiv.classList.add('animate__animated', isUser ? 'animate__fadeInRight' : 'animate__fadeInLeft');
+                
+                // Format message with HTML if it's a bot message
+                if (!isUser) {
+                    // Allow HTML in bot messages for rich formatting
+                    let formattedMessage = message;
+                    if (icon) {
+                        formattedMessage = `<i class="fas fa-${icon} message-icon"></i> ${formattedMessage}`;
+                    }
+                    messageDiv.innerHTML = formattedMessage;
+                } else {
+                    // For user messages, just use text content
+                    messageDiv.textContent = message;
+                }
+                
                 chatMessages.appendChild(messageDiv);
                 chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+                // Text-to-speech for bot messages (optional, can be activated based on user preference)
+                if (!isUser && 'speechSynthesis' in window) {
+                    // Uncomment to enable speech - may be too intrusive for some users
+                    /*
+                    const speech = new SpeechSynthesisUtterance();
+                    speech.lang = 'he-IL';
+                    speech.text = message.replace(/<[^>]*>?/gm, ''); // Remove HTML tags
+                    window.speechSynthesis.speak(speech);
+                    */
+                }
+                
+                return messageDiv;
+            }
+            
+            // Function to add a "new message" notification indicator
+            function showNewMessageIndicator() {
+                if (document.getElementById('newMessageIndicator')) return;
+                
+                const indicator = document.createElement('div');
+                indicator.id = 'newMessageIndicator';
+                indicator.className = 'new-message-indicator animate__animated animate__bounceIn';
+                indicator.innerHTML = '<i class="fas fa-arrow-down"></i>';
+                chatMessages.parentNode.appendChild(indicator);
+                
+                indicator.addEventListener('click', () => {
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                    indicator.remove();
+                });
+                
+                // Auto-hide after 3 seconds
+                setTimeout(() => {
+                    if (indicator.parentNode) {
+                        indicator.classList.add('animate__fadeOut');
+                        setTimeout(() => indicator.remove(), 500);
+                    }
+                }, 3000);
+            }
+            
+            // Show new message indicator if user scrolls up and there are new messages
+            chatMessages.addEventListener('scroll', () => {
+                const isScrolledToBottom = chatMessages.scrollHeight - chatMessages.clientHeight <= chatMessages.scrollTop + 50;
+                const indicator = document.getElementById('newMessageIndicator');
+                
+                if (!isScrolledToBottom && !indicator && chatMessages.querySelectorAll('.message').length > 2) {
+                    showNewMessageIndicator();
+                } else if (isScrolledToBottom && indicator) {
+                    indicator.remove();
+                }
+            });
+            
+            // Function to generate a response using pattern matching and predefined answers
+            function generateResponse(userMessage) {
+                // Convert to lowercase and remove punctuation for easier matching
+                const normalizedMessage = userMessage.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
+                
+                // First check for exact product matches
+                for (const keyword in productInfo) {
+                    if (normalizedMessage.includes(keyword.toLowerCase())) {
+                        return {
+                            text: productInfo[keyword].text,
+                            icon: productInfo[keyword].icon
+                        };
+                    }
+                }
+                
+                // Then check for other common questions/greetings
+                for (const keyword in additionalResponses) {
+                    if (normalizedMessage.includes(keyword.toLowerCase())) {
+                        return {
+                            text: additionalResponses[keyword],
+                            icon: 'comment'
+                        };
+                    }
+                }
+                
+                // Check for recommendation requests
+                for (const recType in recommendations) {
+                    if (normalizedMessage.includes(recType.toLowerCase())) {
+                        return {
+                            text: recommendations[recType],
+                            icon: 'star'
+                        };
+                    }
+                }
+                
+                // Default responses based on message content
+                if (normalizedMessage.includes("תודה") || normalizedMessage.includes("תודה רבה")) {
+                    return {
+                        text: 'בשמחה! אני כאן לעזור. האם יש משהו נוסף שתרצה לדעת?',
+                        icon: 'smile'
+                    };
+                } else if (normalizedMessage.includes("שלום") || normalizedMessage.includes("היי")) {
+                    return {
+                        text: 'שלום! איך אוכל לעזור לך היום בנוגע למוצרים שלנו?',
+                        icon: 'hand'
+                    };
+                } else if (normalizedMessage.includes("המלצ")) {
+                    return {
+                        text: 'אשמח להמליץ! יש לנו מגוון מוצרים איכותיים. ספר לי קצת על ההעדפות וניסיון שלך כדי שאוכל להמליץ בצורה מותאמת אישית.',
+                        icon: 'thumbs-up'
+                    };
+                }
+                
+                // Fallback generic response
+                return {
+                    text: 'תודה על השאלה! אני אשמח לעזור. האם תוכל לפרט יותר או לשאול על אחד מהנושאים הבאים: זני קנאביס, מקטרות, וופורייזרים, אביזרים, מחירים, משלוחים או מועדון ה-VIP?',
+                    icon: 'question'
+                };
             }
             
             // Function to process user input and generate a response
@@ -2394,41 +2761,174 @@ document.addEventListener('DOMContentLoaded', function() {
                 addMessage(userMessage, true);
                 userInput.value = '';
                 
-                // Generate bot response
+                // Show typing indicator
+                const typingIndicator = showTypingIndicator();
+                
+                // Generate bot response with delay for realism
+                const typingDelay = Math.min(Math.max(userMessage.length * 50, 500), 1500);
+                
                 setTimeout(() => {
-                    let botResponse = 'מצטער, אני לא יכול לענות על השאלה הזו. האם תוכל לשאול משהו אחר בנוגע למוצרים שלנו?';
+                    // Remove typing indicator
+                    typingIndicator.remove();
                     
-                    // Check for keywords in user message
-                    for (const keyword in productInfo) {
-                        if (userMessage.includes(keyword)) {
-                            botResponse = productInfo[keyword];
-                            break;
-                        }
-                    }
-                    
-                    // Special responses for common questions
-                    if (userMessage.includes('שלום') || userMessage.includes('היי')) {
-                        botResponse = 'שלום! איך אוכל לעזור לך היום?';
-                    } else if (userMessage.includes('תודה')) {
-                        botResponse = 'בשמחה! האם אוכל לעזור במשהו נוסף?';
-                    } else if (userMessage.includes('מועדון') || userMessage.includes('VIP')) {
-                        botResponse = 'מועדון ה-VIP שלנו מציע הנחות בלעדיות, מבצעים מיוחדים והטבות למועדון החברים. חיסכון של עד 25% על כל הזמנה!';
-                    } else if (userMessage.includes('איכות') || userMessage.includes('טריות')) {
-                        botResponse = 'כל המוצרים שלנו הם באיכות הגבוהה ביותר ועוברים בדיקות קפדניות. המוצרים הטריים מתחדשים באופן קבוע.';
-                    }
+                    // Generate response
+                    const response = generateResponse(userMessage);
                     
                     // Add bot response to chat
-                    addMessage(botResponse, false);
-                }, 500);
+                    addMessage(response.text, false, response.icon);
+                    
+                    // Suggest relevant follow-up questions
+                    if (Math.random() > 0.5) {
+                        suggestFollowUpQuestions(userMessage);
+                    }
+                }, typingDelay);
             }
             
-            // Event listeners
+            // Function to suggest relevant follow-up questions based on user's message
+            function suggestFollowUpQuestions(userMessage) {
+                const normalizedMessage = userMessage.toLowerCase();
+                let suggestedQueries = [];
+                
+                // Define follow-up questions for different topics
+                if (normalizedMessage.includes('קנאביס') || normalizedMessage.includes('זנים')) {
+                    suggestedQueries = ['מה ההבדל בין סאטיבה ואינדיקה?', 'מהו הזן החזק ביותר?', 'יש לכם זנים עם CBD גבוה?'];
+                } else if (normalizedMessage.includes('מקטרת') || normalizedMessage.includes('בונג')) {
+                    suggestedQueries = ['איך לנקות מקטרת זכוכית?', 'מה ההבדל בין בונג למקטרת מים?', 'מקטרת מומלצת למתחילים?'];
+                } else if (normalizedMessage.includes('וופורייזר')) {
+                    suggestedQueries = ['כמה זמן הסוללה מחזיקה?', 'יש הבדל בחוויה בין וופורייזר לעישון?', 'איך מנקים וופורייזר?'];
+                } else if (normalizedMessage.includes('מחיר') || normalizedMessage.includes('עלות')) {
+                    suggestedQueries = ['יש לכם מבצעים עכשיו?', 'איך מצטרפים למועדון VIP?', 'יש הנחות לקנייה בכמות?'];
+                } else if (normalizedMessage.includes('משלוח')) {
+                    suggestedQueries = ['כמה עולה משלוח אקספרס?', 'האם המשלוח דיסקרטי?', 'לאילו אזורים אתם מספקים?'];
+                } else {
+                    suggestedQueries = ['מה המוצרים הפופולריים?', 'יש לכם מבצעים מיוחדים?', 'מה מומלץ למתחילים?'];
+                }
+                
+                // Shuffle and take random 3
+                suggestedQueries = shuffleArray(suggestedQueries).slice(0, 3);
+                
+                // Add small delay before showing suggestions
+                setTimeout(() => {
+                    // Add suggested follow-up questions
+                    const suggestionDiv = document.createElement('div');
+                    suggestionDiv.className = 'suggested-followups animate__animated animate__fadeIn';
+                    suggestionDiv.innerHTML = '<div class="followup-label">שאלות נוספות:</div>';
+                    
+                    suggestedQueries.forEach(query => {
+                        const btn = document.createElement('button');
+                        btn.className = 'followup-btn';
+                        btn.textContent = query;
+                        btn.addEventListener('click', () => {
+                            userInput.value = query;
+                            processUserInput();
+                            suggestionDiv.remove();
+                        });
+                        suggestionDiv.appendChild(btn);
+                    });
+                    
+                    chatMessages.appendChild(suggestionDiv);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }, 1000);
+            }
+            
+            // Helper to shuffle array
+            function shuffleArray(array) {
+                const newArray = [...array];
+                for (let i = newArray.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+                }
+                return newArray;
+            }
+            
+            // Event listeners for sending messages
             sendButton.addEventListener('click', processUserInput);
             userInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     processUserInput();
                 }
             });
+            
+            // Event listeners for suggested questions
+            document.querySelectorAll('.suggested-question').forEach(question => {
+                question.addEventListener('click', function() {
+                    const questionText = this.getAttribute('data-question');
+                    userInput.value = questionText;
+                    processUserInput();
+                });
+            });
+            
+            // Add CSS for follow-up suggestions
+            const style = document.createElement('style');
+            style.textContent = `
+                .suggested-followups {
+                    margin: 10px 0;
+                    padding: 10px;
+                    background: rgba(218, 165, 32, 0.05);
+                    border-radius: 10px;
+                    border: 1px solid rgba(218, 165, 32, 0.2);
+                }
+                
+                .followup-label {
+                    color: #DAA520;
+                    font-size: 12px;
+                    margin-bottom: 8px;
+                    font-weight: bold;
+                }
+                
+                .followup-btn {
+                    background: rgba(218, 165, 32, 0.1);
+                    border: 1px solid rgba(218, 165, 32, 0.3);
+                    color: #DAA520;
+                    padding: 6px 12px;
+                    margin: 5px 5px 5px 0;
+                    border-radius: 15px;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    font-size: 12px;
+                }
+                
+                .followup-btn:hover {
+                    background: rgba(218, 165, 32, 0.2);
+                    transform: translateY(-2px);
+                }
+                
+                .message-icon {
+                    margin-left: 5px;
+                    opacity: 0.8;
+                }
+                
+                .new-message-indicator {
+                    position: absolute;
+                    bottom: 80px;
+                    right: 20px;
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 50%;
+                    background: linear-gradient(135deg, #DAA520, #B8860B);
+                    color: #000;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+                    cursor: pointer;
+                    z-index: 2;
+                    transition: all 0.3s;
+                }
+                
+                .new-message-indicator:hover {
+                    transform: scale(1.1);
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Optional: Add welcome animation
+            setTimeout(() => {
+                const firstMessage = chatMessages.querySelector('.bot-message');
+                if (firstMessage) {
+                    firstMessage.classList.add('animate__animated', 'animate__pulse');
+                }
+            }, 1000);
         });
     </script>
 </body>
