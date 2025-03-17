@@ -782,6 +782,9 @@ class ProductManager {
         }
         
         console.log(`GitHub config: ${this.githubUser}/${this.githubRepo}`);
+        
+        // Immediately ensure we have a token to avoid 403 errors
+        this.ensureGitHubToken();
     }
     
     // Ask for GitHub token if not already stored
@@ -891,12 +894,25 @@ class ProductManager {
     async loadProductsFromGitHub() {
         try {
             console.log('Loading products from GitHub...');
+            
+            // Ensure we have a token before making API requests
+            await this.ensureGitHubToken();
+            
             const apiUrl = `https://api.github.com/repos/${this.githubUser}/${this.githubRepo}/contents/data/products.json`;
             
             // Show loading notification
             showNotification('טוען מוצרים מהשרת...', 'info');
             
-            const response = await fetch(apiUrl);
+            const headers = {
+                'Accept': 'application/vnd.github.v3+json'
+            };
+            
+            // Add authorization header if we have a token
+            if (this.githubToken) {
+                headers['Authorization'] = `token ${this.githubToken}`;
+            }
+            
+            const response = await fetch(apiUrl, { headers });
             if (!response.ok) {
                 console.warn(`GitHub API error (${response.status}): ${response.statusText}`);
                 if (response.status === 404) {
