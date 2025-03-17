@@ -873,399 +873,535 @@
         
         <!-- Main Content -->
         <main class="main-content">
-            <!-- Header -->
-            <header>
-                <div class="header-top">
-                    <div class="container">
-                        <div class="header-top-left">
-                            <ul class="contact-info">
-                                <li><i class="fas fa-phone"></i> 03-1234567</li>
-                                <li><i class="fas fa-envelope"></i> info@doctorinstraction.com</li>
-                            </ul>
-                        </div>
-                        <div class="header-top-right">
-                            <ul class="header-social">
-                                <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
-                                <li><a href="#"><i class="fab fa-instagram"></i></a></li>
-                                <li><a href="#"><i class="fab fa-telegram"></i></a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="header-main">
-                    <div class="container">
-                        <div class="logo">
-                            <a href="index.html">
-                                <img src="https://i.postimg.cc/2jFCQpph/logo.jpg" alt="Doctor Instraction">
-                            </a>
-                        </div>
-                        <div class="search-bar">
-                            <form>
-                                <input type="text" placeholder="חיפוש מוצרים...">
-                                <button type="submit"><i class="fas fa-search"></i></button>
-                            </form>
-                        </div>
-                        <div class="header-icons">
-                            <a href="#" class="user-toggle">
-                                <i class="fas fa-user"></i>
-                            </a>
-                            <a href="#" class="cart-toggle">
-                                <i class="fas fa-shopping-cart"></i>
-                                <span class="badge">0</span>
-                            </a>
-                            <a href="#" class="wishlist-toggle">
-                                <i class="fas fa-heart"></i>
-                                <span class="badge">0</span>
-                            </a>
-                        </div>
-                        <div class="user-controls">
-                            <div class="auth-links">
-                                <button id="login-btn" class="auth-btn login-btn">התחברות</button>
-                                <button id="signup-btn" class="auth-btn signup-btn">הרשמה</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <nav>
-                    <div class="container">
-                        <ul>
-                            <li class="menu-item active"><a href="index.html">דף הבית</a></li>
-                            <li class="menu-item"><a href="#">חנות</a>
-                                <div class="mega-menu">
-                                    <div class="mega-menu-column">
-                                        <h3>קטגוריות</h3>
-                                        <ul>
-                                            <li><a href="#">גריינדרים</a></li>
-                                            <li><a href="#">ניירות גלגול</a></li>
-                                            <li><a href="#">קופסאות וצנצנות</a></li>
-                                            <li><a href="#">מקטרות</a></li>
-                                            <li><a href="#">וופורייזרים</a></li>
-                                        </ul>
-                                    </div>
-                                    <div class="mega-menu-column">
-                                        <h3>מותגים פופולריים</h3>
-                                        <ul>
-                                            <li><a href="#">RAW</a></li>
-                                            <li><a href="#">Volcano</a></li>
-                                            <li><a href="#">PAX</a></li>
-                                            <li><a href="#">Santa Cruz</a></li>
-                                            <li><a href="#">OCB</a></li>
-                                        </ul>
-                                    </div>
-                                    <div class="mega-menu-column">
-                                        <h3>מבצעים חמים</h3>
-                                        <div class="promo-box">
-                                            <img src="/api/placeholder/300/150" alt="מבצע מיוחד">
-                                            <div class="promo-text">
-                                                <h4>מבצע השבוע</h4>
-                                                <p>הנחה של 20% על כל הוופורייזרים</p>
-                                                <a href="#" class="btn">לפרטים</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="menu-item"><a href="#">אודות</a></li>
-                            <li class="menu-item"><a href="#">בלוג</a></li>
-                            <li class="menu-item"><a href="#">צור קשר</a></li>
-                            <li class="menu-item"><a href="#">מועדון VIP</a></li>
-                            <li class="menu-item" id="admin-menu-item" style="display: none;"><a href="#" class="admin-panel-btn">פאנל ניהול</a></li>
-                        </ul>
-                        <div class="mobile-menu-toggle">
-                            <i class="fas fa-bars"></i>
-                        </div>
-                    </div>
-                </nav>
-            </header>
+            <!-- Header -->            
 
-            <!-- Hero Section -->
-            <section class="hero-slider">
-                <div class="hero-slide">
-                    <div class="hero-image" style="background-image: url('/api/placeholder/1920/600');">
-                        <div class="hero-overlay"></div>
-                    </div>
-                    <div class="hero-content">
-                        <span class="hero-badge">VIP הטבות</span>
-                        <h1 class="hero-title">הצטרף למועדון ה-VIP שלנו</h1>
-                        <p class="hero-description">קבל הנחות בלעדיות, מבצעים מיוחדים והטבות למועדון החברים. חיסכון של עד 25% על כל הזמנה!</p>
-                        <a href="#vip" class="hero-btn">
-                            הצטרף עכשיו
-                            <i class="fas fa-arrow-left"></i>
-                        </a>
-                    </div>
-                </div>
-            </section>
-
-            <!-- AI Chatbot Section -->
-            <section class="chatbot-section">
-                <div class="phone-container animate__animated animate__fadeInUp">
-                    <div class="phone-interface">
-                        <div class="phone-header">
-                            <div class="phone-notch"></div>
-                            <div class="phone-title">Doctor Chat</div>
-                        </div>
-                        <div class="chatbot-container">
-                            <div class="suggested-questions" id="suggestedQuestions">
-                                <div class="suggested-question" data-question="מה המוצרים הפופולריים?">מוצרים פופולריים</div>
-                                <div class="suggested-question" data-question="מה הטבות מועדון ה-VIP?">הטבות VIP</div>
-                                <div class="suggested-question" data-question="כמה עולה משלוח?">עלות משלוח</div>
-                            </div>
-                            <div class="chat-messages" id="chatMessages">
-                                <div class="message bot-message">שלום וברוכים הבאים לשירות הצ'אט של Doctor Instraction! במה אוכל לעזור לך היום?</div>
-                            </div>
-                            <div class="chat-input">
-                                <input type="text" id="userInput" placeholder="הקלד את שאלתך כאן...">
-                                <button id="sendMessage"><i class="fas fa-paper-plane"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="welcome-section animate__animated animate__fadeIn">
-                    <div id="cannabis-background" class="cannabis-background"></div>
-                    <div class="welcome-container">
-                        <div class="welcome-content">
-                            <h2 class="welcome-heading">ברוכים הבאים ל-Doctor Instraction</h2>
-                            <div class="welcome-text-container">
-                                <p>אנו שמחים להציג את החנות המקצועית המובילה עם מבחר איכותי של מוצרים לצרכן החכם. המוצרים שלנו נבחרים בקפידה כדי להבטיח את החוויה הטובה ביותר.</p>
-                                <p>הצוות המקצועי שלנו עומד לרשותכם לכל שאלה ומענה. אנו מספקים ייעוץ אישי, משלוחים מהירים ואחריות על כל המוצרים. הצטרפו למשפחת הלקוחות המרוצים שלנו!</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Category Grid Section - Modified 2x2 layout -->
-            <section class="puffiz-category-section ">
-                <div class="container">
-                    <h2 class="section-title">הקטגוריות שלנו</h2>
-                    <div class="puffiz-grid puffiz-grid-2x2">
-                        <!-- Category 1 -->
-                        <a href="#" class="puffiz-category-item" id="category1">
-                            <div class="puffiz-category-overlay"></div>
-                            <div class="puffiz-category-content">
-                                <h2 class="puffiz-category-title">גריינדרים</h2>
-                                <p class="puffiz-category-description">מגוון גריינדרים באיכות גבוהה לטחינה מושלמת</p>
-                            </div>
-                        </a>
-                        
-                        <!-- Category 2 -->
-                        <a href="#" class="puffiz-category-item" id="category2">
-                            <div class="puffiz-category-overlay"></div>
-                            <div class="puffiz-category-content">
-                                <h2 class="puffiz-category-title">ניירות גלגול</h2>
-                                <p class="puffiz-category-description">ניירות גלגול איכותיים במגוון גדלים וסוגים</p>
-                            </div>
-                        </a>
-                        
-                        <!-- Category 3 -->
-                        <a href="#" class="puffiz-category-item" id="category3">
-                            <div class="puffiz-category-overlay"></div>
-                            <div class="puffiz-category-content">
-                                <h2 class="puffiz-category-title">קופסאות וצנצנות</h2>
-                                <p class="puffiz-category-description">פתרונות אחסון איכותיים לשמירה על טריות</p>
-                            </div>
-                        </a>
-                        
-                        <!-- Category 4 -->
-                        <a href="#" class="puffiz-category-item" id="category4">
-                            <div class="puffiz-category-overlay"></div>
-                            <div class="puffiz-category-content">
-                                <h2 class="puffiz-category-title">מקטרות</h2>
-                                <p class="puffiz-category-description">מקטרות איכותיות במגוון צורות וגדלים</p>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Featured Products Section -->
-            <section class="product-section">
-                <div class="container">
-                    <div class="section-header">
-                        <h2 class="section-title">המוצרים הנבחרים שלנו</h2>
-                        <div class="product-filters">
-                            <button class="filter-btn active">הכל</button>
-                            <button class="filter-btn">הכי נמכרים</button>
-                            <button class="filter-btn">חדש במלאי</button>
-                            <button class="filter-btn">בלעדי ל-VIP</button>
-                        </div>
-                    </div>
-                    <div class="products-grid">
-                        <!-- Product 1 -->
-                        <div class="product-card">
-                            <div class="product-badge new">חדש</div>
-                            <div class="product-image">
-                                <img src="/api/placeholder/300/300" alt="מוצר 1">
-                                <div class="product-actions">
-                                    <button class="product-action-btn"><i class="far fa-heart"></i></button>
-                                    <button class="product-action-btn"><i class="fas fa-exchange-alt"></i></button>
-                                    <button class="product-action-btn"><i class="fas fa-eye"></i></button>
-                                </div>
-                            </div>
-                            <div class="product-content">
-                                <div class="product-category">קטגוריה 1</div>
-                                <h3 class="product-title">מטחנת תבלינים איכותית</h3>
-                                <div class="product-rating">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star-half-alt"></i>
-                                    <span class="rating-count">(24)</span>
-                                </div>
-                                <div class="product-price">
-                                    <span class="current-price">₪149</span>
-                                    <span class="old-price">₪199</span>
-                                </div>
-                                <button class="add-to-cart">הוסף לסל <i class="fas fa-shopping-cart"></i></button>
-                            </div>
-                        </div>
-
-                        <!-- ... אזורים נוספים בדף כמו מוצרים נוספים, מדורי מידע וכו׳ ... -->
-
-                        <!-- VIP Club Section -->
-                        <section class="vip-club">
-                            <div class="vip-content">
-                                <h2 class="vip-title">מועדון VIP</h2>
-                                <p class="vip-subtitle">הצטרפו למועדון ה-VIP שלנו וקבלו הטבות בלעדיות!</p>
-                                
-                                <div class="vip-features">
-                                    <div class="vip-feature">
-                                        <div class="vip-feature-icon">
-                                            <i class="fas fa-percent"></i>
-                                        </div>
-                                        <h3 class="vip-feature-title">הנחות קבועות</h3>
-                                        <p class="vip-feature-text">הנחה קבועה של 10% על כל הזמנה</p>
-                                    </div>
-                                    
-                                    <div class="vip-feature">
-                                        <div class="vip-feature-icon">
-                                            <i class="fas fa-gift"></i>
-                                        </div>
-                                        <h3 class="vip-feature-title">מתנות חודשיות</h3>
-                                        <p class="vip-feature-text">מתנה חודשית בכל הזמנה</p>
-                                    </div>
-                                    
-                                    <div class="vip-feature">
-                                        <div class="vip-feature-icon">
-                                            <i class="fas fa-truck"></i>
-                                        </div>
-                                        <h3 class="vip-feature-title">משלוח חינם</h3>
-                                        <p class="vip-feature-text">משלוח חינם בכל קנייה</p>
-                                    </div>
-                                    
-                                    <div class="vip-feature">
-                                        <div class="vip-feature-icon">
-                                            <i class="fas fa-tag"></i>
-                                        </div>
-                                        <h3 class="vip-feature-title">מבצעים בלעדיים</h3>
-                                        <p class="vip-feature-text">גישה למבצעים בלעדיים</p>
-                                    </div>
-                                </div>
-                                
-                                <a href="#" class="btn-vip">הצטרפו עכשיו</a>
-                            </div>
-                        </section>
-
-                        <!-- Footer -->
-                        <footer>
-                            <div class="footer-top">
-                                <div class="container">
-                                    <div class="footer-columns">
-                                        <div class="footer-column">
-                                            <h3 class="footer-title">אודות Doctor Instraction</h3>
-                                            <p class="footer-text">אנו מספקים מוצרים איכותיים עם שירות מקצועי ומהיר. המטרה שלנו היא לספק את המוצרים הטובים ביותר במחירים הוגנים.</p>
-                                            <div class="footer-social">
-                                                <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
-                                                <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
-                                                <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
-                                                <a href="#" class="social-link"><i class="fab fa-telegram"></i></a>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="footer-column">
-                                            <h3 class="footer-title">קטגוריות פופולריות</h3>
-                                            <ul class="footer-links">
-                                                <li><a href="#"><i class="fas fa-chevron-left"></i> גריינדרים</a></li>
-                                                <li><a href="#"><i class="fas fa-chevron-left"></i> מקטרות</a></li>
-                                                <li><a href="#"><i class="fas fa-chevron-left"></i> ניירות גלגול</a></li>
-                                                <li><a href="#"><i class="fas fa-chevron-left"></i> וופורייזרים</a></li>
-                                                <li><a href="#"><i class="fas fa-chevron-left"></i> מועדון VIP</a></li>
-                                            </ul>
-                                        </div>
-                                        
-                                        <div class="footer-column">
-                                            <h3 class="footer-title">מידע</h3>
-                                            <ul class="footer-links">
-                                                <li><a href="#"><i class="fas fa-chevron-left"></i> אודות</a></li>
-                                                <li><a href="#"><i class="fas fa-chevron-left"></i> משלוחים</a></li>
-                                                <li><a href="#"><i class="fas fa-chevron-left"></i> תנאי שימוש</a></li>
-                                                <li><a href="#"><i class="fas fa-chevron-left"></i> מדיניות פרטיות</a></li>
-                                                <li><a href="#"><i class="fas fa-chevron-left"></i> צור קשר</a></li>
-                                            </ul>
-                                        </div>
-                                        
-                                        <div class="footer-column">
-                                            <h3 class="footer-title">צור קשר</h3>
-                                            <ul class="contact-info">
-                                                <li>
-                                                    <i class="fas fa-map-marker-alt"></i>
-                                                    <span>רחוב ראשי 123, תל אביב</span>
-                                                </li>
-                                                <li>
-                                                    <i class="fas fa-phone"></i>
-                                                    <span>03-1234567</span>
-                                                </li>
-                                                <li>
-                                                    <i class="fas fa-envelope"></i>
-                                                    <span>info@doctorinstraction.com</span>
-                                                </li>
-                                                <li>
-                                                    <i class="fas fa-clock"></i>
-                                                    <span>א-ה: 9:00-21:00, ו: 9:00-14:00</span>
-                                                </li>
-                                            </ul>
-                                            <div class="newsletter">
-                                                <h4>הירשמו לניוזלטר</h4>
-                                                <form class="newsletter-form">
-                                                    <input type="email" placeholder="הזינו את כתובת המייל">
-                                                    <button type="submit"><i class="fas fa-paper-plane"></i></button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="footer-bottom">
-                                <div class="container">
-                                    <div class="copyright">
-                                        &copy; 2023 Doctor Instraction - כל הזכויות שמורות
-                                    </div>
-                                    <div class="payment-methods">
-                                        <span>אמצעי תשלום:</span>
-                                        <div class="payment-icons">
-                                            <i class="fab fa-cc-visa"></i>
-                                            <i class="fab fa-cc-mastercard"></i>
-                                            <i class="fab fa-cc-amex"></i>
-                                            <i class="fab fa-cc-paypal"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </footer>
-                    </div>
-                </div>
-            </section>
-        </main>
-
+           
+        <!-- Sidebar Toggle Button -->
+        <div class="sidebar-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+        
         <!-- Chat Widget -->
         <div class="chat-widget">
             <div class="chat-button">
                 <i class="fas fa-comments"></i>
             </div>
         </div>
-    </div>
+        
+        <!-- Library decorative elements added by JavaScript -->
+        
+        <script>
+            // Example script to initialize sidebar progress bars
+            document.addEventListener('DOMContentLoaded', function() {
+                // Add library decoration elements
+                const libraryDecoration = document.createElement('div');
+                libraryDecoration.className = 'library-decoration';
+                
+                // Add book icons
+                for(let i = 0; i < 20; i++) {
+                    const bookIcon = document.createElement('div');
+                    bookIcon.className = 'book-icon';
+                    bookIcon.innerHTML = '<i class="fas fa-book"></i>';
+                    bookIcon.style.top = Math.random() * 100 + '%';
+                    bookIcon.style.left = Math.random() * 100 + '%';
+                    bookIcon.style.animationDelay = Math.random() * 5 + 's';
+                    libraryDecoration.appendChild(bookIcon);
+                }
+                
+                // Add leaf icons
+                for(let i = 0; i < 15; i++) {
+                    const leafIcon = document.createElement('div');
+                    leafIcon.className = 'leaf-icon';
+                    leafIcon.innerHTML = '<i class="fas fa-leaf"></i>';
+                    leafIcon.style.top = Math.random() * 100 + '%';
+                    leafIcon.style.left = Math.random() * 100 + '%';
+                    leafIcon.style.animationDelay = Math.random() * 5 + 's';
+                    libraryDecoration.appendChild(leafIcon);
+                }
+                
+                // Add light icons
+                for(let i = 0; i < 10; i++) {
+                    const lightIcon = document.createElement('div');
+                    lightIcon.className = 'light-icon';
+                    lightIcon.innerHTML = '<i class="fas fa-lightbulb"></i>';
+                    lightIcon.style.top = Math.random() * 100 + '%';
+                    lightIcon.style.right = Math.random() * 100 + '%';
+                    lightIcon.style.animationDelay = Math.random() * 5 + 's';
+                    libraryDecoration.appendChild(lightIcon);
+                }
+                
+                document.body.appendChild(libraryDecoration);
+                
+                // Initialize progress bars
+                const progressFills = document.querySelectorAll('.progress-fill');
+                progressFills.forEach(fill => {
+                    setTimeout(() => {
+                        const randomWidth = Math.floor(Math.random() * 30) + 70; // 70-100%
+                        fill.style.width = randomWidth + '%';
+                    }, 500);
+                });
+                
+                // Mobile sidebar toggle
+                const sidebarToggle = document.querySelector('.sidebar-toggle');
+                if(sidebarToggle) {
+                    sidebarToggle.addEventListener('click', function() {
+                        const sidebar = document.querySelector('.system-sidebar');
+                        sidebar.classList.toggle('active');
+                    });
+                }
+                
+                // Product action buttons
+                const actionButtons = document.querySelectorAll('.product-action-btn');
+                actionButtons.forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const icon = this.querySelector('i');
+                        if(icon.classList.contains('fa-heart')) {
+                            icon.classList.toggle('fas');
+                            icon.classList.toggle('far');
+                        }
+                    });
+                });
+                
+                // Add to cart button
+                const addToCartButtons = document.querySelectorAll('.add-to-cart');
+                addToCartButtons.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const originalText = this.textContent;
+                        this.innerHTML = '<i class="fas fa-check"></i> נוסף לסל';
+                        
+                        setTimeout(() => {
+                            this.textContent = originalText;
+                        }, 2000);
+                        
+                        // Update cart count in header
+                        const cartBadge = document.querySelector('.header-icon:nth-child(2) .badge');
+                        if(cartBadge) {
+                            let count = parseInt(cartBadge.textContent);
+                            cartBadge.textContent = count + 1;
+                        }
+                    });
+                });
+            });
+        </script>
+    </main>
+    
+    <!-- Chatbot JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatMessages = document.getElementById('chatMessages');
+            const userInput = document.getElementById('userInput');
+            const sendButton = document.getElementById('sendMessage');
+            const suggestedQuestions = document.getElementById('suggestedQuestions');
+            
+            // Add FontAwesome for better icons
+            if (!document.getElementById('fontawesome-css')) {
+                const fontAwesomeLink = document.createElement('link');
+                fontAwesomeLink.id = 'fontawesome-css';
+                fontAwesomeLink.rel = 'stylesheet';
+                fontAwesomeLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css';
+                document.head.appendChild(fontAwesomeLink);
+            }
+            
+            // Add Animate.css for smoother animations
+            if (!document.getElementById('animate-css')) {
+                const animateCssLink = document.createElement('link');
+                animateCssLink.id = 'animate-css';
+                animateCssLink.rel = 'stylesheet';
+                animateCssLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css';
+                document.head.appendChild(animateCssLink);
+            }
+            
+            // Product information for the chatbot to use in responses
+            const productInfo = {
+                'קנאביס': {
+                    text: 'אנו מציעים מגוון רחב של זני פרימיום קנאביס איכותיים, כולל סאטיבה, אינדיקה והיברידים. הזנים הפופולריים ביותר שלנו כוללים:<br><br>• <strong>OG Kush</strong> - היבריד עוצמתי עם ארומה ייחודית.<br>• <strong>Girl Scout Cookies</strong> - מאזן מושלם בין הרגעה לאנרגיה.<br>• <strong>White Widow</strong> - קלאסי עם אפקט מאוזן.<br>• <strong>Purple Haze</strong> - סאטיבה מעוררת עם טעמי פירות.<br>• <strong>Northern Lights</strong> - אינדיקה מרגיעה מאוד.',
+                    icon: 'cannabis'
+                },
+                'מקטרות': {
+                    text: 'יש לנו מבחר של מקטרות איכותיות מחומרים שונים המתאימים לכל העדפה וסגנון:<br><br>• <strong>מקטרות זכוכית</strong> - במגוון צבעים וצורות ייחודיות<br>• <strong>מקטרות עץ</strong> - בעבודת יד מעץ מייפל ודובדבן<br>• <strong>מקטרות סיליקון</strong> - עמידות ונוחות לניקוי<br>• <strong>בונגים</strong> - במגוון גדלים עם מסננים מתקדמים<br>• <strong>מקטרות מים</strong> - לחוויית עישון חלקה במיוחד',
+                    icon: 'smoking'
+                },
+                'וופורייזר': {
+                    text: 'מכשירי וופורייזר מאפשרים שימוש ללא שריפה. הדגמים המובילים שלנו:<br><br>• <strong>PAX 3</strong> - קומפקטי ורב-שימושי עם חימום מהיר<br>• <strong>Volcano</strong> - מכשיר שולחני איכותי לחוויה מושלמת<br>• <strong>DynaVap</strong> - וופורייזר חסכוני ללא סוללה<br>• <strong>MIGHTY+</strong> - עוצמתי עם סוללה ארוכה במיוחד<br>• <strong>Firefly</strong> - חימום מדויק לחוויה מלאה בטרפנים',
+                    icon: 'wind'
+                },
+                'אביזרים': {
+                    text: 'האביזרים שלנו כוללים את כל מה שצריך להשלמת החוויה:<br><br>• <strong>מטחנות פרימיום</strong> - מאלומיניום איכותי בחיתוך CNC<br>• <strong>נייר גלגול אורגני</strong> - כולל מגוון גדלים וטעמים<br>• <strong>פילטרים מנייר ופחם</strong> - לחוויה נקייה יותר<br>• <strong>כלי ניקוי וניקיון</strong> - לשמירה על הציוד<br>• <strong>תיקי נשיאה ואחסון</strong> - דיסקרטיים עם בקרת ריח',
+                    icon: 'toolbox'
+                },
+                'מחירים': {
+                    text: 'המחירים שלנו תחרותיים ומשתנים לפי המוצר והאיכות:<br><br>• <strong>זני פרימיום:</strong> ₪60-120 לגרם, תלוי בזן<br>• <strong>מקטרות זכוכית:</strong> החל מ-₪80 ועד ₪500 לפריטי אספנות<br>• <strong>וופורייזרים:</strong> ₪250-1,200, תלוי בדגם והתכונות<br>• <strong>אביזרים:</strong> ₪30-200<br><br>חברי מועדון ה-VIP שלנו נהנים מהנחות של עד 25% על כל המוצרים!',
+                    icon: 'tag'
+                },
+                'משלוח': {
+                    text: 'אנו מציעים משלוח מהיר, בטוח ודיסקרטי לכל חלקי הארץ:<br><br>• <strong>משלוח רגיל:</strong> 3-5 ימי עסקים (₪30)<br>• <strong>משלוח מהיר:</strong> עד 48 שעות (₪50)<br>• <strong>משלוח אקספרס:</strong> עד הבית תוך 24 שעות (₪70)<br><br>משלוח חינם בהזמנות מעל ₪350!<br>האריזות שלנו דיסקרטיות לחלוטין ואטומות לריח.',
+                    icon: 'truck'
+                },
+                'מועדון': {
+                    text: 'מועדון ה-VIP שלנו מציע חוויה בלתי נשכחת:<br><br>• <strong>הנחה קבועה של 15%</strong> על כל הזמנה<br>• <strong>מבצעים בלעדיים</strong> למועדון בלבד<br>• <strong>מוצר חינם</strong> בכל הזמנה רביעית<br>• <strong>גישה מוקדמת</strong> למוצרים חדשים<br>• <strong>משלוח חינם</strong> בהזמנות מעל ₪250 (במקום ₪350)<br>• <strong>נקודות נאמנות</strong> בכל רכישה<br><br>עלות החברות: ₪199 לשנה או ₪19.90 לחודש',
+                    icon: 'crown'
+                },
+                'מבצעים': {
+                    text: 'המבצעים העכשוויים שלנו:<br><br>• <strong>1+1 על זני הבית</strong> בימי שלישי<br>• <strong>20% הנחה</strong> על כל המקטרות בסוף שבוע<br>• <strong>שלישי חופשי</strong> - קנה שניים קבל שלישי חינם על אביזרים<br>• <strong>חבר מביא חבר</strong> - קבלו שניכם 15% הנחה<br>• <strong>הטבת הצטרפות</strong> - 30% הנחה בהזמנה ראשונה לחברי מועדון חדשים',
+                    icon: 'gift'
+                },
+                'איכות': {
+                    text: 'האיכות והבטיחות הם בראש סדר העדיפויות שלנו:<br><br>• כל המוצרים עוברים <strong>בדיקות מעבדה</strong> קפדניות<br>• המוצרים הטריים מתחדשים <strong>פעמיים בשבוע</strong><br>• זני הפרימיום שלנו מגודלים בתנאים אופטימליים עם <strong>בקרת איכות מחמירה</strong><br>• אנו עובדים רק עם <strong>ספקים מובילים ואמינים</strong><br>• כל המוצרים מגיעים עם <strong>אחריות מלאה</strong>',
+                    icon: 'certificate'
+                },
+                'מידע': {
+                    text: 'שאלות נפוצות:<br><br>• <strong>האם ניתן לבטל הזמנה?</strong> כן, עד 24 שעות לפני המשלוח<br>• <strong>איך מצטרפים למועדון?</strong> דרך האתר או בקנייה בחנות<br>• <strong>יש לכם חנויות פיזיות?</strong> כן, בתל אביב, חיפה וירושלים<br>• <strong>האם ניתן לשלם במזומן?</strong> כן, בעת קבלת המשלוח<br>• <strong>האם אתם מקבלים החזרות?</strong> בתוך 14 יום באריזה מקורית',
+                    icon: 'circle-info'
+                }
+            };
+            
+            // Additional questions and answers for variety
+            const additionalResponses = {
+                'ברוכים': 'ברוכים הבאים ל-Doctor Instraction! אנחנו שמחים שהגעת. במה אוכל לעזור לך היום?',
+                'שלום': 'שלום! איך אוכל לעזור לך היום? אני כאן לענות על כל שאלה על המוצרים שלנו.',
+                'היי': 'היי! שמח לראות אותך. איך אוכל לסייע לך היום בבחירת המוצרים המושלמים?',
+                'תודה': 'בשמחה! אני תמיד כאן לענות על השאלות שלך. האם יש משהו נוסף שאוכל לעזור בו?',
+                'בחנות': 'החנויות הפיזיות שלנו נמצאות בתל אביב (דיזנגוף 150), חיפה (הנמל 24) וירושלים (יפו 45). שעות הפתיחה: א\'-ה\' 10:00-22:00, ו\' 10:00-15:00.',
+                'זמני': 'זמני המשלוחים שלנו: משלוח רגיל: 3-5 ימי עסקים, משלוח מהיר: עד 48 שעות, משלוח אקספרס: עד 24 שעות. ניתן לבחור בזמן ההזמנה.',
+                'ביטול': 'ניתן לבטל הזמנה עד 24 שעות לפני המשלוח ללא עלות. לביטול יש ליצור קשר עם שירות הלקוחות בטלפון או במייל.',
+                'פופולרי': 'המוצרים הפופולריים ביותר שלנו כעת הם: 1. OG Kush 2. מקטרת הזכוכית "אוריון" 3. וופורייזר PAX 3 4. מטחנת "קוסמוס" מאלומיניום',
+                'חדש': 'המוצרים החדשים שלנו החודש: 1. זן Gelato #33 2. מקטרות קרמיקה בעבודת יד 3. מארזי VIP חדשים 4. סדרת אביזרי פרימיום מעוצבים',
+                'הנחה': 'קוד ההנחה השבועי שלנו: GOLD15 - מעניק 15% על כל האתר (בתוקף עד סוף השבוע). חברי מועדון מקבלים 5% נוספים!',
+                'שעות': 'שעות הפעילות שלנו: החנויות: א\'-ה\' 10:00-22:00, ו\' 10:00-15:00. שירות לקוחות: א\'-ה\' 9:00-23:00, ו\' 9:00-14:00'
+            };
+            
+            // Product recommendations for personalization
+            const recommendations = {
+                'מתחילים': 'למתחילים אנו ממליצים על:<br>• זן Blue Dream - מאוזן ועדין<br>• מקטרת זכוכית בסיסית<br>• מטחנה קומפקטית<br>• סדנת הדרכה מקוונת חינם',
+                'מתקדמים': 'למשתמשים מתקדמים אנו ממליצים על:<br>• זני פרימיום כמו OG Kush<br>• וופורייזר Mighty+<br>• מקטרת מים מסוננת<br>• מטחנת 4 חלקים עם תא לקיף',
+                'רפואי': 'למשתמשים רפואיים:<br>• זנים עשירים ב-CBD כמו Harlequin<br>• וופורייזר באיכות רפואית<br>• שמנים וטינקטורות<br>• מינון מדויק עם אביזרים ייעודיים',
+                'נדיר': 'לאספנים ומחפשי הנדיר:<br>• זנים אקזוטיים במהדורה מוגבלת<br>• מקטרות בעבודת יד מזכוכית צבעונית<br>• פריטי אספנות מיוחדים<br>• מהדורות מוגבלות של מיצויים'
+            };
+            
+            // Typing indicator function
+            function showTypingIndicator() {
+                const typingIndicator = document.createElement('div');
+                typingIndicator.className = 'typing-indicator';
+                typingIndicator.id = 'typingIndicator';
+                typingIndicator.innerHTML = '<span></span><span></span><span></span>';
+                chatMessages.appendChild(typingIndicator);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                return typingIndicator;
+            }
+            
+            // Function to add a message to the chat with more formatting and animations
+            function addMessage(message, isUser, icon = null) {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message');
+                messageDiv.classList.add(isUser ? 'user-message' : 'bot-message');
+                messageDiv.classList.add('animate__animated', isUser ? 'animate__fadeInRight' : 'animate__fadeInLeft');
+                
+                // Format message with HTML if it's a bot message
+                if (!isUser) {
+                    // Allow HTML in bot messages for rich formatting
+                    let formattedMessage = message;
+                    if (icon) {
+                        formattedMessage = `<i class="fas fa-${icon} message-icon"></i> ${formattedMessage}`;
+                    }
+                    messageDiv.innerHTML = formattedMessage;
+                } else {
+                    // For user messages, just use text content
+                    messageDiv.textContent = message;
+                }
+                
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+                // Text-to-speech for bot messages (optional, can be activated based on user preference)
+                if (!isUser && 'speechSynthesis' in window) {
+                    // Uncomment to enable speech - may be too intrusive for some users
+                    /*
+                    const speech = new SpeechSynthesisUtterance();
+                    speech.lang = 'he-IL';
+                    speech.text = message.replace(/<[^>]*>?/gm, ''); // Remove HTML tags
+                    window.speechSynthesis.speak(speech);
+                    */
+                }
+                
+                return messageDiv;
+            }
+            
+            // Function to add a "new message" notification indicator
+            function showNewMessageIndicator() {
+                if (document.getElementById('newMessageIndicator')) return;
+                
+                const indicator = document.createElement('div');
+                indicator.id = 'newMessageIndicator';
+                indicator.className = 'new-message-indicator animate__animated animate__bounceIn';
+                indicator.innerHTML = '<i class="fas fa-arrow-down"></i>';
+                chatMessages.parentNode.appendChild(indicator);
+                
+                indicator.addEventListener('click', () => {
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                    indicator.remove();
+                });
+                
+                // Auto-hide after 3 seconds
+                setTimeout(() => {
+                    if (indicator.parentNode) {
+                        indicator.classList.add('animate__fadeOut');
+                        setTimeout(() => indicator.remove(), 500);
+                    }
+                }, 3000);
+            }
+            
+            // Show new message indicator if user scrolls up and there are new messages
+            chatMessages.addEventListener('scroll', () => {
+                const isScrolledToBottom = chatMessages.scrollHeight - chatMessages.clientHeight <= chatMessages.scrollTop + 50;
+                const indicator = document.getElementById('newMessageIndicator');
+                
+                if (!isScrolledToBottom && !indicator && chatMessages.querySelectorAll('.message').length > 2) {
+                    showNewMessageIndicator();
+                } else if (isScrolledToBottom && indicator) {
+                    indicator.remove();
+                }
+            });
+            
+            // Function to generate a response using pattern matching and predefined answers
+            function generateResponse(userMessage) {
+                // Convert to lowercase and remove punctuation for easier matching
+                const normalizedMessage = userMessage.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
+                
+                // First check for exact product matches
+                for (const keyword in productInfo) {
+                    if (normalizedMessage.includes(keyword.toLowerCase())) {
+                        return {
+                            text: productInfo[keyword].text,
+                            icon: productInfo[keyword].icon
+                        };
+                    }
+                }
+                
+                // Then check for other common questions/greetings
+                for (const keyword in additionalResponses) {
+                    if (normalizedMessage.includes(keyword.toLowerCase())) {
+                        return {
+                            text: additionalResponses[keyword],
+                            icon: 'comment'
+                        };
+                    }
+                }
+                
+                // Check for recommendation requests
+                for (const recType in recommendations) {
+                    if (normalizedMessage.includes(recType.toLowerCase())) {
+                        return {
+                            text: recommendations[recType],
+                            icon: 'star'
+                        };
+                    }
+                }
+                
+                // Default responses based on message content
+                if (normalizedMessage.includes("תודה") || normalizedMessage.includes("תודה רבה")) {
+                    return {
+                        text: 'בשמחה! אני כאן לעזור. האם יש משהו נוסף שתרצה לדעת?',
+                        icon: 'smile'
+                    };
+                } else if (normalizedMessage.includes("שלום") || normalizedMessage.includes("היי")) {
+                    return {
+                        text: 'שלום! איך אוכל לעזור לך היום בנוגע למוצרים שלנו?',
+                        icon: 'hand'
+                    };
+                } else if (normalizedMessage.includes("המלצ")) {
+                    return {
+                        text: 'אשמח להמליץ! יש לנו מגוון מוצרים איכותיים. ספר לי קצת על ההעדפות וניסיון שלך כדי שאוכל להמליץ בצורה מותאמת אישית.',
+                        icon: 'thumbs-up'
+                    };
+                }
+                
+                // Fallback generic response
+                return {
+                    text: 'תודה על השאלה! אני אשמח לעזור. האם תוכל לפרט יותר או לשאול על אחד מהנושאים הבאים: זני קנאביס, מקטרות, וופורייזרים, אביזרים, מחירים, משלוחים או מועדון ה-VIP?',
+                    icon: 'question'
+                };
+            }
+            
+            // Function to process user input and generate a response
+            function processUserInput() {
+                const userMessage = userInput.value.trim();
+                if (!userMessage) return;
+                
+                // Add user message to chat
+                addMessage(userMessage, true);
+                userInput.value = '';
+                
+                // Show typing indicator
+                const typingIndicator = showTypingIndicator();
+                
+                // Generate bot response with delay for realism
+                const typingDelay = Math.min(Math.max(userMessage.length * 50, 500), 1500);
+                
+                setTimeout(() => {
+                    // Remove typing indicator
+                    typingIndicator.remove();
+                    
+                    // Generate response
+                    const response = generateResponse(userMessage);
+                    
+                    // Add bot response to chat
+                    addMessage(response.text, false, response.icon);
+                    
+                    // Suggest relevant follow-up questions
+                    if (Math.random() > 0.5) {
+                        suggestFollowUpQuestions(userMessage);
+                    }
+                }, typingDelay);
+            }
+            
+            // Function to suggest relevant follow-up questions based on user's message
+            function suggestFollowUpQuestions(userMessage) {
+                const normalizedMessage = userMessage.toLowerCase();
+                let suggestedQueries = [];
+                
+                // Define follow-up questions for different topics
+                if (normalizedMessage.includes('קנאביס') || normalizedMessage.includes('זנים')) {
+                    suggestedQueries = ['מה ההבדל בין סאטיבה ואינדיקה?', 'מהו הזן החזק ביותר?', 'יש לכם זנים עם CBD גבוה?'];
+                } else if (normalizedMessage.includes('מקטרת') || normalizedMessage.includes('בונג')) {
+                    suggestedQueries = ['איך לנקות מקטרת זכוכית?', 'מה ההבדל בין בונג למקטרת מים?', 'מקטרת מומלצת למתחילים?'];
+                } else if (normalizedMessage.includes('וופורייזר')) {
+                    suggestedQueries = ['כמה זמן הסוללה מחזיקה?', 'יש הבדל בחוויה בין וופורייזר לעישון?', 'איך מנקים וופורייזר?'];
+                } else if (normalizedMessage.includes('מחיר') || normalizedMessage.includes('עלות')) {
+                    suggestedQueries = ['יש לכם מבצעים עכשיו?', 'איך מצטרפים למועדון VIP?', 'יש הנחות לקנייה בכמות?'];
+                } else if (normalizedMessage.includes('משלוח')) {
+                    suggestedQueries = ['כמה עולה משלוח אקספרס?', 'האם המשלוח דיסקרטי?', 'לאילו אזורים אתם מספקים?'];
+                } else {
+                    suggestedQueries = ['מה המוצרים הפופולריים?', 'יש לכם מבצעים מיוחדים?', 'מה מומלץ למתחילים?'];
+                }
+                
+                // Shuffle and take random 3
+                suggestedQueries = shuffleArray(suggestedQueries).slice(0, 3);
+                
+                // Add small delay before showing suggestions
+                setTimeout(() => {
+                    // Add suggested follow-up questions
+                    const suggestionDiv = document.createElement('div');
+                    suggestionDiv.className = 'suggested-followups animate__animated animate__fadeIn';
+                    suggestionDiv.innerHTML = '<div class="followup-label">שאלות נוספות:</div>';
+                    
+                    suggestedQueries.forEach(query => {
+                        const btn = document.createElement('button');
+                        btn.className = 'followup-btn';
+                        btn.textContent = query;
+                        btn.addEventListener('click', () => {
+                            userInput.value = query;
+                            processUserInput();
+                            suggestionDiv.remove();
+                        });
+                        suggestionDiv.appendChild(btn);
+                    });
+                    
+                    chatMessages.appendChild(suggestionDiv);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }, 1000);
+            }
+            
+            // Helper to shuffle array
+            function shuffleArray(array) {
+                const newArray = [...array];
+                for (let i = newArray.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+                }
+                return newArray;
+            }
+            
+            // Event listeners for sending messages
+            sendButton.addEventListener('click', processUserInput);
+            userInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    processUserInput();
+                }
+            });
+            
+            // Event listeners for suggested questions
+            document.querySelectorAll('.suggested-question').forEach(question => {
+                question.addEventListener('click', function() {
+                    const questionText = this.getAttribute('data-question');
+                    userInput.value = questionText;
+                    processUserInput();
+                });
+            });
+            
+            // Add CSS for follow-up suggestions
+            const style = document.createElement('style');
+            style.textContent = `
+                .suggested-followups {
+                    margin: 10px 0;
+                    padding: 10px;
+                    background: rgba(218, 165, 32, 0.05);
+                    border-radius: 10px;
+                    border: 1px solid rgba(218, 165, 32, 0.2);
+                }
+                
+                .followup-label {
+                    color: #DAA520;
+                    font-size: 12px;
+                    margin-bottom: 8px;
+                    font-weight: bold;
+                }
+                
+                .followup-btn {
+                    background: rgba(218, 165, 32, 0.1);
+                    border: 1px solid rgba(218, 165, 32, 0.3);
+                    color: #DAA520;
+                    padding: 6px 12px;
+                    margin: 5px 5px 5px 0;
+                    border-radius: 15px;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    font-size: 12px;
+                }
+                
+                .followup-btn:hover {
+                    background: rgba(218, 165, 32, 0.2);
+                    transform: translateY(-2px);
+                }
+                
+                .message-icon {
+                    margin-left: 5px;
+                    opacity: 0.8;
+                }
+                
+                .new-message-indicator {
+                    position: absolute;
+                    bottom: 80px;
+                    right: 20px;
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 50%;
+                    background: linear-gradient(135deg, #DAA520, #B8860B);
+                    color: #000;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+                    cursor: pointer;
+                    z-index: 2;
+                    transition: all 0.3s;
+                }
+                
+                .new-message-indicator:hover {
+                    transform: scale(1.1);
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Optional: Add welcome animation
+            setTimeout(() => {
+                const firstMessage = chatMessages.querySelector('.bot-message');
+                if (firstMessage) {
+                    firstMessage.classList.add('animate__animated', 'animate__pulse');
+                }
+            }, 1000);
+        });
+    </script>
 </body>
 
         <script src="script.js"></script>
