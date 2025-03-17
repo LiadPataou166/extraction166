@@ -875,6 +875,392 @@
         <main class="main-content">
             <!-- Header -->            
 
+            <!-- Header -->
+            <header>
+                <div class="header-top">
+                    <div class="container">
+                        <div class="header-top-left">
+                            <ul class="contact-info">
+                                <li><i class="fas fa-phone"></i> 03-1234567</li>
+                                <li><i class="fas fa-envelope"></i> info@doctorinstraction.com</li>
+                            </ul>
+                        </div>
+                        <div class="header-top-right">
+                            <ul class="header-social">
+                                <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
+                                <li><a href="#"><i class="fab fa-instagram"></i></a></li>
+                                <li><a href="#"><i class="fab fa-telegram"></i></a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="header-main">
+                    <div class="container">
+                        <div class="logo">
+                            <a href="index.html">
+                                <img src="https://i.postimg.cc/2jFCQpph/logo.jpg" alt="Doctor Instraction">
+                            </a>
+                        </div>
+                        <div class="search-bar">
+                            <form>
+                                <input type="text" placeholder="חיפוש מוצרים...">
+                                <button type="submit"><i class="fas fa-search"></i></button>
+                            </form>
+                        </div>
+                        <div class="header-icons">
+                            <a href="#" class="user-toggle">
+                                <i class="fas fa-user"></i>
+                            </a>
+                            <a href="#" class="cart-toggle">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span class="badge">0</span>
+                            </a>
+                            <a href="#" class="wishlist-toggle">
+                                <i class="fas fa-heart"></i>
+                                <span class="badge">0</span>
+                            </a>
+                        </div>
+                        <div class="user-controls">
+                            <div class="auth-links">
+                                <button id="login-btn" class="auth-btn login-btn">התחברות</button>
+                                <button id="signup-btn" class="auth-btn signup-btn">הרשמה</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <nav>
+                    <div class="container">
+                        <ul>
+                            <li class="menu-item active"><a href="index.html">דף הבית</a></li>
+                            <li class="menu-item"><a href="#">חנות</a>
+                                <div class="mega-menu">
+                                    <div class="mega-menu-column">
+                                        <h3>קטגוריות</h3>
+                                        <ul>
+                                            <li><a href="#">גריינדרים</a></li>
+                                            <li><a href="#">ניירות גלגול</a></li>
+                                            <li><a href="#">קופסאות וצנצנות</a></li>
+                                            <li><a href="#">מקטרות</a></li>
+                                            <li><a href="#">וופורייזרים</a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="mega-menu-column">
+                                        <h3>מותגים פופולריים</h3>
+                                        <ul>
+                                            <li><a href="#">RAW</a></li>
+                                            <li><a href="#">Volcano</a></li>
+                                            <li><a href="#">PAX</a></li>
+                                            <li><a href="#">Santa Cruz</a></li>
+                                            <li><a href="#">OCB</a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="mega-menu-column">
+                                        <h3>מבצעים חמים</h3>
+                                        <div class="promo-box">
+                                            <img src="/api/placeholder/300/150" alt="מבצע מיוחד">
+                                            <div class="promo-text">
+                                                <h4>מבצע השבוע</h4>
+                                                <p>הנחה של 20% על כל הוופורייזרים</p>
+                                                <a href="#" class="btn">לפרטים</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="menu-item"><a href="#">אודות</a></li>
+                            <li class="menu-item"><a href="#">בלוג</a></li>
+                            <li class="menu-item"><a href="#">צור קשר</a></li>
+                            <li class="menu-item"><a href="#">מועדון VIP</a></li>
+                            <li class="menu-item" id="admin-menu-item" style="display: none;"><a href="#" class="admin-panel-btn">פאנל ניהול</a></li>
+                        </ul>
+                        <div class="mobile-menu-toggle">
+                            <i class="fas fa-bars"></i>
+                        </div>
+                    </div>
+                </nav>
+            </header>
+
+            <!-- Hero Section -->
+            <section class="hero-slider">
+                <div class="hero-slide">
+                    <div class="hero-image" style="background-image: url('/api/placeholder/1920/600');">
+                        <div class="hero-overlay"></div>
+                    </div>
+                    <div class="hero-content">
+                        <span class="hero-badge">VIP הטבות</span>
+                        <h1 class="hero-title">הצטרף למועדון ה-VIP שלנו</h1>
+                        <p class="hero-description">קבל הנחות בלעדיות, מבצעים מיוחדים והטבות למועדון החברים. חיסכון של עד 25% על כל הזמנה!</p>
+                        <a href="#vip" class="hero-btn">
+                            הצטרף עכשיו
+                            <i class="fas fa-arrow-left"></i>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AI Chatbot Section -->
+            <section class="chatbot-section">
+                <div class="phone-container animate__animated animate__fadeInUp">
+                    <div class="phone-interface">
+                        <div class="phone-header">
+                            <div class="phone-notch"></div>
+                            <div class="phone-title">Doctor Chat</div>
+                        </div>
+                        <div class="chatbot-container">
+                            <div class="suggested-questions" id="suggestedQuestions">
+                                <div class="suggested-question" data-question="מה המוצרים הפופולריים?">מוצרים פופולריים</div>
+                                <div class="suggested-question" data-question="מה הטבות מועדון ה-VIP?">הטבות VIP</div>
+                                <div class="suggested-question" data-question="כמה עולה משלוח?">עלות משלוח</div>
+                            </div>
+                            <div class="chat-messages" id="chatMessages">
+                                <div class="message bot-message">שלום וברוכים הבאים לשירות הצ'אט של Doctor Instraction! במה אוכל לעזור לך היום?</div>
+                            </div>
+                            <div class="chat-input">
+                                <input type="text" id="userInput" placeholder="הקלד את שאלתך כאן...">
+                                <button id="sendMessage"><i class="fas fa-paper-plane"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="welcome-section animate__animated animate__fadeIn">
+                    <div id="cannabis-background" class="cannabis-background"></div>
+                    <div class="welcome-container">
+                        <div class="welcome-content">
+                            <h2 class="welcome-heading">ברוכים הבאים ל-Doctor Instraction</h2>
+                            <div class="welcome-text-container">
+                                <p>אנו שמחים להציג את החנות המקצועית המובילה עם מבחר איכותי של מוצרים לצרכן החכם. המוצרים שלנו נבחרים בקפידה כדי להבטיח את החוויה הטובה ביותר.</p>
+                                <p>הצוות המקצועי שלנו עומד לרשותכם לכל שאלה ומענה. אנו מספקים ייעוץ אישי, משלוחים מהירים ואחריות על כל המוצרים. הצטרפו למשפחת הלקוחות המרוצים שלנו!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Category Grid Section - Modified 2x2 layout -->
+            <section class="puffiz-category-section ">
+                <div class="container">
+                    <h2 class="section-title">הקטגוריות שלנו</h2>
+                    <div class="puffiz-grid puffiz-grid-2x2">
+                        <!-- Category 1 -->
+                        <a href="#" class="puffiz-category-item" id="category1">
+                            <div class="puffiz-category-overlay"></div>
+                            <div class="puffiz-category-content">
+                                <h2 class="puffiz-category-title">גריינדרים</h2>
+                                <p class="puffiz-category-description">מגוון גריינדרים באיכות גבוהה לטחינה מושלמת</p>
+                            </div>
+                        </a>
+                        
+                        <!-- Category 2 -->
+                        <a href="#" class="puffiz-category-item" id="category2">
+                            <div class="puffiz-category-overlay"></div>
+                            <div class="puffiz-category-content">
+                                <h2 class="puffiz-category-title">ניירות גלגול</h2>
+                                <p class="puffiz-category-description">ניירות גלגול איכותיים במגוון גדלים וסוגים</p>
+                            </div>
+                        </a>
+                        
+                        <!-- Category 3 -->
+                        <a href="#" class="puffiz-category-item" id="category3">
+                            <div class="puffiz-category-overlay"></div>
+                            <div class="puffiz-category-content">
+                                <h2 class="puffiz-category-title">קופסאות וצנצנות</h2>
+                                <p class="puffiz-category-description">פתרונות אחסון איכותיים לשמירה על טריות</p>
+                            </div>
+                        </a>
+                        
+                        <!-- Category 4 -->
+                        <a href="#" class="puffiz-category-item" id="category4">
+                            <div class="puffiz-category-overlay"></div>
+                            <div class="puffiz-category-content">
+                                <h2 class="puffiz-category-title">מקטרות</h2>
+                                <p class="puffiz-category-description">מקטרות איכותיות במגוון צורות וגדלים</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Featured Products Section -->
+            <section class="product-section">
+                <div class="container">
+                    <div class="section-header">
+                        <h2 class="section-title">המוצרים הנבחרים שלנו</h2>
+                        <div class="product-filters">
+                            <button class="filter-btn active">הכל</button>
+                            <button class="filter-btn">הכי נמכרים</button>
+                            <button class="filter-btn">חדש במלאי</button>
+                            <button class="filter-btn">בלעדי ל-VIP</button>
+                        </div>
+                    </div>
+                    <div class="products-grid">
+                        <!-- Product 1 -->
+                        <div class="product-card">
+                            <div class="product-badge new">חדש</div>
+                            <div class="product-image">
+                                <img src="/api/placeholder/300/300" alt="מוצר 1">
+                                <div class="product-actions">
+                                    <button class="product-action-btn"><i class="far fa-heart"></i></button>
+                                    <button class="product-action-btn"><i class="fas fa-exchange-alt"></i></button>
+                                    <button class="product-action-btn"><i class="fas fa-eye"></i></button>
+                                </div>
+                            </div>
+                            <div class="product-content">
+                                <div class="product-category">קטגוריה 1</div>
+                                <h3 class="product-title">מטחנת תבלינים איכותית</h3>
+                                <div class="product-rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-alt"></i>
+                                    <span class="rating-count">(24)</span>
+                                </div>
+                                <div class="product-price">
+                                    <span class="current-price">₪149</span>
+                                    <span class="old-price">₪199</span>
+                                </div>
+                                <button class="add-to-cart">הוסף לסל <i class="fas fa-shopping-cart"></i></button>
+                            </div>
+                        </div>
+
+                        <!-- ... אזורים נוספים בדף כמו מוצרים נוספים, מדורי מידע וכו׳ ... -->
+
+                        <!-- VIP Club Section -->
+                        <section class="vip-club">
+                            <div class="vip-content">
+                                <h2 class="vip-title">מועדון VIP</h2>
+                                <p class="vip-subtitle">הצטרפו למועדון ה-VIP שלנו וקבלו הטבות בלעדיות!</p>
+                                
+                                <div class="vip-features">
+                                    <div class="vip-feature">
+                                        <div class="vip-feature-icon">
+                                            <i class="fas fa-percent"></i>
+                                        </div>
+                                        <h3 class="vip-feature-title">הנחות קבועות</h3>
+                                        <p class="vip-feature-text">הנחה קבועה של 10% על כל הזמנה</p>
+                                    </div>
+                                    
+                                    <div class="vip-feature">
+                                        <div class="vip-feature-icon">
+                                            <i class="fas fa-gift"></i>
+                                        </div>
+                                        <h3 class="vip-feature-title">מתנות חודשיות</h3>
+                                        <p class="vip-feature-text">מתנה חודשית בכל הזמנה</p>
+                                    </div>
+                                    
+                                    <div class="vip-feature">
+                                        <div class="vip-feature-icon">
+                                            <i class="fas fa-truck"></i>
+                                        </div>
+                                        <h3 class="vip-feature-title">משלוח חינם</h3>
+                                        <p class="vip-feature-text">משלוח חינם בכל קנייה</p>
+                                    </div>
+                                    
+                                    <div class="vip-feature">
+                                        <div class="vip-feature-icon">
+                                            <i class="fas fa-tag"></i>
+                                        </div>
+                                        <h3 class="vip-feature-title">מבצעים בלעדיים</h3>
+                                        <p class="vip-feature-text">גישה למבצעים בלעדיים</p>
+                                    </div>
+                                </div>
+                                
+                                <a href="#" class="btn-vip">הצטרפו עכשיו</a>
+                            </div>
+                        </section>
+
+                        <!-- Footer -->
+                        <footer>
+                            <div class="footer-top">
+                                <div class="container">
+                                    <div class="footer-columns">
+                                        <div class="footer-column">
+                                            <h3 class="footer-title">אודות Doctor Instraction</h3>
+                                            <p class="footer-text">אנו מספקים מוצרים איכותיים עם שירות מקצועי ומהיר. המטרה שלנו היא לספק את המוצרים הטובים ביותר במחירים הוגנים.</p>
+                                            <div class="footer-social">
+                                                <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                                                <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                                                <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                                                <a href="#" class="social-link"><i class="fab fa-telegram"></i></a>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="footer-column">
+                                            <h3 class="footer-title">קטגוריות פופולריות</h3>
+                                            <ul class="footer-links">
+                                                <li><a href="#"><i class="fas fa-chevron-left"></i> גריינדרים</a></li>
+                                                <li><a href="#"><i class="fas fa-chevron-left"></i> מקטרות</a></li>
+                                                <li><a href="#"><i class="fas fa-chevron-left"></i> ניירות גלגול</a></li>
+                                                <li><a href="#"><i class="fas fa-chevron-left"></i> וופורייזרים</a></li>
+                                                <li><a href="#"><i class="fas fa-chevron-left"></i> מועדון VIP</a></li>
+                                            </ul>
+                                        </div>
+                                        
+                                        <div class="footer-column">
+                                            <h3 class="footer-title">מידע</h3>
+                                            <ul class="footer-links">
+                                                <li><a href="#"><i class="fas fa-chevron-left"></i> אודות</a></li>
+                                                <li><a href="#"><i class="fas fa-chevron-left"></i> משלוחים</a></li>
+                                                <li><a href="#"><i class="fas fa-chevron-left"></i> תנאי שימוש</a></li>
+                                                <li><a href="#"><i class="fas fa-chevron-left"></i> מדיניות פרטיות</a></li>
+                                                <li><a href="#"><i class="fas fa-chevron-left"></i> צור קשר</a></li>
+                                            </ul>
+                                        </div>
+                                        
+                                        <div class="footer-column">
+                                            <h3 class="footer-title">צור קשר</h3>
+                                            <ul class="contact-info">
+                                                <li>
+                                                    <i class="fas fa-map-marker-alt"></i>
+                                                    <span>רחוב ראשי 123, תל אביב</span>
+                                                </li>
+                                                <li>
+                                                    <i class="fas fa-phone"></i>
+                                                    <span>03-1234567</span>
+                                                </li>
+                                                <li>
+                                                    <i class="fas fa-envelope"></i>
+                                                    <span>info@doctorinstraction.com</span>
+                                                </li>
+                                                <li>
+                                                    <i class="fas fa-clock"></i>
+                                                    <span>א-ה: 9:00-21:00, ו: 9:00-14:00</span>
+                                                </li>
+                                            </ul>
+                                            <div class="newsletter">
+                                                <h4>הירשמו לניוזלטר</h4>
+                                                <form class="newsletter-form">
+                                                    <input type="email" placeholder="הזינו את כתובת המייל">
+                                                    <button type="submit"><i class="fas fa-paper-plane"></i></button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="footer-bottom">
+                                <div class="container">
+                                    <div class="copyright">
+                                        &copy; 2023 Doctor Instraction - כל הזכויות שמורות
+                                    </div>
+                                    <div class="payment-methods">
+                                        <span>אמצעי תשלום:</span>
+                                        <div class="payment-icons">
+                                            <i class="fab fa-cc-visa"></i>
+                                            <i class="fab fa-cc-mastercard"></i>
+                                            <i class="fab fa-cc-amex"></i>
+                                            <i class="fab fa-cc-paypal"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </footer>
+                    </div>
+                </div>
+            </section>
+        </main>
+
            
         <!-- Sidebar Toggle Button -->
         <div class="sidebar-toggle">
@@ -887,7 +1273,7 @@
                 <i class="fas fa-comments"></i>
             </div>
         </div>
-        
+    </div>
         <!-- Library decorative elements added by JavaScript -->
         
         <script>
