@@ -2118,7 +2118,7 @@ async function createCategoryPage(categoryData) {
         <div class="category-banner">
             <div class="container">
                 <h1><i class="${icon || 'fas fa-leaf'}"></i> ${name}</h1>
-                <p>${description || ''}</p>
+            <p>${description || ''}</p>
             </div>
         </div>
         
@@ -2174,14 +2174,14 @@ async function createCategoryPage(categoryData) {
                 if (success) {
                     const categoryName = "${name}";
                     const products = productManager.products.filter(p => p.category === categoryName);
-                    
-                    if (products.length === 0) {
+            
+            if (products.length === 0) {
                         document.getElementById('products-container').innerHTML = '<div class="empty-category">אין מוצרים בקטגוריה זו עדיין</div>';
-                        return;
-                    }
-                    
+                return;
+            }
+            
                     let productsHTML = '';
-                    products.forEach(product => {
+            products.forEach(product => {
                         productsHTML += createProductCard(product);
                     });
                     
@@ -2206,8 +2206,8 @@ async function createCategoryPage(categoryData) {
         
         // Upload to GitHub
         await productManager.createGitHubFile(
-            path, 
-            content, 
+            path,
+            content,
             `Add category page for: ${name}`, 
             productManager.githubToken
         );
@@ -3108,7 +3108,7 @@ function showVIPSignupForm() {
                     </div>
                     <div class="form-actions">
                         <button type="submit" class="admin-btn">הצטרף עכשיו (חינם)</button>
-                        <button type="button" class="admin-btn cancel-btn">ביטול</button>
+                    <button type="button" class="admin-btn cancel-btn">ביטול</button>
                     </div>
                 </form>
             </div>
