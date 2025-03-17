@@ -1,5 +1,17 @@
 [
   "liad",
   "ds",
-  "aa"
+  "aa",
+  {
+    "name": "ציוד גידול",
+    "description": "ציוד לגידול",
+    "icon": "fas fa-flask",
+    "image": "/api/placeholder/400/300",
+    "bgColor": "#0f5dc2",
+    "textColor": "#e10e0e",
+    "order": 0,
+    "featured": true,
+    "id": "1742245852337",
+    "createdAt": "2025-03-17T21:10:52.337Z"
+  }
 ]
