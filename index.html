@@ -117,6 +117,154 @@
     <!-- JavaScript Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
+    
+    <style>
+        /* Welcome Section - Puffiz Style */
+        .welcome-section {
+            margin-top: 30px;
+            margin-bottom: 50px;
+        }
+        
+        .welcome-container {
+            background-color: #1a1a1a;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .welcome-content {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .welcome-heading {
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .welcome-text-container p {
+            color: #f5f5f5;
+            font-size: 18px;
+            line-height: 1.7;
+            text-align: center;
+        }
+        
+        /* Modified Category Grid for 2x2 Layout */
+        .puffiz-grid-2x2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-gap: 20px;
+            margin-top: 40px;
+        }
+        
+        .puffiz-category-item {
+            height: 250px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        /* Default background images - can be overridden with custom URLs */
+        #category1 {
+            background-image: url('/api/placeholder/400/300');
+        }
+        
+        #category2 {
+            background-image: url('/api/placeholder/400/300');
+        }
+        
+        #category3 {
+            background-image: url('/api/placeholder/400/300');
+        }
+        
+        #category4 {
+            background-image: url('/api/placeholder/400/300');
+        }
+        
+        .puffiz-category-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .puffiz-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.7));
+            transition: all 0.3s ease;
+        }
+        
+        .puffiz-category-item:hover .puffiz-overlay {
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.8));
+        }
+        
+        .puffiz-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .puffiz-category-title {
+            color: #fff;
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .puffiz-grid-2x2 {
+                grid-template-columns: 1fr;
+            }
+            
+            .welcome-heading {
+                font-size: 1.5rem;
+            }
+            
+            .welcome-text-container p {
+                font-size: 16px;
+            }
+        }
+    </style>
+
+    <!-- Category Background Script -->
+    <script>
+    // Function to set the background image URL for category items
+    function setCategoryBackground(categoryId, imageUrl) {
+        const categoryElement = document.getElementById(categoryId);
+        if (categoryElement) {
+            categoryElement.style.backgroundImage = `url('${imageUrl}')`;
+        }
+    }
+    
+    // Example usage:
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set category backgrounds from Google or any other URL
+        // Replace these URLs with your actual image URLs
+        setCategoryBackground('category1', '/api/placeholder/400/300');
+        setCategoryBackground('category2', '/api/placeholder/400/300');
+        setCategoryBackground('category3', '/api/placeholder/400/300');
+        setCategoryBackground('category4', '/api/placeholder/400/300');
+        
+        // Example of how to set a Google image URL (replace with actual URLs):
+        // setCategoryBackground('category1', 'https://example.com/image1.jpg');
+    });
+    </script>
 </head>
 
 <body>
@@ -441,57 +589,71 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
-    </header>
 
 
-    
 
-<!-- Category Grid Section - Similar to puffiz.co.il -->
-<section class="puffiz-category-section">
-    <div class="container">
-        <div class="puffiz-header">
-            <h2 class="puffiz-title">כל מה שצריך</h2>
-            <h3 class="puffiz-subtitle">Doctor Instraction מאפשרת את הישיבה המושלמת</h3>
-            <div class="puffiz-divider">
-                <img src="/api/placeholder/1440/14" alt="divider">
+    <!-- Welcome Section similar to Puffiz -->
+    <section class="welcome-section">
+        <div class="container">
+            <div class="welcome-container e-con-full">
+                <div class="welcome-content e-con-full">
+                    <div class="welcome-heading-container">
+                        <h1 class="welcome-heading">Doctor Instraction - ברוכים הבאים!</h1>
+                    </div>
+                    <div class="welcome-text-container">
+                        <p>Doctor Instraction זה לחלום על החוויה המושלמת, לחזור לחוויה, להתחבר למה שבעצם הביא אותנו לכאן, חוויה מושלמת, מוצרים איכותיים, עם ריח וארומה, להרגיש אותם בין האצבעות, לקסוס, להתחבר, אמממ, נשימה עמוקה ואז זה קורה, במקטרת, ג'וינט או וופורייזר, להשען לאחור, לדעת שאנחנו כאן. מושלם.</p>
+                    </div>
+                </div>
             </div>
         </div>
-        
-        <div class="puffiz-grid">
-            <!-- Category 1 -->
-            <a href="#" class="puffiz-category-item" style="--item-bg: url('/api/placeholder/400/300')">
-                <div class="puffiz-overlay"></div>
-                <div class="puffiz-content">
-                    <h2 class="puffiz-category-title">גריינדרים</h2>
+    </section>
+
+    <!-- Category Grid Section - Modified 2x2 layout -->
+    <section class="puffiz-category-section">
+        <div class="container">
+            <div class="puffiz-header">
+                <h2 class="puffiz-title">כל מה שצריך</h2>
+                <h3 class="puffiz-subtitle">Doctor Instraction מאפשרת את הישיבה המושלמת</h3>
+                <div class="puffiz-divider">
+                    <img src="/api/placeholder/1440/14" alt="divider">
                 </div>
-            </a>
+            </div>
             
-            <!-- Category 2 -->
-            <a href="#" class="puffiz-category-item" style="--item-bg: url('/api/placeholder/400/300')">
-                <div class="puffiz-overlay"></div>
-                <div class="puffiz-content">
-                    <h2 class="puffiz-category-title">ניירות גלגול</h2>
-                </div>
-            </a>
-            
-            <!-- Category 3 -->
-            <a href="#" class="puffiz-category-item" style="--item-bg: url('/api/placeholder/400/300')">
-                <div class="puffiz-overlay"></div>
-                <div class="puffiz-content">
-                    <h2 class="puffiz-category-title">קופסאות וצנצנות</h2>
-                </div>
-            </a>
-            
-            <!-- Category 4 -->
-            <a href="#" class="puffiz-category-item" style="--item-bg: url('/api/placeholder/400/300')">
-                <div class="puffiz-overlay"></div>
-                <div class="puffiz-content">
-                    <h2 class="puffiz-category-title">מקטרות</h2>
-                </div>
-            </a>
+            <div class="puffiz-grid puffiz-grid-2x2">
+                <!-- Category 1 -->
+                <a href="#" class="puffiz-category-item" id="category1">
+                    <div class="puffiz-overlay"></div>
+                    <div class="puffiz-content">
+                        <h2 class="puffiz-category-title">גריינדרים</h2>
+                    </div>
+                </a>
+                
+                <!-- Category 2 -->
+                <a href="#" class="puffiz-category-item" id="category2">
+                    <div class="puffiz-overlay"></div>
+                    <div class="puffiz-content">
+                        <h2 class="puffiz-category-title">ניירות גלגול</h2>
+                    </div>
+                </a>
+                
+                <!-- Category 3 -->
+                <a href="#" class="puffiz-category-item" id="category3">
+                    <div class="puffiz-overlay"></div>
+                    <div class="puffiz-content">
+                        <h2 class="puffiz-category-title">קופסאות וצנצנות</h2>
+                    </div>
+                </a>
+                
+                <!-- Category 4 -->
+                <a href="#" class="puffiz-category-item" id="category4">
+                    <div class="puffiz-overlay"></div>
+                    <div class="puffiz-content">
+                        <h2 class="puffiz-category-title">מקטרות</h2>
+                    </div>
+                </a>
+            </div>
         </div>
-    </div>
-</section>
+    </section>
     
     <!-- Features Section -->
     <section class="features">
