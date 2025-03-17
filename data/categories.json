@@ -13,5 +13,22 @@
     "featured": true,
     "id": "1742245852337",
     "createdAt": "2025-03-17T21:10:52.337Z"
+  },
+  {
+    "name": "ציוד גידול",
+    "description": "כדגכ",
+    "slug": "gidul",
+    "icon": "fas fa-seedling",
+    "image": "/api/placeholder/400/300",
+    "bgColor": "#2766b9",
+    "textColor": "#d11f1f",
+    "order": 0,
+    "featured": true,
+    "vipOnly": true,
+    "columnLayout": "1",
+    "created": "2025-03-17T21:50:21.842Z",
+    "updated": "2025-03-17T21:50:21.842Z",
+    "id": "cat_1742248221842505",
+    "createdAt": "2025-03-17T21:50:21.842Z"
   }
 ]
