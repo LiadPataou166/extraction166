@@ -185,10 +185,9 @@ $(document).ready(function(){
             console.log('Login successful for:', userData.email);
             showNotification('התחברת בהצלחה!', 'success');
             hideAuthModal();
-            updateUserUI(userData);
             
             // Save user data to localStorage
-            localStorage.setItem('user', JSON.stringify(userData));
+            localStorage.setItem('userData', JSON.stringify(userData));
             
             // Check if user is admin and open admin panel immediately
             if (email === ADMIN_EMAIL) {
@@ -196,13 +195,20 @@ $(document).ready(function(){
                 // Ensure admin panel exists in DOM
                 addAdminPanelToDOM();
                 isAdmin = true;
-                $('#admin-menu-item').show();
+                userData.isAdmin = true;
+                localStorage.setItem('userData', JSON.stringify(userData)); // עדכון המידע בלוקל סטורג'
                 
-                // Open admin panel immediately
-                setTimeout(() => {
-                    console.log('Triggering admin panel open...');
-                    openAdminPanel();
-                }, 300);
+                // וידוא שכפתור המנהל קיים ועובד
+                fixAdminButton();
+                
+                // עדכון ממשק המשתמש
+                updateUserUI(userData);
+                
+                // פתיחת הפאנל מנהל
+                openAdminPanel();
+            } else {
+                // עדכון ממשק המשתמש ללא פתיחת פאנל מנהל
+                updateUserUI(userData);
             }
             
         } catch (error) {
@@ -662,32 +668,52 @@ function fixVisibility() {
 
 // פונקציה לתיקון כפתור פאנל מנהל
 function fixAdminButton() {
+    console.log("מפעיל תיקון כפתור מנהל");
     // בדיקה אם המשתמש הוא מנהל
     const userData = JSON.parse(localStorage.getItem('userData')) || {};
     
     // הצג את כפתור המנהל רק אם המשתמש הוא מנהל
-    if (userData && userData.isAdmin) {
-        // וידוא שהכפתור של פאנל המנהל לחיץ
+    if (userData && (userData.isAdmin || userData.email === ADMIN_EMAIL)) {
+        console.log("המשתמש הוא מנהל, מציג כפתור פאנל ניהול");
+        
+        // וידוא שהכפתור של פאנל המנהל מוצג ולחיץ
         $('#admin-menu-item, .admin-link, .admin-panel-btn').css({
-            'display': 'block',
-            'visibility': 'visible',
-            'opacity': '1',
-            'cursor': 'pointer',
-            'pointer-events': 'auto'
+            'display': 'block !important',
+            'visibility': 'visible !important',
+            'opacity': '1 !important',
+            'cursor': 'pointer !important',
+            'pointer-events': 'auto !important'
         });
         
-        // הוספת אירוע לחיצה מחדש
+        // בדוק אם כפתור מנהל כבר קיים בתפריט, אם לא - צור אותו
+        if ($('#admin-menu-item').length === 0) {
+            console.log("יוצר כפתור פאנל ניהול");
+            // הוסף כפתור לתפריט הראשי
+            $('.main-nav').append('<li id="admin-menu-item" class="menu-item"><a href="#" class="admin-panel-btn">פאנל ניהול</a></li>');
+        }
+        
+        // הצג את כפתור המנהל הקבוע
+        $('#fixed-admin-button').show();
+        
+        // הוספת אירוע לחיצה מחדש לכל כפתורי פאנל המנהל
         $('.admin-panel-btn').off('click').on('click', function(e) {
             e.preventDefault();
             openAdminPanel();
             return false;
         });
+        
+        // הסר כל מאזיני אירועים ישנים וודא שהכפתור מוצג
+        $('#admin-menu-item').show().css('display', 'block !important');
     } else {
-        // הסתר את כפתור המנהל אם המשתמש אינו מנהל
+        console.log("המשתמש אינו מנהל, מסתיר כפתור פאנל ניהול");
         $('#admin-menu-item, .admin-link, .admin-panel-btn').css({
             'display': 'none',
-            'visibility': 'hidden'
+            'visibility': 'hidden',
+            'opacity': '0'
         });
+        
+        // הסתר את כפתור המנהל הקבוע
+        $('#fixed-admin-button').hide();
     }
 }
 
@@ -944,6 +970,9 @@ function updateUserUI(userData) {
         // Show admin panel button if this is an admin user
         if (userData.isAdmin || email === ADMIN_EMAIL) {
             $('#admin-menu-item').show();
+            
+            // וידוא שכפתור המנהל עובד
+            fixAdminButton();
         } else {
             $('#admin-menu-item').hide();
         }
@@ -3209,6 +3238,27 @@ function showProductForm(productId = null) {
         }
     }
     
+    // Get all available categories from the ProductManager
+    const categories = productManager.getAllCategories();
+    
+    // Build categories options HTML
+    let categoriesOptionsHTML = '<option value="כללי" ' + (product && product.category === 'כללי' ? 'selected' : '') + '>כללי</option>';
+    
+    // Add all available categories from the product manager
+    if (categories && categories.length > 0) {
+        categories.forEach(category => {
+            categoriesOptionsHTML += `<option value="${category.name}" ${product && product.category === category.name ? 'selected' : ''}>${category.name}</option>`;
+        });
+    } else {
+        // Add default categories if none available
+        categoriesOptionsHTML += `
+            <option value="אלקטרוניקה" ${product && product.category === 'אלקטרוניקה' ? 'selected' : ''}>אלקטרוניקה</option>
+            <option value="אופנה" ${product && product.category === 'אופנה' ? 'selected' : ''}>אופנה</option>
+            <option value="בית וגן" ${product && product.category === 'בית וגן' ? 'selected' : ''}>בית וגן</option>
+            <option value="טיפוח ויופי" ${product && product.category === 'טיפוח ויופי' ? 'selected' : ''}>טיפוח ויופי</option>
+        `;
+    }
+    
     // Create a form for adding/editing products using the admin modal style
     const formHTML = `
     <div id="product-form-modal" class="admin-modal active">
@@ -3234,11 +3284,7 @@ function showProductForm(productId = null) {
                 <div class="form-group">
                     <label for="product-category">קטגוריה</label>
                     <select id="product-category">
-                        <option value="אלקטרוניקה" ${product && product.category === 'אלקטרוניקה' ? 'selected' : ''}>אלקטרוניקה</option>
-                        <option value="אופנה" ${product && product.category === 'אופנה' ? 'selected' : ''}>אופנה</option>
-                        <option value="בית וגן" ${product && product.category === 'בית וגן' ? 'selected' : ''}>בית וגן</option>
-                        <option value="טיפוח ויופי" ${product && product.category === 'טיפוח ויופי' ? 'selected' : ''}>טיפוח ויופי</option>
-                        <option value="כללי" ${product && product.category === 'כללי' ? 'selected' : ''}>כללי</option>
+                        ${categoriesOptionsHTML}
                     </select>
                 </div>
                 <div class="form-group">
