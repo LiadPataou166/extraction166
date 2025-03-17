@@ -10,7 +10,7 @@
     <meta name="keywords" content="doctor instraction, מוצרים מקצועיים, מועדון VIP, משלוחים מהירים">
     
     <!-- Favicon -->
-    <link rel="icon" href="/api/placeholder/32/32" type="image/png">
+    <link rel="icon" href="/images/logo.png" type="image/png">
     
     <!-- Structured Data for SEO -->
     <script type="application/ld+json">
@@ -84,6 +84,24 @@
     
     document.body.appendChild(libraryDecoration);
     
+    // Create cannabis animation in background
+    const cannabisBackground = document.getElementById('cannabis-background');
+    if (cannabisBackground) {
+      // Add cannabis leaves
+      for(let i = 0; i < 25; i++) {
+        const leaf = document.createElement('div');
+        leaf.className = 'cannabis-leaf';
+        leaf.innerHTML = '<i class="fas fa-cannabis"></i>';
+        leaf.style.top = Math.random() * 100 + '%';
+        leaf.style.left = Math.random() * 100 + '%';
+        leaf.style.animationDelay = (Math.random() * 10) + 's';
+        leaf.style.animationDuration = (Math.random() * 10 + 10) + 's';
+        leaf.style.opacity = (Math.random() * 0.5 + 0.1);
+        leaf.style.fontSize = (Math.random() * 20 + 15) + 'px';
+        cannabisBackground.appendChild(leaf);
+      }
+    }
+    
     // Initialize progress bars with random values
     const progressFills = document.querySelectorAll('.progress-fill');
     progressFills.forEach(fill => {
@@ -124,28 +142,32 @@
     <style>
         /* Welcome Section - Puffiz Style */
         .welcome-section {
-            margin-left: 40px;
-            margin-left: 10px;
-            margin-top: 30px;
-            margin-bottom: 50px;
+            margin: 50px auto;
+            position: relative;
+            overflow: hidden;
         }
         
         .welcome-container {
             background-color: #1a1a1a;
             border-radius: 10px;
-            padding: 30px;
+            padding: 40px;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
         }
         
         .welcome-content {
             max-width: 1000px;
             margin: 0 auto;
+            text-align: center;
         }
         
         .welcome-heading {
             color: #e0b270;
-            font-size: 2rem;
-            margin-bottom: 15px;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
             font-weight: 600;
             text-align: center;
         }
@@ -155,6 +177,41 @@
             font-size: 18px;
             line-height: 1.7;
             text-align: center;
+        }
+        
+        /* Cannabis Animation Background */
+        .cannabis-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1;
+            overflow: hidden;
+            opacity: 0.3;
+        }
+        
+        .cannabis-leaf {
+            position: absolute;
+            color: #4a7c59;
+            font-size: 30px;
+            opacity: 0.6;
+            animation: float-leaf 15s infinite ease-in-out;
+        }
+        
+        @keyframes float-leaf {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            25% {
+                transform: translateY(-50px) rotate(45deg);
+            }
+            50% {
+                transform: translateY(-100px) rotate(90deg);
+            }
+            75% {
+                transform: translateY(-50px) rotate(135deg);
+            }
         }
         
         /* Modified Category Grid for 2x2 Layout */
@@ -325,7 +382,7 @@
         <div class="container">
             <div class="header-top">
                 <div class="logo">
-                    <img src="/api/placeholder/40/40" alt="Doctor Instraction Logo">
+                    <img src="/images/logo.png" alt="Doctor Instraction Logo">
                     <h1>Doctor Instraction</h1>
                 </div>
                 
@@ -647,6 +704,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     <!-- Welcome Section similar to Puffiz -->
     <section class="welcome-section">
+        <div class="cannabis-background" id="cannabis-background"></div>
         <div class="container">
             <div class="welcome-container e-con-full">
                 <div class="welcome-content e-con-full gold-text">
