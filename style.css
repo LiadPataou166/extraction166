@@ -4130,24 +4130,19 @@
     left: 100%;
 }
 
-/* New styles for gold text */
+/* New styles for gold text - elegant version */
 .gold-text {
-    color: #d4af37; /* Royal gold */
-    text-shadow: 0 0 1px rgba(212, 175, 55, 0.3),
-                 0 0 2px rgba(212, 175, 55, 0.2);
-    font-weight: 600;
-    position: relative;
+    background: linear-gradient(to right, #A67C00, #FFDF80, #EDC967, #FFDF80, #A67C00);
+    background-size: 200% auto;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
     display: inline-block;
+    font-weight: 600;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
 }
 
-/* Optional subtle border for important elements */
-.gold-text.bordered {
-    padding: 2px 8px;
-    border: 1px solid rgba(212, 175, 55, 0.3);
-    border-radius: 3px;
-}
-
-/* Apply gold styling to specific elements */
+/* Apply gold style to specific elements without changing layout */
 .section-title,
 .puffiz-title,
 .logo h1,
@@ -4155,21 +4150,36 @@
 .product-title,
 .blog-title,
 .vip-title {
-    color: #d4af37; /* Royal gold */
-    text-shadow: 0 0 1px rgba(212, 175, 55, 0.3),
-                 0 0 2px rgba(212, 175, 55, 0.2);
-    font-weight: 600;
-}
-
-/* Special styling for most important headers */
-h1.gold-text, 
-.section-title, 
-.puffiz-title {
-    background: linear-gradient(to bottom, #f8e7b3 0%, #d4af37 50%, #aa8514 100%);
+    background: linear-gradient(to right, #A67C00, #FFDF80, #EDC967, #FFDF80, #A67C00);
+    background-size: 200% auto;
+    color: transparent;
     -webkit-background-clip: text;
     background-clip: text;
-    color: transparent;
-    text-shadow: none;
+    font-weight: 600;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
 }
 
-/* ... existing code ... */
+/* Special treatment for headers */
+h1, h2, h3, h4, h5, h6 {
+    background: linear-gradient(to right, #A67C00, #FFDF80, #EDC967, #FFDF80, #A67C00);
+    background-size: 200% auto;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    display: inline-block;
+    font-weight: 600;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+/* If you want a very subtle animation, uncomment this:
+.section-title, .puffiz-title, .logo h1 {
+    animation: subtle-shine 4s ease-in-out infinite;
+    animation-fill-mode: forwards;
+}
+
+@keyframes subtle-shine {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+*/
