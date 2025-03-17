@@ -4129,3 +4129,22 @@
 .mobile-sale-btn:hover::after {
     left: 100%;
 }
+
+/* New styles for gold text */
+.gold-text {
+    color: #FFD700; /* Gold color */
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.5), 0 0 10px rgba(255, 215, 0, 0.3);
+}
+
+/* Apply gold text style to specific elements */
+.header-top h1,
+.header-actions a,
+.section-title,
+.puffiz-category-title,
+.feature-title,
+.product-title,
+.blog-title,
+.vip-title {
+    color: #FFD700; /* Gold color */
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.5), 0 0 10px rgba(255, 215, 0, 0.3);
+}
