@@ -686,13 +686,34 @@ function styleRegisterButton() {
     $('a.show-register').css({
         'display': 'inline-block',
         'padding': '8px 15px',
-        'margin': '0 5px',
+        'margin': '0 10px',
         'background-color': '#ff3a6b',
         'color': 'white',
         'border-radius': '5px',
         'text-decoration': 'none',
-        'font-weight': 'bold'
+        'font-weight': 'bold',
+        'transition': 'all 0.3s ease',
+        'box-shadow': '0 2px 5px rgba(0,0,0,0.1)',
+        'text-align': 'center'
     });
+    
+    // הוספת אפקט hover
+    $('a.show-register').hover(
+        function() {
+            $(this).css({
+                'background-color': '#e62d5b',
+                'transform': 'translateY(-2px)',
+                'box-shadow': '0 4px 8px rgba(0,0,0,0.2)'
+            });
+        },
+        function() {
+            $(this).css({
+                'background-color': '#ff3a6b',
+                'transform': 'translateY(0)',
+                'box-shadow': '0 2px 5px rgba(0,0,0,0.1)'
+            });
+        }
+    );
     
     // וידוא שהלינק מוביל להרשמה ולא להתחברות
     $('a.show-register').attr('onclick', 'showAuthModal("register"); return false;');
@@ -828,13 +849,13 @@ function checkUserLogin() {
             }
             
             // Check for admin status and initialize if not present
-            if (userData.isAdmin === undefined) {
+            if (userData.isAdmin === undefined || userData.email === ADMIN_EMAIL) {
                 userData.isAdmin = userData.email === ADMIN_EMAIL;
                 localStorage.setItem('userData', JSON.stringify(userData));
             }
             
             // Make sure admin panel elements exist in DOM if user is admin
-            if (userData.isAdmin) {
+            if (userData.isAdmin || userData.email === ADMIN_EMAIL) {
                 addAdminPanelToDOM();
                 addAdminStyles();
                 addAdminMenuItemToNav();
@@ -846,18 +867,23 @@ function checkUserLogin() {
         
         // Not logged in
         $('.auth-links').html(`
-            <button id="login-btn" class="auth-btn login-btn">התחברות</button>
-            <button id="signup-btn" class="auth-btn signup-btn">הרשמה</button>
+            <a href="#" class="show-login">התחברות</a>
+            <a href="#" class="show-register">הרשמה</a>
         `);
         
         // Attach event handlers
-        $('#login-btn').on('click', function() {
+        $(document).on('click', '.show-login', function(e) {
+            e.preventDefault();
             showAuthModal('login');
         });
         
-        $('#signup-btn').on('click', function() {
-            showAuthModal('signup');
+        $(document).on('click', '.show-register', function(e) {
+            e.preventDefault();
+            showAuthModal('register');
         });
+        
+        // Style registration button
+        styleRegisterButton();
         
         return false;
     } catch (error) {
@@ -882,6 +908,7 @@ function updateUserUI(userData) {
             <div class="user-info">
                 <span class="user-name">${name}</span>
                 ${isVIP ? '<span class="vip-badge">VIP</span>' : ''}
+                <a href="#" class="logout-btn"><i class="fas fa-sign-out-alt"></i> התנתק</a>
                 <div class="user-menu">
                     <a href="#" class="user-menu-link"><i class="fas fa-user"></i> פרופיל</a>
                     <a href="#" class="user-menu-link"><i class="fas fa-shopping-bag"></i> הזמנות</a>
@@ -897,15 +924,14 @@ function updateUserUI(userData) {
                         הצטרף ל-VIP
                     </a>
                     `}
-                    <a href="#" class="user-menu-link logout-btn"><i class="fas fa-sign-out-alt"></i> התנתק</a>
                 </div>
             </div>
         `;
         
-        $('.user-controls').html(userInfoHTML);
+        $('.auth-links').html(userInfoHTML);
         
         // Show admin panel button if this is an admin user
-        if (userData.isAdmin) {
+        if (userData.isAdmin || email === ADMIN_EMAIL) {
             $('#admin-menu-item').show();
         } else {
             $('#admin-menu-item').hide();
