@@ -10,7 +10,7 @@
     <meta name="keywords" content="doctor instraction, מוצרים מקצועיים, מועדון VIP, משלוחים מהירים">
     
     <!-- Favicon -->
-    <link rel="icon" href="/logo.png" type="image/png">
+    <link rel="icon" href="/images/logo.png" type="image/png">
     
     <!-- Structured Data for SEO -->
     <script type="application/ld+json">
@@ -32,7 +32,7 @@
         "@type": "Organization",
         "name": "Doctor Instraction",
         "url": "https://www.doctorinstraction.com",
-        "logo": "https://i.postimg.cc/2jFCQpph/logo.jpg",
+        "logo": "https://www.doctorinstraction.com/images/logo.png",
         "sameAs": [
             "https://www.facebook.com/doctorinstraction",
             "https://www.instagram.com/doctorinstraction",
@@ -88,7 +88,7 @@
     const cannabisBackground = document.getElementById('cannabis-background');
     if (cannabisBackground) {
       // Add cannabis leaves
-      for(let i = 0; i < 30; i++) {
+      for(let i = 0; i < 25; i++) {
         const leaf = document.createElement('div');
         leaf.className = 'cannabis-leaf';
         leaf.innerHTML = '<i class="fas fa-cannabis"></i>';
@@ -96,14 +96,10 @@
         leaf.style.left = Math.random() * 100 + '%';
         leaf.style.animationDelay = (Math.random() * 10) + 's';
         leaf.style.animationDuration = (Math.random() * 10 + 10) + 's';
-        leaf.style.opacity = (Math.random() * 0.3 + 0.4); // Higher opacity
-        leaf.style.fontSize = (Math.random() * 30 + 20) + 'px'; // Larger size
-        leaf.style.color = i % 3 === 0 ? '#4a7c59' : (i % 3 === 1 ? '#6b9362' : '#387048'); // Different green shades
+        leaf.style.opacity = (Math.random() * 0.5 + 0.1);
+        leaf.style.fontSize = (Math.random() * 20 + 15) + 'px';
         cannabisBackground.appendChild(leaf);
       }
-      console.log('Cannabis animation initialized with ' + cannabisBackground.children.length + ' leaves');
-    } else {
-      console.error('Cannabis background element not found');
     }
     
     // Initialize progress bars with random values
@@ -149,18 +145,17 @@
             margin: 50px auto;
             position: relative;
             overflow: hidden;
-            min-height: 400px;
         }
         
         .welcome-container {
-            background-color: rgba(26, 26, 26, 0.9);
+            background-color: #1a1a1a;
             border-radius: 10px;
             padding: 40px;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
             max-width: 1200px;
             margin: 0 auto;
             position: relative;
-            z-index: 3;
+            z-index: 2;
         }
         
         .welcome-content {
@@ -193,19 +188,15 @@
             bottom: 0;
             z-index: 1;
             overflow: hidden;
-            opacity: 0.5;
-            pointer-events: none;
-            min-height: 400px;
-            background-color: rgba(0, 50, 0, 0.05); /* Very subtle green tint */
+            opacity: 0.3;
         }
         
         .cannabis-leaf {
             position: absolute;
             color: #4a7c59;
             font-size: 30px;
-            opacity: 0.7;
+            opacity: 0.6;
             animation: float-leaf 15s infinite ease-in-out;
-            text-shadow: 0 0 5px rgba(74, 124, 89, 0.5);
         }
         
         @keyframes float-leaf {
@@ -391,7 +382,7 @@
         <div class="container">
             <div class="header-top">
                 <div class="logo">
-                    <img src="https://i.postimg.cc/2jFCQpph/logo.jpg" alt="Doctor Instraction Logo">
+                    <img src="/logo.png" alt="Doctor Instraction Logo">
                     <h1>Doctor Instraction</h1>
                 </div>
                 
@@ -735,7 +726,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <h2 class="puffiz-title gold-text">כל מה שצריך</h2>
                 <h3 class="puffiz-subtitle gold-text">Doctor Instraction מאפשרת את הישיבה המושלמת</h3>
                 <div class="puffiz-divider">
-                    <img src="https://i.postimg.cc/2jFCQpph/logo.jpg" alt="divider">
+                    <img src="/logo.png" alt="divider">
                 </div>
             </div>
             
