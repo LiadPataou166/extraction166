@@ -10,7 +10,7 @@
     <meta name="keywords" content="doctor instraction, מוצרים מקצועיים, מועדון VIP, משלוחים מהירים">
     
     <!-- Favicon -->
-    <link rel="icon" href="/images/logo.png" type="image/png">
+    <link rel="icon" href="/logo.png" type="image/png">
     
     <!-- Structured Data for SEO -->
     <script type="application/ld+json">
@@ -32,7 +32,7 @@
         "@type": "Organization",
         "name": "Doctor Instraction",
         "url": "https://www.doctorinstraction.com",
-        "logo": "https://www.doctorinstraction.com/images/logo.png",
+        "logo": "https://www.doctorinstraction.com/logo.png",
         "sameAs": [
             "https://www.facebook.com/doctorinstraction",
             "https://www.instagram.com/doctorinstraction",
@@ -88,7 +88,7 @@
     const cannabisBackground = document.getElementById('cannabis-background');
     if (cannabisBackground) {
       // Add cannabis leaves
-      for(let i = 0; i < 25; i++) {
+      for(let i = 0; i < 30; i++) {
         const leaf = document.createElement('div');
         leaf.className = 'cannabis-leaf';
         leaf.innerHTML = '<i class="fas fa-cannabis"></i>';
@@ -96,10 +96,14 @@
         leaf.style.left = Math.random() * 100 + '%';
         leaf.style.animationDelay = (Math.random() * 10) + 's';
         leaf.style.animationDuration = (Math.random() * 10 + 10) + 's';
-        leaf.style.opacity = (Math.random() * 0.5 + 0.1);
-        leaf.style.fontSize = (Math.random() * 20 + 15) + 'px';
+        leaf.style.opacity = (Math.random() * 0.3 + 0.4); // Higher opacity
+        leaf.style.fontSize = (Math.random() * 30 + 20) + 'px'; // Larger size
+        leaf.style.color = i % 3 === 0 ? '#4a7c59' : (i % 3 === 1 ? '#6b9362' : '#387048'); // Different green shades
         cannabisBackground.appendChild(leaf);
       }
+      console.log('Cannabis animation initialized with ' + cannabisBackground.children.length + ' leaves');
+    } else {
+      console.error('Cannabis background element not found');
     }
     
     // Initialize progress bars with random values
@@ -145,17 +149,18 @@
             margin: 50px auto;
             position: relative;
             overflow: hidden;
+            min-height: 400px;
         }
         
         .welcome-container {
-            background-color: #1a1a1a;
+            background-color: rgba(26, 26, 26, 0.9);
             border-radius: 10px;
             padding: 40px;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
             max-width: 1200px;
             margin: 0 auto;
             position: relative;
-            z-index: 2;
+            z-index: 3;
         }
         
         .welcome-content {
@@ -188,15 +193,19 @@
             bottom: 0;
             z-index: 1;
             overflow: hidden;
-            opacity: 0.3;
+            opacity: 0.5;
+            pointer-events: none;
+            min-height: 400px;
+            background-color: rgba(0, 50, 0, 0.05); /* Very subtle green tint */
         }
         
         .cannabis-leaf {
             position: absolute;
             color: #4a7c59;
             font-size: 30px;
-            opacity: 0.6;
+            opacity: 0.7;
             animation: float-leaf 15s infinite ease-in-out;
+            text-shadow: 0 0 5px rgba(74, 124, 89, 0.5);
         }
         
         @keyframes float-leaf {
