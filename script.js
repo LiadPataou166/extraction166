@@ -496,6 +496,94 @@ $(document).ready(function(){
 
     // Setup sidebar toggles
     setupSidebarToggles();
+
+    // תיקון לבעיית העלמות תפריט הקטגוריות וחלקים אחרים
+    $(document).ready(function() {
+        // וידוא הצגת תפריט הקטגוריות
+        $('.categories-dropdown, .navbar-nav, .mega-menu, .navbar-categories').css({
+            'display': 'block',
+            'visibility': 'visible',
+            'opacity': '1'
+        });
+        
+        // טיפול בתפריט נפתח בלחיצה
+        $('.navbar-nav .dropdown').off('click.fixDropdown').on('click.fixDropdown', function(e) {
+            if (!$(e.target).is('a')) {
+                e.stopPropagation();
+                $(this).find('.dropdown-menu').toggle();
+            }
+        });
+        
+        // וידוא הצגת סרגלים
+        if ($('.product-sidebar, .system-sidebar').length) {
+            console.log('Fixing sidebars visibility');
+            $('.product-sidebar, .system-sidebar').each(function() {
+                const $sidebar = $(this);
+                // שמירה על CSS קיים שקשור לפוזישן ומיקום
+                const origPosition = $sidebar.css('position');
+                const origTransform = $sidebar.css('transform');
+                
+                // רק הצגה ללא שינוי פרמטרים אחרים
+                $sidebar.css({
+                    'display': 'block',
+                    'visibility': 'visible',
+                    'opacity': '1'
+                });
+                
+                // החזרת פרמטרים מקוריים אם היו מוגדרים
+                if (origPosition) $sidebar.css('position', origPosition);
+                if (origTransform) $sidebar.css('transform', origTransform);
+            });
+        }
+        
+        // וידוא הצגת אזורי VIP, צ'אט וכו'
+        $('.vip-club, .chatbot-section, .promo-section, .contact-section').css({
+            'display': 'block',
+            'visibility': 'visible',
+            'opacity': '1'
+        });
+        
+        // תיקון פריסת המוצרים אם יש בעיה
+        if ($('.products-grid, .products-row').length) {
+            $('.products-grid, .products-row').css({
+                'display': 'grid',
+                'grid-template-columns': 'repeat(auto-fill, minmax(250px, 1fr))',
+                'gap': '20px'
+            });
+        }
+    });
+
+    // תיקון לפריסת תפריט קטגוריות פתוח
+    function fixCategoriesMenu() {
+        if ($('.mega-menu').length) {
+            $('.mega-menu').css({
+                'display': 'block',
+                'visibility': 'visible',
+                'opacity': '1'
+            });
+        }
+        
+        // יצירת כפתורי פתיחה לסרגלים אם אינם קיימים
+        if ($('.sidebar-toggle-left, .sidebar-toggle-right').length === 0) {
+            $('body').append(`
+                <button class="sidebar-toggle-right">
+                    <i class="fas fa-bars"></i>
+                </button>
+            `);
+            
+            $('.sidebar-toggle-right').on('click', function() {
+                $('.product-sidebar').toggleClass('active');
+            });
+        }
+    }
+
+    // הפעלת התיקון לאחר טעינה
+    $(window).on('load', function() {
+        fixCategoriesMenu();
+        
+        // תיקון נוסף במקרה של דף שנטען דינמית
+        setTimeout(fixCategoriesMenu, 1000);
+    });
 });
 
 // Auth Helper Functions
