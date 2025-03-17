@@ -160,21 +160,287 @@
                 </div>
             </div>
             
-            <div class="header-bottom">
-                <nav>
-                    <ul>
-                        <li><a href="index.html" class="active">דף הבית</a></li>
-                        <li><a href="#">קטגוריות</a></li>
-                        <li><a href="page2.html">חנות</a></li>
-                        <li><a href="page3.html">מוצרים חדשים</a></li>
-                        <li><a href="#">מועדון VIP</a></li>
-                        <li><a href="#">בלוג</a></li>
-                        <li><a href="#">צור קשר</a></li>
-                        <li id="admin-menu-item" style="display: none;"><a href="#" class="admin-panel-btn">פאנל ניהול</a></li>
+<!-- Header Bottom with Improved Navigation -->
+<div class="header-bottom">
+    <div class="container">
+        <nav class="improved-nav" aria-label="תפריט ראשי">
+            <ul class="main-nav">
+                <li class="menu-item"><a href="index.html" class="active">דף הבית</a></li>
+                
+                <li class="menu-item menu-item-has-children">
+                    <a href="#" class="has-submenu">גלגול<span class="drop-indicator"><i class="fas fa-caret-down"></i></span></a>
+                    <ul class="sub-menu">
+                        <li class="dropdown-link"><a href="#" class="dropdown-link-a">ניירות גלגול</a></li>
+                        <li class="dropdown-link"><a href="#" class="dropdown-link-a">קונוסים</a></li>
+                        <li class="dropdown-link"><a href="#" class="dropdown-link-a">פילטרים לגלגול</a></li>
+                        <li class="dropdown-link"><a href="#" class="dropdown-link-a">מכונות גלגול</a></li>
+                        <li class="dropdown-link"><a href="#" class="dropdown-link-a">קססוניות ומגשי גלגול</a></li>
                     </ul>
-                </nav>
-            </div>
-        </div>
+                </li>
+                
+                <li class="menu-item menu-item-has-children">
+                    <a href="#" class="has-submenu">מוצרי עישון<span class="drop-indicator"><i class="fas fa-caret-down"></i></span></a>
+                    <ul class="sub-menu">
+                        <li class="dropdown-link"><a href="#" class="dropdown-link-a">מקטרות</a></li>
+                        <li class="dropdown-link"><a href="#" class="dropdown-link-a">באנגים</a></li>
+                        <li class="dropdown-link"><a href="#" class="dropdown-link-a">גריינדרים</a></li>
+                        <li class="dropdown-link"><a href="#" class="dropdown-link-a">מאפרות</a></li>
+                    </ul>
+                </li>
+                
+                <li class="menu-item menu-item-has-children">
+                    <a href="#" class="has-submenu">ציוד גידול<span class="drop-indicator"><i class="fas fa-caret-down"></i></span></a>
+                    <ul class="sub-menu">
+                        <li class="dropdown-link"><a href="#" class="dropdown-link-a">ערכות גידול</a></li>
+                        <li class="dropdown-link"><a href="#" class="dropdown-link-a">מערכות תאורה לגידול</a></li>
+                    </ul>
+                </li>
+                
+                <li class="menu-item menu-item-has-children">
+                    <a href="#" class="has-submenu">אחסון<span class="drop-indicator"><i class="fas fa-caret-down"></i></span></a>
+                    <ul class="sub-menu">
+                        <li class="dropdown-link"><a href="#" class="dropdown-link-a">קופסאות וצנצנות</a></li>
+                        <li class="dropdown-link"><a href="#" class="dropdown-link-a">שקיות אחסון</a></li>
+                        <li class="dropdown-link"><a href="#" class="dropdown-link-a">משקלים</a></li>
+                    </ul>
+                </li>
+                
+                <li class="menu-item"><a href="page3.html">מוצרים חדשים</a></li>
+                <li class="menu-item"><a href="#">מועדון VIP</a></li>
+                <li class="menu-item"><a href="#">בלוג</a></li>
+                <li class="menu-item"><a href="#">צור קשר</a></li>
+                <li class="menu-item" id="admin-menu-item" style="display: none;"><a href="#" class="admin-panel-btn">פאנל ניהול</a></li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<style>
+/* Advanced Navigation Styles */
+.header-bottom {
+    position: relative;
+    border-top: 1px solid rgba(51, 51, 51, 0.3);
+    background-color: var(--darker-bg);
+    z-index: 100;
+}
+
+.improved-nav {
+    position: relative;
+}
+
+.main-nav {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.menu-item {
+    position: relative;
+    margin: 0 10px;
+}
+
+.menu-item > a {
+    display: flex;
+    align-items: center;
+    padding: 15px 5px;
+    color: var(--text-color);
+    text-decoration: none;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.menu-item > a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    right: 0;
+    width: 0;
+    height: 2px;
+    background: var(--primary-color);
+    box-shadow: 0 0 10px rgba(62, 255, 139, 0.3);
+    transition: width 0.3s ease;
+}
+
+.menu-item > a:hover::after,
+.menu-item > a.active::after {
+    width: 100%;
+}
+
+.menu-item > a:hover,
+.menu-item > a.active {
+    color: var(--primary-color);
+}
+
+.drop-indicator {
+    margin-right: 5px;
+    font-size: 12px;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+}
+
+.menu-item > a:hover .drop-indicator {
+    transform: rotate(180deg);
+    opacity: 1;
+    color: var(--primary-color);
+}
+
+/* Dropdown Menus */
+.sub-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    min-width: 220px;
+    background-color: rgba(20, 20, 20, 0.95);
+    border-radius: 10px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+    display: none;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    padding: 10px 0;
+    list-style: none;
+    margin: 0;
+}
+
+.menu-item-has-children:hover .sub-menu {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-link {
+    position: relative;
+    margin: 0;
+}
+
+.dropdown-link-a {
+    display: block;
+    padding: 10px 15px;
+    color: var(--text-color);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    border-radius: 5px;
+}
+
+.dropdown-link-a:hover {
+    background-color: rgba(30, 30, 30, 0.8);
+    color: var(--primary-color);
+    padding-right: 20px;
+}
+
+/* Responsive styles */
+@media (max-width: 992px) {
+    .main-nav {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        left: 0;
+        background: rgba(10, 10, 10, 0.95);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-top: 1px solid var(--border-color);
+        padding: 1rem 0;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        z-index: 999;
+    }
+    
+    .main-nav.active {
+        display: flex;
+    }
+    
+    .menu-item {
+        margin: 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .menu-item > a {
+        padding: 15px 20px;
+        justify-content: space-between;
+    }
+    
+    .sub-menu {
+        position: static;
+        width: 100%;
+        box-shadow: none;
+        border-radius: 0;
+        border: none;
+        border-top: 1px solid var(--border-color);
+        background-color: rgba(20, 20, 20, 0.5);
+        animation: none;
+        display: none;
+    }
+    
+    .menu-item-has-children.active .sub-menu {
+        display: block;
+    }
+    
+    .drop-indicator {
+        transform: none;
+        transition: transform 0.3s ease;
+    }
+    
+    .menu-item-has-children.active > a .drop-indicator {
+        transform: rotate(180deg);
+    }
+    
+    .mobile-menu-btn {
+        display: block;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Mobile menu functionality
+    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+    const mainNav = document.querySelector('.main-nav');
+    
+    if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', function() {
+            mainNav.classList.toggle('active');
+        });
+    }
+    
+    // For mobile dropdown functionality
+    const menuItemsWithChildren = document.querySelectorAll('.menu-item-has-children');
+    
+    menuItemsWithChildren.forEach(item => {
+        const link = item.querySelector('a');
+        
+        // For mobile view
+        if (window.innerWidth <= 992) {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                item.classList.toggle('active');
+            });
+        }
+    });
+    
+    // Check window resize to reset mobile menu state
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 992) {
+            const activeItems = document.querySelectorAll('.menu-item-has-children.active');
+            activeItems.forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            if (mainNav.classList.contains('active')) {
+                mainNav.classList.remove('active');
+            }
+        }
+    });
+});
+</script>
     </header>
 
 
