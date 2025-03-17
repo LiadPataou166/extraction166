@@ -1,0 +1,130 @@
+
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ציוד גידול - Doctor Instraction</title>
+    <meta name="description" content="כדגכ">
+    <meta property="og:title" content="ציוד גידול - Doctor Instraction">
+    <meta property="og:description" content="כדגכ">
+    <meta property="og:image" content="/api/placeholder/400/300">
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../fix.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        .category-banner {
+            background-color: #2766b9;
+            color: #d11f1f;
+        }
+        
+        .category-products-grid {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 20px;
+        }
+        
+        @media (max-width: 992px) {
+            .category-products-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .category-products-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="category-page" data-category="gidul" data-vip-only="true">
+    <header id="header"></header>
+    
+    <main>
+        <div class="category-banner">
+            <div class="container">
+                <h1><i class="fas fa-seedling"></i> ציוד גידול</h1>
+            <p>כדגכ</p>
+            </div>
+        </div>
+        
+        <div class="category-products">
+            <div class="container">
+                <div class="category-products-controls">
+                    <div class="category-filters">
+                        <button class="filter-btn active" data-filter="all">הכל</button>
+                        <button class="filter-btn" data-filter="new">חדש</button>
+                        <button class="filter-btn" data-filter="sale">מבצע</button>
+                        
+                    </div>
+                    
+                    <div class="category-sorting">
+                        <select class="sort-select">
+                            <option value="recommended">מומלצים</option>
+                            <option value="price-low">מחיר: מהנמוך לגבוה</option>
+                            <option value="price-high">מחיר: מהגבוה לנמוך</option>
+                            <option value="newest">חדשים ביותר</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="category-products-grid" id="products-container">
+                    <!-- Products will be loaded here via JavaScript -->
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer id="footer"></footer>
+    
+    <script src="../script.js"></script>
+    <script>
+        // Load products for this category
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load header and footer
+            fetch('../header.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('header').innerHTML = data;
+                    initializeHeader();
+                });
+                
+            fetch('../footer.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('footer').innerHTML = data;
+                });
+            
+            // Load products for this category
+            productManager.loadProductsFromGitHub().then(success => {
+                if (success) {
+                    const categoryName = "ציוד גידול";
+                    const products = productManager.products.filter(p => p.category === categoryName);
+            
+            if (products.length === 0) {
+                        document.getElementById('products-container').innerHTML = '<div class="empty-category">אין מוצרים בקטגוריה זו עדיין</div>';
+                return;
+            }
+            
+                    let productsHTML = '';
+            products.forEach(product => {
+                        productsHTML += createProductCard(product);
+                    });
+                    
+                    document.getElementById('products-container').innerHTML = productsHTML;
+                    
+                    // Initialize filter and sort functionality
+                    initializeProductFilters();
+                }
+            });
+        });
+        
+        // VIP protection
+        if (true) {
+            if (!userData || !userData.isVIP) {
+                window.location.href = '../index.html?error=vip_required';
+            }
+        }
+    </script>
+</body>
+</html>
