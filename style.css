@@ -4466,3 +4466,32 @@ h1, h2, h3, h4, h5, h6 {
         transform: translateY(-30px) rotate(10deg) scale(1.1);
     }
 }
+
+/* Custom animation delays and durations */
+.animate__delay-1s {
+    animation-delay: 1s !important;
+}
+
+.animate__delay-2s {
+    animation-delay: 2s !important;
+}
+
+.animate__delay-3s {
+    animation-delay: 3s !important;
+}
+
+/* Slow down the fadeIn animations a bit */
+.hero-content .animate__fadeIn {
+    animation-duration: 1.5s !important;
+}
+
+.hero-content .animate__fadeInDown,
+.hero-content .animate__fadeInUp {
+    animation-duration: 1.2s !important;
+}
+
+/* Hero content animation for active slide */
+.hero-slide.slick-active .hero-content > * {
+    visibility: visible;
+    opacity: 1;
+}
