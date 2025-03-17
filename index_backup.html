@@ -118,9 +118,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
     
-    <!-- Emergency scrolling fix -->
-    <link rel="stylesheet" href="fix.css">
-    
     <style>
         /* Welcome Section - Puffiz Style */
         .welcome-section {
@@ -268,53 +265,6 @@
             overflow: visible !important;
         }
     </style>
-
-    <!-- Category Background Script -->
-    <script>
-    // Function to set the background image URL for category items
-    function setCategoryBackground(categoryId, imageUrl) {
-        const categoryElement = document.getElementById(categoryId);
-        if (categoryElement) {
-            categoryElement.style.backgroundImage = `url('${imageUrl}')`;
-        }
-    }
-    
-    // Example usage:
-    document.addEventListener('DOMContentLoaded', function() {
-        // Set category backgrounds from Google or any other URL
-        // Replace these URLs with your actual image URLs
-        setCategoryBackground('category1', '/api/placeholder/400/300');
-        setCategoryBackground('category2', '/api/placeholder/400/300');
-        setCategoryBackground('category3', '/api/placeholder/400/300');
-        setCategoryBackground('category4', '/api/placeholder/400/300');
-        
-        // Example of how to set a Google image URL (replace with actual URLs):
-        // setCategoryBackground('category1', 'https://example.com/image1.jpg');
-    });
-    </script>
-    
-    <!-- Fix for duplicate body tags -->
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Fix for duplicate body tags
-        const bodyElements = document.getElementsByTagName('body');
-        if (bodyElements.length > 1) {
-            console.log('Fixing duplicate body tags');
-            // Move all children from second body to first body
-            const firstBody = bodyElements[0];
-            const secondBody = bodyElements[1];
-            
-            while (secondBody && secondBody.firstChild) {
-                firstBody.appendChild(secondBody.firstChild);
-            }
-            
-            // Remove the second body if possible
-            if (secondBody && secondBody.parentNode) {
-                secondBody.parentNode.removeChild(secondBody);
-            }
-        }
-    });
-    </script>
 </head>
 
 <body>
@@ -1999,6 +1949,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     <!-- Library decorative elements added by JavaScript -->
     
+    <script src="script.js"></script>
     <script>
         // Example script to initialize sidebar progress bars
         document.addEventListener('DOMContentLoaded', function() {
