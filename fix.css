@@ -1,5 +1,5 @@
 /* ============= תיקונים למבנה הבסיסי ============= */
-html, body {
+html {
     overflow-x: hidden !important;
     width: 100% !important;
     max-width: 100% !important;
@@ -10,18 +10,35 @@ html, body {
 }
 
 body {
+    overflow-x: hidden !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
     min-height: 100vh;
     position: relative;
     overflow-y: auto !important;
-    overflow-x: hidden !important;
-    max-width: 100% !important;
+    box-sizing: border-box !important;
 }
 
-/* מניעת הזזת דף - חיזוק */
-body * {
+/* פתרון קיצוני למניעת גלילה אופקית */
+html::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow-x: hidden;
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* מניעת הזזת דף - חיזוק קיצוני */
+* {
     max-width: 100vw !important;
     box-sizing: border-box !important;
-    overflow-x: clip !important;
+    word-wrap: break-word !important;
 }
 
 .main-content, 
@@ -32,7 +49,17 @@ section,
 div,
 nav,
 header,
-footer {
+footer,
+main,
+aside,
+article,
+form,
+table,
+ul,
+ol,
+li,
+p,
+h1, h2, h3, h4, h5, h6 {
     max-width: 100% !important;
     overflow-x: hidden !important;
     box-sizing: border-box !important;
@@ -41,7 +68,7 @@ footer {
 }
 
 /* חסימה מוחלטת של גלילה אופקית */
-img, video, iframe, table {
+img, video, iframe, table, pre, code {
     max-width: 100% !important;
     height: auto !important;
 }
@@ -51,6 +78,33 @@ img, video, iframe, table {
     margin-left: 0 !important;
     margin-right: 0 !important;
     width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+/* מניעת margin שלילי שיוצר scroll */
+[class*="col-"] {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+}
+
+/* תיקון למניעת גלילה */
+.container {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+    width: 100% !important;
+}
+
+/* תיקון תצוגת פנל המנהל */
+.admin-panel-container {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+
+/* תיקון לתפריט בכל מקרה */
+.navbar, .main-nav, .header-bottom {
+    max-width: 100% !important;
+    overflow-x: hidden !important;
 }
 
 /* ============= החזרת אזורים חסרים ============= */
@@ -203,13 +257,6 @@ footer,
 }
 
 /* ============= מרווחים נכונים ============= */
-.container {
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 15px;
-}
-
 section {
     margin-bottom: 40px;
 }

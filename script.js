@@ -15,6 +15,9 @@ $(document).ready(function(){
     // Load and display categories in main menu
     loadCategories();
     
+    // Load and display products on homepage
+    loadAndDisplayProducts();
+    
     // Initialize admin panel immediately if we need to show it
     addAdminStyles();
     
@@ -1690,7 +1693,7 @@ function displayProductsOnHomepage() {
         
         if (!products || products.length === 0) {
             console.warn('No products to display');
-            $productsGrid.html(`<div class="empty-products">אין מוצרים להצגה</div>`);
+            $productsGrid.html(`<div class="error">שגיאה בטעינת מוצרים</div>`);
             return;
         }
         
@@ -2330,165 +2333,29 @@ function deleteCategory(categoryId) {
 // Function to create a category page file in GitHub
 async function createCategoryPage(categoryData) {
     try {
-        const { name, description, icon, slug, columnLayout, vipOnly } = categoryData;
+        console.log('Creating category page for:', categoryData.name);
+        const { name, slug } = categoryData;
         const safeName = slug || name.replace(/\s+/g, '-').toLowerCase().replace(/[^\w\-]/g, '');
-        const path = `data/categories/${safeName}.html`;
+        const path = `category-${safeName}.html`;
         
-        // Check if directory exists first
-        const dirExists = await productManager.checkGitHubPath('data/categories');
-        if (!dirExists) {
-            await productManager.createGitHubDirectory('data/categories', 'Create categories directory', productManager.githubToken);
-        }
+        // Generate the content using the helper function
+        const content = createCategoryPageContent(categoryData);
         
-        // Create basic HTML template for category page
-        const content = `
-<!DOCTYPE html>
-<html lang="he" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${name} - Doctor Instraction</title>
-    <meta name="description" content="${description || `מוצרי ${name} באיכות גבוהה`}">
-    <meta property="og:title" content="${name} - Doctor Instraction">
-    <meta property="og:description" content="${description || `מוצרי ${name} באיכות גבוהה`}">
-    <meta property="og:image" content="${categoryData.image || '/images/logo.png'}">
-    <link rel="stylesheet" href="../style.css">
-    <link rel="stylesheet" href="../fix.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <style>
-        .category-banner {
-            background-color: ${categoryData.bgColor || '#1a1d21'};
-            color: ${categoryData.textColor || '#ffffff'};
-        }
+        // Add page to GitHub
+        const message = `Create category page for ${name}`;
+        await productManager.createGitHubFile(path, content, message, productManager.githubToken);
         
-        .category-products-grid {
-            display: grid;
-            grid-template-columns: repeat(${columnLayout === 'masonry' ? 'auto-fill, minmax(300px, 1fr)' : columnLayout || '3'}, 1fr);
-            gap: 20px;
-        }
+        console.log(`Category page created successfully: ${path}`);
+        showNotification(`דף הקטגוריה "${name}" נוצר בהצלחה`, 'success');
         
-        @media (max-width: 992px) {
-            .category-products-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-        
-        @media (max-width: 576px) {
-            .category-products-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-</head>
-<body class="category-page" data-category="${safeName}" ${vipOnly ? 'data-vip-only="true"' : ''}>
-    <header id="header"></header>
-    
-    <main>
-        <div class="category-banner">
-            <div class="container">
-                <h1><i class="${icon || 'fas fa-leaf'}"></i> ${name}</h1>
-            <p>${description || ''}</p>
-            </div>
-        </div>
-        
-        <div class="category-products">
-            <div class="container">
-                <div class="category-products-controls">
-                    <div class="category-filters">
-                        <button class="filter-btn active" data-filter="all">הכל</button>
-                        <button class="filter-btn" data-filter="new">חדש</button>
-                        <button class="filter-btn" data-filter="sale">מבצע</button>
-                        ${vipOnly ? '' : '<button class="filter-btn" data-filter="vip">בלעדי ל-VIP</button>'}
-                    </div>
-                    
-                    <div class="category-sorting">
-                        <select class="sort-select">
-                            <option value="recommended">מומלצים</option>
-                            <option value="price-low">מחיר: מהנמוך לגבוה</option>
-                            <option value="price-high">מחיר: מהגבוה לנמוך</option>
-                            <option value="newest">חדשים ביותר</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="category-products-grid" id="products-container">
-                    <!-- Products will be loaded here via JavaScript -->
-                </div>
-            </div>
-        </div>
-    </main>
-    
-    <footer id="footer"></footer>
-    
-    <script src="../script.js"></script>
-    <script>
-        // Load products for this category
-        document.addEventListener('DOMContentLoaded', function() {
-            // Load header and footer
-            fetch('../header.html')
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById('header').innerHTML = data;
-                    initializeHeader();
-                });
-                
-            fetch('../footer.html')
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById('footer').innerHTML = data;
-                });
-            
-            // Load products for this category
-            productManager.loadProductsFromGitHub().then(success => {
-                if (success) {
-                    const categoryName = "${name}";
-                    const products = productManager.products.filter(p => p.category === categoryName);
-            
-            if (products.length === 0) {
-                        document.getElementById('products-container').innerHTML = '<div class="empty-category">אין מוצרים בקטגוריה זו עדיין</div>';
-                return;
-            }
-            
-                    let productsHTML = '';
-            products.forEach(product => {
-                        productsHTML += createProductCard(product);
-                    });
-                    
-                    document.getElementById('products-container').innerHTML = productsHTML;
-                    
-                    // Initialize filter and sort functionality
-                    initializeProductFilters();
-                }
-            });
-        });
-        
-        // VIP protection
-        if (${vipOnly}) {
-            if (!userData || !userData.isVIP) {
-                window.location.href = '../index.html?error=vip_required';
-            }
-        }
-    </script>
-</body>
-</html>
-`;
-        
-        // Upload to GitHub
-        await productManager.createGitHubFile(
-            path,
-            content,
-            `Add category page for: ${name}`, 
-            productManager.githubToken
-        );
-        
-        console.log(`Category page created: ${path}`);
-        
-        // Also add the category to the categories list file
+        // Also update categories list file
         await updateCategoriesListFile(categoryData);
         
+        return true;
     } catch (error) {
         console.error('Error creating category page:', error);
-        showNotification('שגיאה ביצירת דף הקטגוריה', 'error');
+        showNotification(`שגיאה ביצירת דף הקטגוריה: ${error.message}`, 'error');
+        return false;
     }
 }
 
@@ -2586,25 +2453,96 @@ function createCategoryPageContent(categoryData, existingFile = null) {
     <meta name="description" content="${description || `מוצרי ${name} באיכות גבוהה`}">
     <meta property="og:title" content="${name} - Doctor Instraction">
     <meta property="og:description" content="${description || `מוצרי ${name} באיכות גבוהה`}">
-    <meta property="og:image" content="${image || '/images/logo.png'}">
-    <link rel="stylesheet" href="../style.css">
-    <link rel="stylesheet" href="../fix.css">
+    <meta property="og:image" content="${image || 'images/logo.png'}">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="fix.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css">
     <style>
         .category-banner {
             background-color: ${bgColor || '#1a1d21'};
             color: ${textColor || '#ffffff'};
+            padding: 40px 0;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .category-banner h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .category-banner p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
         }
         
         .category-products-grid {
             display: grid;
-            grid-template-columns: repeat(${columnLayout === 'masonry' ? 'auto-fill, minmax(300px, 1fr)' : columnLayout || '3'}, 1fr);
+            grid-template-columns: repeat(${columnLayout === 'masonry' ? 'auto-fill, minmax(250px, 1fr)' : columnLayout || '3'}, 1fr);
             gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .category-products-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .category-filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .filter-btn {
+            padding: 8px 15px;
+            background: #2d3035;
+            border: none;
+            border-radius: 5px;
+            color: #e0e0e0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .filter-btn.active, .filter-btn:hover {
+            background: #ff3a6b;
+            color: white;
+        }
+        
+        .category-sorting {
+            display: flex;
+            align-items: center;
+        }
+        
+        .sort-select {
+            padding: 8px 15px;
+            background: #2d3035;
+            border: none;
+            border-radius: 5px;
+            color: #e0e0e0;
+            cursor: pointer;
+        }
+        
+        .empty-category {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+            color: #666;
+            background: #f5f5f5;
+            border-radius: 10px;
         }
         
         @media (max-width: 992px) {
             .category-products-grid {
                 grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .category-products-controls {
+                flex-direction: column;
             }
         }
         
@@ -2612,11 +2550,99 @@ function createCategoryPageContent(categoryData, existingFile = null) {
             .category-products-grid {
                 grid-template-columns: 1fr;
             }
+            
+            .category-banner h1 {
+                font-size: 2rem;
+            }
         }
     </style>
 </head>
 <body class="category-page" data-category="${safeName}" ${vipOnly ? 'data-vip-only="true"' : ''}>
-    <header id="header"></header>
+    <!-- Header section - we include the header from index.html -->
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="container">
+            <div class="top-bar-content">
+                <div class="contact-info">
+                    <a href="tel:+972501234567"><i class="fas fa-phone-alt"></i> 050-1234567</a>
+                    <a href="mailto:info@doctor-instraction.com"><i class="fas fa-envelope"></i> info@doctor-instraction.com</a>
+                </div>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-telegram"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Header -->
+    <header class="main-header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <a href="index.html">
+                        <img src="logo.png" alt="Doctor Instraction">
+                    </a>
+                </div>
+                
+                <div class="header-right">
+                    <div class="header-actions">
+                        <div class="header-search">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <div class="header-cart">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="badge">0</span>
+                        </div>
+                        <div class="header-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    </div>
+                    
+                    <form class="search-form">
+                        <input type="text" placeholder="חיפוש מוצרים...">
+                        <button type="submit"><i class="fas fa-search"></i></button>
+                    </form>
+                    
+                    <div class="auth-links">
+                        <a href="#" class="show-login">התחברות</a>
+                        <a href="#" class="show-register">הרשמה</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Header Bottom with Improved Navigation -->
+        <div class="header-bottom">
+            <div class="container">
+                <nav class="improved-nav" aria-label="תפריט ראשי">
+                    <ul class="main-nav">
+                        <li class="menu-item"><a href="index.html">דף הבית</a></li>
+                        <li class="menu-item menu-item-has-children">
+                            <a href="#" class="has-submenu">קטגוריות<span class="drop-indicator"><i class="fas fa-caret-down"></i></span></a>
+                            <ul class="sub-menu">
+                                <!-- Categories will be loaded dynamically -->
+                            </ul>
+                        </li>
+                        <li class="menu-item menu-item-has-children">
+                            <a href="#" class="has-submenu">גלגול<span class="drop-indicator"><i class="fas fa-caret-down"></i></span></a>
+                            <ul class="sub-menu">
+                                <li class="dropdown-link"><a href="#" class="dropdown-link-a">ניירות גלגול</a></li>
+                                <li class="dropdown-link"><a href="#" class="dropdown-link-a">פילטרים</a></li>
+                                <li class="dropdown-link"><a href="#" class="dropdown-link-a">מגלגלות</a></li>
+                                <li class="dropdown-link"><a href="#" class="dropdown-link-a">ערכות גלגול</a></li>
+                            </ul>
+                        </li>
+                        <li class="menu-item"><a href="#">עלינו</a></li>
+                        <li class="menu-item"><a href="#">צור קשר</a></li>
+                        <li class="menu-item"><a href="#">המדריך השלם</a></li>
+                        <li class="menu-item" id="admin-menu-item" style="display: none;"><a href="#" class="admin-panel-btn">פאנל ניהול</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
     
     <main>
         <div class="category-banner">
@@ -2646,62 +2672,219 @@ function createCategoryPageContent(categoryData, existingFile = null) {
                     </div>
                 </div>
                 
-                <div class="category-products-grid" id="products-container">
+                <div class="category-products-grid" id="category-products-container">
                     <!-- Products will be loaded here via JavaScript -->
+                    <div class="empty-category">טוען מוצרים...</div>
                 </div>
             </div>
         </div>
     </main>
     
-    <footer id="footer"></footer>
-    
-    <script src="../script.js"></script>
-    <script>
-        // Load products for this category
-        document.addEventListener('DOMContentLoaded', function() {
-            // Load header and footer
-            fetch('../header.html')
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById('header').innerHTML = data;
-                    initializeHeader();
-                });
+    <!-- Footer Section -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>אודות</h3>
+                    <p>Doctor Instraction מציע מוצרים איכותיים מהארץ ומהעולם. המקום שלכם לחוויית קנייה מושלמת.</p>
+                    <div class="footer-social">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-telegram"></i></a>
+                    </div>
+                </div>
                 
-            fetch('../footer.html')
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById('footer').innerHTML = data;
-                });
+                <div class="footer-column">
+                    <h3>ניווט מהיר</h3>
+                    <ul class="footer-links">
+                        <li><a href="index.html">דף הבית</a></li>
+                        <li><a href="#">מדריכים</a></li>
+                        <li><a href="#">בלוג</a></li>
+                        <li><a href="#">צור קשר</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>מדיניות</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">תנאי שימוש</a></li>
+                        <li><a href="#">מדיניות פרטיות</a></li>
+                        <li><a href="#">מדיניות משלוחים</a></li>
+                        <li><a href="#">תקנון החנות</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>צור קשר</h3>
+                    <ul class="footer-contact">
+                        <li><i class="fas fa-map-marker-alt"></i> רחוב הראשי 123, תל אביב</li>
+                        <li><i class="fas fa-phone"></i> 050-1234567</li>
+                        <li><i class="fas fa-envelope"></i> info@doctor-instraction.com</li>
+                        <li><i class="fas fa-clock"></i> א'-ה' 09:00-18:00</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>© 2023 Doctor Instraction. כל הזכויות שמורות.</p>
+                <div class="payment-methods">
+                    <i class="fab fa-cc-visa"></i>
+                    <i class="fab fa-cc-mastercard"></i>
+                    <i class="fab fa-paypal"></i>
+                    <i class="fab fa-bitcoin"></i>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script src="script.js"></script>
+    <script>
+        $(document).ready(function() {
+            if (typeof productManager === 'undefined') {
+                window.productManager = new ProductManager();
+            }
+            
+            // Check user login status
+            checkUserLogin();
             
             // Load products for this category
-            productManager.loadProductsFromGitHub().then(success => {
-                if (success) {
-                    const categoryName = "${name}";
-                    const products = productManager.products.filter(p => p.category === categoryName);
-                    
-                    if (products.length === 0) {
-                        document.getElementById('products-container').innerHTML = '<div class="empty-category">אין מוצרים בקטגוריה זו עדיין</div>';
-                        return;
-                    }
-                    
-                    let productsHTML = '';
-                    products.forEach(product => {
-                        productsHTML += createProductCard(product);
-                    });
-                    
-                    document.getElementById('products-container').innerHTML = productsHTML;
-                    
-                    // Initialize filter and sort functionality
-                    initializeProductFilters();
-                }
+            loadCategoryProducts("${name}");
+            
+            // Style registration button
+            styleRegisterButton();
+            
+            // Initialize product filters
+            $('.filter-btn').on('click', function() {
+                $('.filter-btn').removeClass('active');
+                $(this).addClass('active');
+                
+                const filter = $(this).data('filter');
+                // Here would go the actual filtering logic
+                // For demo purposes, we'll just reload products
+                loadCategoryProducts("${name}", filter);
             });
+            
+            // Initialize sorting
+            $('.sort-select').on('change', function() {
+                const sortValue = $(this).val();
+                loadCategoryProducts("${name}", $('.filter-btn.active').data('filter'), sortValue);
+            });
+            
+            // VIP protection
+            if (${vipOnly}) {
+                const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+                if (!userData || !userData.isVIP) {
+                    // Redirect if not VIP
+                    window.location.href = 'index.html?error=vip_required';
+                }
+            }
+            
+            // Load and display categories in main menu
+            loadCategories();
         });
         
-        // VIP protection
-        if (${vipOnly}) {
-            if (!userData || !userData.isVIP) {
-                window.location.href = '../index.html?error=vip_required';
+        // Function to load products for this category
+        function loadCategoryProducts(categoryName, filter = 'all', sort = 'recommended') {
+            console.log('Loading products for category:', categoryName, 'filter:', filter, 'sort:', sort);
+            
+            productManager.loadProductsFromGitHub().then(success => {
+                if (success) {
+                    // Filter products by category
+                    let products = productManager.products.filter(p => p.category === categoryName);
+                    
+                    // Apply additional filter if needed
+                    if (filter !== 'all') {
+                        if (filter === 'new') {
+                            products = products.filter(p => p.badge === 'new');
+                        } else if (filter === 'sale') {
+                            products = products.filter(p => p.badge === 'sale');
+                        } else if (filter === 'vip') {
+                            products = products.filter(p => p.vipOnly);
+                        }
+                    }
+                    
+                    // Sort products
+                    if (sort === 'price-low') {
+                        products.sort((a, b) => a.price - b.price);
+                    } else if (sort === 'price-high') {
+                        products.sort((a, b) => b.price - a.price);
+                    } else if (sort === 'newest') {
+                        products.sort((a, b) => new Date(b.created) - new Date(a.created));
+                    }
+                    
+                    // Display products
+                    displayCategoryProducts(products);
+                } else {
+                    $('#category-products-container').html('<div class="empty-category">שגיאה בטעינת מוצרים</div>');
+                }
+            });
+        }
+        
+        // Function to display products in the category page
+        function displayCategoryProducts(products) {
+            const $container = $('#category-products-container');
+            
+            if (!products || products.length === 0) {
+                $container.html('<div class="empty-category">אין מוצרים בקטגוריה זו עדיין</div>');
+                return;
             }
+            
+            // Build HTML for products
+            let productsHTML = '';
+            
+            products.forEach(product => {
+                // Get the VIP price if available
+                const vipPrice = product.vipPrice || (product.price * 0.9);
+                const isVIP = JSON.parse(localStorage.getItem('userData') || '{}').isVIP;
+                
+                // Determine which price to show
+                const displayPrice = isVIP ? vipPrice : product.price;
+                const oldPrice = isVIP ? product.price : null;
+                
+                // Build the product card
+                productsHTML += \`
+                    <div class="product-card" data-id="\${product.id}">
+                        <div class="product-image">
+                            <img src="\${product.image || 'images/product-placeholder.jpg'}" alt="\${product.name}">
+                            \${product.badge ? \`<span class="product-badge \${product.badge}">\${getBadgeText(product.badge)}</span>\` : ''}
+                            <div class="product-actions">
+                                <button class="action-btn quick-view-btn" data-id="\${product.id}">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="action-btn add-to-cart-btn" data-id="\${product.id}">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </button>
+                                <button class="action-btn add-to-wishlist-btn" data-id="\${product.id}">
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">
+                                <a href="product-\${product.slug || product.id}.html">\${product.name}</a>
+                            </h3>
+                            <div class="product-category">\${product.category || 'כללי'}</div>
+                            <div class="product-rating">
+                                \${getRatingStars(product.rating || 5)}
+                            </div>
+                            <div class="product-price">
+                                \${oldPrice ? \`<span class="old-price">\${oldPrice.toFixed(2)} ₪</span>\` : ''}
+                                <span class="current-price">\${displayPrice.toFixed(2)} ₪</span>
+                            </div>
+                        </div>
+                    </div>
+                \`;
+            });
+            
+            // Add products to container
+            $container.html(productsHTML);
+            
+            // Attach event handlers to product card buttons
+            initializeProductCards();
         }
     </script>
 </body>
@@ -3558,4 +3741,93 @@ function displayCategoriesInMainMenu(categories) {
             `);
         });
     }
+}
+
+// Function to load and display products on homepage
+function loadAndDisplayProducts() {
+    console.log('Loading and displaying products on homepage...');
+    
+    // Use the ProductManager to load products from GitHub
+    productManager.loadProductsFromGitHub().then(success => {
+        if (success) {
+            displayProductsOnHomepage(productManager.getAllProducts());
+        } else {
+            showNotification('שגיאה בטעינת מוצרים', 'error');
+            console.error('Failed to load products from GitHub');
+        }
+    });
+}
+
+// Function to display products on the homepage
+function displayProductsOnHomepage(products) {
+    console.log('Displaying products on homepage:', products);
+    
+    // Find the products container in the homepage
+    const $productsContainer = $('#featured-products-container');
+    
+    if ($productsContainer.length === 0) {
+        console.error('Products container not found on homepage');
+        return;
+    }
+    
+    // Check if there are products to display
+    if (!products || products.length === 0) {
+        $productsContainer.html('<div class="empty-products">אין מוצרים להצגה</div>');
+        return;
+    }
+    
+    // Build HTML for products
+    let productsHTML = '<div class="products-grid">';
+    
+    products.forEach(product => {
+        // Get the VIP price if available
+        const vipPrice = product.vipPrice || (product.price * 0.9);
+        const isVIP = JSON.parse(localStorage.getItem('userData') || '{}').isVIP;
+        
+        // Determine which price to show
+        const displayPrice = isVIP ? vipPrice : product.price;
+        const oldPrice = isVIP ? product.price : null;
+        
+        // Build the product card
+        productsHTML += `
+            <div class="product-card" data-id="${product.id}">
+                <div class="product-image">
+                    <img src="${product.image || 'images/product-placeholder.jpg'}" alt="${product.name}">
+                    ${product.badge ? `<span class="product-badge ${product.badge}">${getBadgeText(product.badge)}</span>` : ''}
+                    <div class="product-actions">
+                        <button class="action-btn quick-view-btn" data-id="${product.id}">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn add-to-cart-btn" data-id="${product.id}">
+                            <i class="fas fa-shopping-cart"></i>
+                        </button>
+                        <button class="action-btn add-to-wishlist-btn" data-id="${product.id}">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <h3 class="product-title">
+                        <a href="product-${product.slug}.html">${product.name}</a>
+                    </h3>
+                    <div class="product-category">${product.category || 'כללי'}</div>
+                    <div class="product-rating">
+                        ${getRatingStars(product.rating || 5)}
+                    </div>
+                    <div class="product-price">
+                        ${oldPrice ? `<span class="old-price">${oldPrice.toFixed(2)} ₪</span>` : ''}
+                        <span class="current-price">${displayPrice.toFixed(2)} ₪</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    productsHTML += '</div>';
+    
+    // Add products to container
+    $productsContainer.html(productsHTML);
+    
+    // Attach event handlers to product card buttons
+    initializeProductCards();
 }
