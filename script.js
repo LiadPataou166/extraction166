@@ -7,6 +7,14 @@ let isAdmin = false; // Global flag for admin status
 $(document).ready(function(){
     console.log('Document ready - initializing...');
     
+    // Initialize product manager
+    if (typeof productManager === 'undefined') {
+        window.productManager = new ProductManager();
+    }
+    
+    // Load and display categories in main menu
+    loadCategories();
+    
     // Initialize admin panel immediately if we need to show it
     addAdminStyles();
     
@@ -1956,13 +1964,16 @@ function attachAdminPanelEventHandlers() {
 function addAdminMenuItemToNav() {
     // Check if user is admin
     const userData = JSON.parse(localStorage.getItem('userData')) || {};
-    const isAdmin = userData && userData.isAdmin;
+    const isAdmin = userData && (userData.isAdmin || userData.email === ADMIN_EMAIL);
+    
+    console.log('Adding admin menu item, isAdmin:', isAdmin, 'email:', userData.email);
     
     // Check if admin menu item already exists
     if ($('#admin-menu-item').length > 0) {
         // Update the click handler and visibility
         if (isAdmin) {
             $('#admin-menu-item').show();
+            console.log('Admin menu item exists and shown');
             $('#admin-menu-item a').off('click').on('click', function(e) {
                 e.preventDefault();
                 openAdminPanel();
@@ -1970,22 +1981,34 @@ function addAdminMenuItemToNav() {
             });
         } else {
             $('#admin-menu-item').hide();
+            console.log('Admin menu item exists but hidden (not admin)');
         }
         return; // Already exists
     }
     
-    // Admin menu item doesn't exist, add it (hidden by default)
-    $('nav ul').append('<li id="admin-menu-item" style="display:none;"><a href="#" class="admin-panel-btn">פאנל ניהול</a></li>');
+    // Admin menu item doesn't exist, add it to main navigation
+    $('.main-nav').append('<li id="admin-menu-item" class="menu-item"><a href="#" class="admin-panel-btn">פאנל ניהול</a></li>');
     
     // Show if admin and add click handler
     if (isAdmin) {
         $('#admin-menu-item').show();
-        $('.admin-panel-btn').off('click').on('click', function(e) {
-            e.preventDefault();
-            openAdminPanel();
-            return false;
-        });
+        console.log('New admin menu item added and shown');
+    } else {
+        $('#admin-menu-item').hide();
+        console.log('New admin menu item added but hidden (not admin)');
     }
+    
+    $('#admin-menu-item a').on('click', function(e) {
+        e.preventDefault();
+        openAdminPanel();
+        return false;
+    });
+    
+    // Add some styling
+    $('#admin-menu-item').css({
+        'display': isAdmin ? 'block' : 'none',
+        'cursor': 'pointer'
+    });
 }
 
 // Function to open the admin panel
@@ -2030,7 +2053,9 @@ function loadCategories() {
     // Use the ProductManager to load categories from GitHub
     productManager.loadCategoriesFromGitHub().then(success => {
         if (success) {
+            // Update both admin panel and site menu
             displayCategories(productManager.getAllCategories());
+            displayCategoriesInMainMenu(productManager.getAllCategories());
         } else {
             showNotification('שגיאה בטעינת קטגוריות', 'error');
             // Display empty categories list
@@ -2248,10 +2273,13 @@ function showCategoryForm(categoryId = null) {
             productManager.updateCategory(category.id, categoryData).then(success => {
                 if (success) {
                     showNotification(`הקטגוריה "${name}" עודכנה בהצלחה`, 'success');
-                    loadCategories(); // Reload categories list
+                    loadCategories(); // Reload categories list and update menu
                     
                     // Update category page in GitHub
-                    updateCategoryPage(categoryData);
+                    updateCategoryPage(categoryData).then(() => {
+                        // Force refresh the categories in the main menu
+                        displayCategoriesInMainMenu(productManager.getAllCategories());
+                    });
                 } else {
                     showNotification('שגיאה בעדכון הקטגוריה', 'error');
                 }
@@ -2264,10 +2292,13 @@ function showCategoryForm(categoryId = null) {
             productManager.addCategory(categoryData).then(success => {
                 if (success) {
                     showNotification(`הקטגוריה "${name}" נוספה בהצלחה`, 'success');
-                    loadCategories(); // Reload categories list
+                    loadCategories(); // Reload categories list and update menu
                     
                     // Create category page file in GitHub
-                    createCategoryPage(categoryData);
+                    createCategoryPage(categoryData).then(() => {
+                        // Force refresh the categories in the main menu
+                        displayCategoriesInMainMenu(productManager.getAllCategories());
+                    });
                 } else {
                     showNotification('שגיאה בהוספת הקטגוריה', 'error');
                 }
@@ -3488,4 +3519,43 @@ function setupSidebarToggles() {
     $('.sidebar-toggle-right').off('click').on('click', function() {
         $('.product-sidebar').toggleClass('active');
     });
+}
+
+// Function to display categories in the main site menu
+function displayCategoriesInMainMenu(categories) {
+    console.log('Displaying categories in main menu:', categories);
+    
+    // Find the categories dropdown menu
+    let $categoriesMenu = $('.main-nav .menu-item-has-children:has(a:contains("קטגוריות")) .sub-menu');
+    
+    if ($categoriesMenu.length === 0) {
+        // If categories menu doesn't exist, let's create it
+        console.log('Categories dropdown not found, creating it');
+        $('.main-nav').append(`
+            <li class="menu-item menu-item-has-children">
+                <a href="#" class="has-submenu">קטגוריות<span class="drop-indicator"><i class="fas fa-caret-down"></i></span></a>
+                <ul class="sub-menu categories-submenu">
+                </ul>
+            </li>
+        `);
+        $categoriesMenu = $('.categories-submenu');
+    } else {
+        console.log('Categories dropdown found');
+    }
+    
+    // Clear existing categories
+    $categoriesMenu.empty();
+    
+    if (categories.length === 0) {
+        $categoriesMenu.append('<li class="dropdown-link"><a href="#" class="dropdown-link-a">אין קטגוריות להצגה</a></li>');
+    } else {
+        // Add each category to the menu
+        categories.forEach(category => {
+            $categoriesMenu.append(`
+                <li class="dropdown-link">
+                    <a href="category-${category.slug}.html" class="dropdown-link-a">${category.name}</a>
+                </li>
+            `);
+        });
+    }
 }
