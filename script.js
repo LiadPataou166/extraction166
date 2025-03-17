@@ -586,6 +586,106 @@ $(document).ready(function(){
     });
 });
 
+// DOM Ready - נקודת הכניסה לקוד
+$(document).ready(function() {
+    // תיקון הצגת אלמנטים
+    fixVisibility();
+    
+    // תיקון כפתור פאנל מנהל
+    fixAdminButton();
+    
+    // תיקון תפריט קטגוריות
+    fixCategoriesMenu();
+    
+    // ווידא שהלינק להרשמה מעוצב נכון
+    styleRegisterButton();
+});
+
+// פונקציה לתיקון הצגת אלמנטים
+function fixVisibility() {
+    // וידוא שכל האזורים החשובים מוצגים
+    $('.puffiz-category-section, .vip-club, .newsletter').css({
+        'display': 'block',
+        'visibility': 'visible',
+        'opacity': '1',
+        'max-height': 'none',
+        'overflow': 'visible'
+    });
+    
+    // וידוא שכל תתי-האלמנטים מוצגים
+    $('.puffiz-header, .puffiz-title, .puffiz-subtitle, .puffiz-divider, .puffiz-grid, .puffiz-grid-2x2, .puffiz-category-item, .puffiz-overlay, .puffiz-content, .puffiz-category-title').css({
+        'display': 'block',
+        'visibility': 'visible',
+        'opacity': '1'
+    });
+    
+    // תיקון מיוחד לגריד
+    $('.puffiz-grid-2x2').css({
+        'display': 'grid'
+    });
+    
+    // וידוא שאזור ה-VIP מוצג כראוי
+    $('.vip-content, .vip-title, .vip-subtitle, .vip-features, .vip-feature, .vip-feature-icon, .vip-feature-title, .vip-feature-text, .btn-vip').css({
+        'display': 'block',
+        'visibility': 'visible',
+        'opacity': '1'
+    });
+    
+    // תיקון מיוחד לגריד של ה-VIP
+    $('.vip-features').css({
+        'display': 'grid'
+    });
+    
+    // וידוא שאזור הניוזלטר מוצג כראוי
+    $('.newsletter-content, .newsletter-title, .newsletter-text, .newsletter-form, .newsletter-input, .newsletter-btn').css({
+        'display': 'block',
+        'visibility': 'visible',
+        'opacity': '1'
+    });
+    
+    // תיקון מיוחד לטופס הניוזלטר
+    $('.newsletter-form').css({
+        'display': 'flex'
+    });
+}
+
+// פונקציה לתיקון כפתור פאנל מנהל
+function fixAdminButton() {
+    // וידוא שהכפתור של פאנל המנהל לחיץ
+    $('#admin-menu-item, .admin-link, .admin-panel-btn').css({
+        'display': 'block',
+        'visibility': 'visible',
+        'opacity': '1',
+        'cursor': 'pointer',
+        'pointer-events': 'auto'
+    });
+    
+    // הוספת אירוע לחיצה מחדש
+    $('.admin-panel-btn').off('click').on('click', function(e) {
+        e.preventDefault();
+        openAdminPanel();
+        return false;
+    });
+}
+
+// פונקציה לעיצוב כפתור הרשמה
+function styleRegisterButton() {
+    // עיצוב לינק הרשמה
+    $('a.show-register').css({
+        'display': 'inline-block',
+        'padding': '8px 15px',
+        'margin': '0 5px',
+        'background-color': '#ff3a6b',
+        'color': 'white',
+        'border-radius': '5px',
+        'text-decoration': 'none',
+        'font-weight': 'bold'
+    });
+    
+    // וידוא שהלינק מוביל להרשמה ולא להתחברות
+    $('a.show-register').attr('onclick', 'showAuthModal("register"); return false;');
+}
+
 // Auth Helper Functions
 function showAuthModal(type = 'login') {
     console.log('Showing auth modal:', type);
