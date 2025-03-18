@@ -1,0 +1,615 @@
+
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>cccc - Doctor Instraction</title>
+    <meta name="description" content="ccc">
+    <meta property="og:title" content="cccc - Doctor Instraction">
+    <meta property="og:description" content="ccc">
+    <meta property="og:image" content="/api/placeholder/400/300">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="fix.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css">
+    <style>
+        /* Fix for page structure */
+        html, body {
+            overflow-x: hidden !important;
+            max-width: 100% !important;
+            width: 100% !important;
+        }
+        
+        .category-banner {
+            background-color: #1a1d21;
+            color: #ffffff;
+            padding: 40px 0;
+            margin-bottom: 30px;
+            text-align: center;
+            max-width: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .category-banner h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .category-banner p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        /* Products grid with fixed layout */
+        .category-products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+            max-width: 100%;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+        
+        .category-products-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            padding: 0 20px;
+        }
+        
+        .category-filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .filter-btn {
+            padding: 8px 15px;
+            background: #2d3035;
+            border: none;
+            border-radius: 5px;
+            color: #e0e0e0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .filter-btn.active, .filter-btn:hover {
+            background: #ff3a6b;
+            color: white;
+        }
+        
+        .category-sorting {
+            display: flex;
+            align-items: center;
+        }
+        
+        .sort-select {
+            padding: 8px 15px;
+            background: #2d3035;
+            border: none;
+            border-radius: 5px;
+            color: #e0e0e0;
+            cursor: pointer;
+        }
+        
+        .empty-category {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+            color: #666;
+            background: #f5f5f5;
+            border-radius: 10px;
+        }
+        
+        /* Product cards with reliable layout */
+        .product-card {
+            border-radius: 10px;
+            background: #1a1d21;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border: 1px solid rgba(62, 255, 139, 0.15);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transition: transform 0.3s, box-shadow 0.3s;
+            max-width: 100%;
+            height: 100%;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        
+        .product-image {
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            background-color: #0a0a0a;
+        }
+        
+        .product-content {
+            padding: 15px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .product-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .product-description {
+            font-size: 0.9rem;
+            color: #cccccc;
+            margin-bottom: 15px;
+            flex-grow: 1;
+        }
+        
+        .product-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+        }
+        
+        .product-price {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #3eff8b;
+        }
+        
+        .product-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .product-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: rgba(62, 255, 139, 0.15);
+            border: 1px solid rgba(62, 255, 139, 0.3);
+            color: #3eff8b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .product-btn:hover {
+            background: rgba(62, 255, 139, 0.3);
+        }
+        
+        /* Responsive fixes */
+        @media (max-width: 992px) {
+            .category-products-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .category-products-controls {
+                flex-direction: column;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .category-products-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .category-banner h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body class="category-page" data-category="ccc">
+    <!-- Header section - we include the header from index.html -->
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="container">
+            <div class="top-bar-content">
+                <div class="contact-info">
+                    <a href="tel:+972501234567"><i class="fas fa-phone-alt"></i> 050-1234567</a>
+                    <a href="mailto:info@doctor-instraction.com"><i class="fas fa-envelope"></i> info@doctor-instraction.com</a>
+                </div>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-telegram"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Header -->
+    <header class="main-header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <a href="index.html">
+                        <img src="logo.png" alt="Doctor Instraction">
+                    </a>
+                </div>
+                
+                <div class="header-right">
+                    <div class="header-actions">
+                        <div class="header-search">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <div class="header-cart">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="badge">0</span>
+                        </div>
+                        <div class="header-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    </div>
+                    
+                    <form class="search-form">
+                        <input type="text" placeholder="חיפוש מוצרים...">
+                        <button type="submit"><i class="fas fa-search"></i></button>
+                    </form>
+                    
+                    <div class="auth-links">
+                        <a href="#" class="show-login">התחברות</a>
+                        <a href="#" class="show-register">הרשמה</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Header Bottom with Improved Navigation -->
+        <div class="header-bottom">
+            <div class="container">
+                <nav class="improved-nav" aria-label="תפריט ראשי">
+                    <ul class="main-nav">
+                        <li class="menu-item"><a href="index.html">דף הבית</a></li>
+                        <li class="menu-item menu-item-has-children">
+                            <a href="#" class="has-submenu">קטגוריות<span class="drop-indicator"><i class="fas fa-caret-down"></i></span></a>
+                            <ul class="sub-menu">
+                                <!-- Categories will be loaded dynamically -->
+                            </ul>
+                        </li>
+                        <li class="menu-item menu-item-has-children">
+                            <a href="#" class="has-submenu">גלגול<span class="drop-indicator"><i class="fas fa-caret-down"></i></span></a>
+                            <ul class="sub-menu">
+                                <li class="dropdown-link"><a href="#" class="dropdown-link-a">ניירות גלגול</a></li>
+                                <li class="dropdown-link"><a href="#" class="dropdown-link-a">פילטרים</a></li>
+                                <li class="dropdown-link"><a href="#" class="dropdown-link-a">מגלגלות</a></li>
+                                <li class="dropdown-link"><a href="#" class="dropdown-link-a">ערכות גלגול</a></li>
+                            </ul>
+                        </li>
+                        
+                        <li class="menu-item menu-item-has-children">
+                            <a href="#" class="has-submenu">מוצרי עישון<span class="drop-indicator"><i class="fas fa-caret-down"></i></span></a>
+                            <ul class="sub-menu">
+                                <li class="dropdown-link"><a href="#" class="dropdown-link-a">מקטרות</a></li>
+                                <li class="dropdown-link"><a href="#" class="dropdown-link-a">באנגים</a></li>
+                                <li class="dropdown-link"><a href="#" class="dropdown-link-a">גריינדרים</a></li>
+                                <li class="dropdown-link"><a href="#" class="dropdown-link-a">מאפרות</a></li>
+                            </ul>
+                        </li>
+                        
+                        <li class="menu-item menu-item-has-children">
+                            <a href="#" class="has-submenu">ציוד גידול<span class="drop-indicator"><i class="fas fa-caret-down"></i></span></a>
+                            <ul class="sub-menu">
+                                <li class="dropdown-link"><a href="#" class="dropdown-link-a">ערכות גידול</a></li>
+                                <li class="dropdown-link"><a href="#" class="dropdown-link-a">מערכות תאורה לגידול</a></li>
+                            </ul>
+                        </li>
+                        
+                        <li class="menu-item menu-item-has-children">
+                            <a href="#" class="has-submenu">אחסון<span class="drop-indicator"><i class="fas fa-caret-down"></i></span></a>
+                            <ul class="sub-menu">
+                                <li class="dropdown-link"><a href="#" class="dropdown-link-a">קופסאות וצנצנות</a></li>
+                                <li class="dropdown-link"><a href="#" class="dropdown-link-a">שקיות אחסון</a></li>
+                                <li class="dropdown-link"><a href="#" class="dropdown-link-a">משקלים</a></li>
+                            </ul>
+                        </li>
+                        
+                        <li class="menu-item"><a href="page3.html">מוצרים חדשים</a></li>
+                        <li class="menu-item"><a href="#">מועדון VIP</a></li>
+                        <li class="menu-item"><a href="#">בלוג</a></li>
+                        <li class="menu-item"><a href="#">צור קשר</a></li>
+                        <li class="menu-item" id="admin-menu-item" style="display: none;"><a href="#" class="admin-panel-btn">פאנל ניהול</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+    
+    <main>
+        <div class="category-banner">
+            <div class="container">
+                <h1><i class="fas fa-fan"></i> cccc</h1>
+                <p>ccc</p>
+            </div>
+        </div>
+        
+        <div class="container">
+            <div class="category-products-controls">
+                <div class="category-filters">
+                    <button class="filter-btn active">הכל</button>
+                    <button class="filter-btn">חדש</button>
+                    <button class="filter-btn">מבצע</button>
+                    <button class="filter-btn">פופולרי</button>
+                </div>
+                
+                <div class="category-sorting">
+                    <select class="sort-select">
+                        <option value="newest">חדש ביותר</option>
+                        <option value="price-asc">מחיר: נמוך לגבוה</option>
+                        <option value="price-desc">מחיר: גבוה לנמוך</option>
+                        <option value="name-asc">שם: א-ת</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="category-products-grid" id="products-container">
+                <!-- Products will be loaded dynamically -->
+                <div class="product-card">
+                    <div class="product-image" style="background-image: url('https://images.unsplash.com/photo-1587143602695-c980e283be9a?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=800&ixid=MnwxfDB8MXxyYW5kb218MHx8Y2FubmFiaXN8fHx8fHwxNjM0NTcyNDQw&ixlib=rb-1.2.1&q=80&utm_campaign=api-credit&utm_medium=referral&utm_source=unsplash_source&w=800');"></div>
+                    <div class="product-content">
+                        <div class="product-title">מוצר לדוגמא</div>
+                        <div class="product-description">תיאור המוצר יופיע כאן. תיאור קצר של המוצר ותכונותיו.</div>
+                        <div class="product-meta">
+                            <div class="product-price">₪120</div>
+                            <div class="product-actions">
+                                <button class="product-btn"><i class="fas fa-heart"></i></button>
+                                <button class="product-btn"><i class="fas fa-shopping-cart"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-image" style="background-image: url('https://images.unsplash.com/photo-1589578527966-fdac0f44566c?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=800&ixid=MnwxfDB8MXxyYW5kb218MHx8Y2FubmFiaXN8fHx8fHwxNjM0NTcyNDQw&ixlib=rb-1.2.1&q=80&utm_campaign=api-credit&utm_medium=referral&utm_source=unsplash_source&w=800');"></div>
+                    <div class="product-content">
+                        <div class="product-title">מוצר לדוגמא 2</div>
+                        <div class="product-description">תיאור המוצר יופיע כאן. תיאור קצר של המוצר ותכונותיו.</div>
+                        <div class="product-meta">
+                            <div class="product-price">₪150</div>
+                            <div class="product-actions">
+                                <button class="product-btn"><i class="fas fa-heart"></i></button>
+                                <button class="product-btn"><i class="fas fa-shopping-cart"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-image" style="background-image: url('https://images.unsplash.com/photo-1603517343586-fb22c3bf1860?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=800&ixid=MnwxfDB8MXxyYW5kb218MHx8Y2FubmFiaXN8fHx8fHwxNjM0NTcyNDQw&ixlib=rb-1.2.1&q=80&utm_campaign=api-credit&utm_medium=referral&utm_source=unsplash_source&w=800');"></div>
+                    <div class="product-content">
+                        <div class="product-title">מוצר לדוגמא 3</div>
+                        <div class="product-description">תיאור המוצר יופיע כאן. תיאור קצר של המוצר ותכונותיו.</div>
+                        <div class="product-meta">
+                            <div class="product-price">₪200</div>
+                            <div class="product-actions">
+                                <button class="product-btn"><i class="fas fa-heart"></i></button>
+                                <button class="product-btn"><i class="fas fa-shopping-cart"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-widgets">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="footer-widget">
+                            <div class="footer-logo">
+                                <img src="logo.png" alt="Doctor Instraction">
+                            </div>
+                            <p class="footer-text">רשת חנויות דוקטור אינסטרקשן מציעה מגוון רחב של מוצרים באיכות גבוהה במחירים אטרקטיביים.</p>
+                            <div class="footer-social">
+                                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                                <a href="#"><i class="fab fa-instagram"></i></a>
+                                <a href="#"><i class="fab fa-telegram"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="footer-widget">
+                            <h4 class="footer-widget-title">קטגוריות פופולריות</h4>
+                            <ul class="footer-links">
+                                <li><a href="#">גלגול</a></li>
+                                <li><a href="#">מוצרי עישון</a></li>
+                                <li><a href="#">ציוד גידול</a></li>
+                                <li><a href="#">אחסון</a></li>
+                                <li><a href="#">מוצרים חדשים</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="footer-widget">
+                            <h4 class="footer-widget-title">צרו קשר</h4>
+                            <ul class="footer-contact">
+                                <li><i class="fas fa-map-marker-alt"></i> כתובת החנות, ישראל</li>
+                                <li><i class="fas fa-phone"></i> 050-1234567</li>
+                                <li><i class="fas fa-envelope"></i> info@doctor-instraction.com</li>
+                                <li><i class="far fa-clock"></i> א'-ה': 10:00-20:00, ו': 10:00-14:00</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p class="copyright">© 2023 כל הזכויות שמורות ל-Doctor Instraction. פיתוח ע"י <a href="#">מפתח האתר</a></p>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+    <script src="script.js"></script>
+    
+    <script>
+        // Load and display products from this category
+        document.addEventListener('DOMContentLoaded', function() {
+            // Try to load products for this category
+            const categorySlug = document.body.getAttribute('data-category');
+            
+            if (window.productManager) {
+                const products = window.productManager.getProductsByCategory(categorySlug);
+                displayCategoryProducts(products, '#products-container');
+            } else {
+                console.log('Product manager not available');
+            }
+            
+            // Filter button click handler
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    filterButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    // Filter logic would go here
+                });
+            });
+            
+            // Sort select change handler
+            const sortSelect = document.querySelector('.sort-select');
+            if (sortSelect) {
+                sortSelect.addEventListener('change', function() {
+                    // Sort logic would go here
+                });
+            }
+        });
+        
+        // Function to display products in the container
+        function displayCategoryProducts(products, containerId) {
+            const container = document.querySelector(containerId);
+            
+            if (!container) return;
+            
+            // Clear existing content
+            container.innerHTML = '';
+            
+            if (!products || products.length === 0) {
+                container.innerHTML = '<div class="empty-category">אין מוצרים להצגה בקטגוריה זו כרגע.</div>';
+                return;
+            }
+            
+            // Add all products
+            products.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                
+                const imageUrl = product.image || 'https://via.placeholder.com/300';
+                
+                productCard.innerHTML = 
+                    '<div class="product-image" style="background-image: url('' + imageUrl + '');"></div>' +
+                    '<div class="product-content">' +
+                        '<div class="product-title">' + product.name + '</div>' +
+                        '<div class="product-description">' + (product.description || 'אין תיאור זמין למוצר זה.') + '</div>' +
+                        '<div class="product-meta">' +
+                            '<div class="product-price">₪' + product.price + '</div>' +
+                            '<div class="product-actions">' +
+                                '<button class="product-btn" data-id="' + product.id + '" data-action="favorite"><i class="far fa-heart"></i></button>' +
+                                '<button class="product-btn" data-id="' + product.id + '" data-action="cart"><i class="fas fa-shopping-cart"></i></button>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>';
+                
+                container.appendChild(productCard);
+            });
+            
+            // Add event listeners for product actions
+            const actionButtons = container.querySelectorAll('.product-btn');
+            actionButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const productId = this.getAttribute('data-id');
+                    const action = this.getAttribute('data-action');
+                    
+                    if (action === 'favorite') {
+                        // Toggle favorite icon
+                        const icon = this.querySelector('i');
+                        icon.classList.toggle('far');
+                        icon.classList.toggle('fas');
+                    } else if (action === 'cart') {
+                        // Add to cart logic
+                        if (window.productManager) {
+                            window.productManager.addToCart(productId);
+                        }
+                    }
+                });
+            });
+        }
+    </script>
+    
+    <style>
+    /* תיקון לתצוגת המוצרים ברשת */
+    .category-products-grid {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
+        gap: 20px !important;
+        width: 100% !important;
+        margin: 0 auto !important;
+        padding: 20px 0 !important;
+    }
+    
+    .product-card {
+        margin-bottom: 0 !important;
+        height: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        background: var(--card-bg);
+        border-radius: 10px;
+        overflow: hidden;
+        transition: all 0.3s;
+        border: 1px solid var(--border-color);
+    }
+    
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        border-color: var(--primary-color);
+    }
+    
+    .product-image {
+        height: 200px !important;
+        background-size: cover !important;
+        background-position: center !important;
+    }
+    
+    .product-content {
+        padding: 15px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        flex: 1;
+    }
+    
+    .product-meta {
+        margin-top: auto !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+    }
+    
+    @media (max-width: 768px) {
+        .category-products-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .category-products-grid {
+            grid-template-columns: 1fr !important;
+        }
+    }
+    </style>
+</body>
+</html>
