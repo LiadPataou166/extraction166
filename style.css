@@ -103,6 +103,21 @@
     overflow-y: auto;
     transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
   }
+  .system-sidebar.closed {
+    transform: translateX(-100%);
+}
+
+.system-sidebar.active {
+    transform: translateX(0);
+}
+
+.product-sidebar.closed {
+    transform: translateX(100%);
+}
+
+.product-sidebar.active {
+    transform: translateX(0);
+}
   
   .sidebar-section {
     margin-bottom: 30px;
@@ -2415,24 +2430,32 @@
     background: var(--card-bg);
   }
   
-  /* Mobile sidebar toggle */
   .sidebar-toggle {
     position: fixed;
-    top: 80px;
-    left: 20px;
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    color: var(--dark-bg);
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    display: none;
+    display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     z-index: 999;
     box-shadow: 0 0 10px rgba(62, 255, 139, 0.3);
     border: none;
-  }
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: var(--dark-bg);
+    transition: all 0.3s ease;
+}
+
+.sidebar-toggle-left {
+    top: 120px;
+    left: 20px;
+}
+
+.sidebar-toggle-right {
+    top: 120px;
+    right: 20px;
+}
   
   .sidebar-toggle:hover {
     transform: scale(1.1);

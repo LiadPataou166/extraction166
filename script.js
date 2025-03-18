@@ -2124,6 +2124,9 @@ function loadCategories() {
     // Use the ProductManager to load categories from GitHub
     productManager.loadCategoriesFromGitHub().then(success => {
         if (success) {
+            // ארגן את הקטגוריות כפי שביקש המשתמש
+            organizeMainMenuCategories();
+            
             // Update both admin panel and site menu
             displayCategories(productManager.getAllCategories());
             displayCategoriesInMainMenu(productManager.getAllCategories());
@@ -2134,7 +2137,6 @@ function loadCategories() {
         }
     });
 }
-
 // Function to display categories in the admin panel
 function displayCategories(categories) {
     let categoriesHTML = '';
@@ -2184,9 +2186,31 @@ function displayCategories(categories) {
 
 // Function to show category form
 function showCategoryForm(categoryId = null) {
+
+
+    // Helper function to generate options for parent categories
+    function generateParentCategoryOptions(currentCategoryId) {
+        let options = '';
+        const categories = productManager.getAllCategories();
+        
+        // Filter out categories that are already children of other categories
+        // and the current category (to prevent circular references)
+        const mainCategories = categories.filter(cat => 
+            (!cat.parentId || cat.parentId === '') && cat.id !== currentCategoryId
+        );
+        
+        mainCategories.forEach(cat => {
+            const selected = category && category.parentId === cat.id ? 'selected' : '';
+            options += `<option value="${cat.id}" ${selected}>${cat.name}</option>`;
+        });
+        
+        return options;
+    }
+
     // Find category if editing
     const category = categoryId ? productManager.getCategory(categoryId) : null;
-    
+
+
     // Create modal form
     const formHTML = `
     <div id="category-form-modal" class="admin-modal active">
@@ -2210,6 +2234,54 @@ function showCategoryForm(categoryId = null) {
                     <input type="text" id="category-slug" value="${category && category.slug ? category.slug : ''}" placeholder="לדוגמה: electronic-products">
                     <small>אותיות לטיניות ומקפים בלבד, ללא רווחים</small>
                 </div>
+                <div class="form-group">
+    <label for="category-vip-only">
+        <input type="checkbox" id="category-vip-only" ${category && category.vipOnly ? 'checked' : ''}>
+        קטגוריה בלעדית לחברי VIP
+    </label>
+</div>
+
+<div class="form-group">
+    <label for="category-slug">מזהה בכתובת URL (slug)</label>
+    <input type="text" id="category-slug" value="${category && category.slug ? category.slug : ''}" placeholder="לדוגמה: electronic-products">
+    <small>אותיות לטיניות ומקפים בלבד, ללא רווחים</small>
+</div>
+
+<!-- שדה להגדרת קטגוריית אב -->
+<div class="form-group">
+    <label for="category-parent">קטגוריית אב</label>
+    <select id="category-parent">
+        <option value="">ללא (קטגוריה ראשית)</option>
+        ${generateParentCategoryOptions(category ? category.id : null)}
+    </select>
+    <small>בחר קטגוריית אב כדי להפוך את הקטגוריה הזו לתת-קטגוריה</small>
+</div>
+
+<div class="form-group">
+    <label for="category-icon">אייקון</label>
+    <select id="category-icon">
+
+<!-- שדות SEO לקטגוריה -->
+<div class="form-group">
+    <label for="category-seo-title">כותרת SEO</label>
+    <input type="text" id="category-seo-title" value="${category && category.seoTitle ? category.seoTitle : ''}" placeholder="כותרת עבור מנועי חיפוש (עד 60 תווים)">
+    <small>כותרת מותאמת למנועי חיפוש. אם תשאיר ריק, ישתמשו בשם הקטגוריה.</small>
+</div>
+<div class="form-group">
+    <label for="category-seo-description">תיאור SEO</label>
+    <textarea id="category-seo-description" placeholder="תיאור קצר למנועי חיפוש (עד 160 תווים)">${category && category.seoDescription ? category.seoDescription : ''}</textarea>
+</div>
+<div class="form-group">
+    <label for="category-seo-keywords">מילות מפתח SEO</label>
+    <input type="text" id="category-seo-keywords" value="${category && category.seoKeywords ? category.seoKeywords : ''}" placeholder="מילות מפתח מופרדות בפסיקים">
+    <small>מילות מפתח שיעזרו במציאת הקטגוריה במנועי חיפוש.</small>
+</div>
+
+<div class="form-actions">
+    <button type="submit" class="admin-btn">${category ? 'עדכן קטגוריה' : 'הוסף קטגוריה'}</button>
+    <button type="button" class="admin-btn cancel-btn">ביטול</button>
+</div>
+
                 <div class="form-group">
                     <label for="category-icon">אייקון</label>
                     <select id="category-icon">
@@ -2320,22 +2392,31 @@ function showCategoryForm(categoryId = null) {
         const vipOnly = $('#category-vip-only').is(':checked');
         const columnLayout = $('#category-column-layout').val();
         
-        const categoryData = {
-            name,
-            description,
-            slug,
-            icon,
-            image,
-            bgColor,
-            textColor,
-            order,
-            featured,
-            vipOnly,
-            columnLayout,
-            created: new Date().toISOString(),
-            updated: new Date().toISOString()
-        };
-        
+
+    // SEO fields
+    const seoTitle = $('#category-seo-title').val() || name;
+    const seoDescription = $('#category-seo-description').val() || description;
+    const seoKeywords = $('#category-seo-keywords').val() || '';
+    
+    const categoryData = {
+        name,
+        description,
+        slug,
+        icon,
+        image,
+        bgColor,
+        textColor,
+        order,
+        featured,
+        vipOnly,
+        columnLayout,
+        seoTitle,
+        seoDescription,
+        seoKeywords,
+        parentId: $('#category-parent').val() || '', // הוספת מזהה קטגוריית האב
+        created: new Date().toISOString(),
+        updated: new Date().toISOString()
+    };
         if (category) {
             // Update existing category
             categoryData.id = category.id;
@@ -3063,35 +3144,91 @@ function addAdminStyles() {
         const adminStyles = `
         <style id="admin-styles">
             /* Admin panel custom styles (beyond what's in HTML) */
+            .admin-panel {
+                color: #f0f0f0;
+            }
+            
+            .admin-panel-header {
+                background-color: #1a1a1a;
+                color: #fff;
+                border-bottom: 1px solid #333;
+            }
+            
+            .admin-panel-sidebar {
+                background-color: #222;
+            }
+            
+            .admin-panel-content {
+                background-color: #282828;
+            }
+            
+            .admin-menu-item {
+                color: #e0e0e0;
+                background-color: #333;
+                margin-bottom: 5px;
+                border-radius: 4px;
+                transition: all 0.3s ease;
+            }
+            
+            .admin-menu-item:hover, .admin-menu-item.active {
+                background-color: #4a7c59;
+                color: #fff;
+            }
+            
+            .admin-panel h3 {
+                color: #4a7c59;
+            }
+            
+            .admin-panel label {
+                color: #e0e0e0;
+            }
+            
+            .admin-panel input, .admin-panel select, .admin-panel textarea {
+                background-color: #333;
+                color: #fff;
+                border: 1px solid #444;
+            }
+            
+            .admin-panel input:focus, .admin-panel select:focus, .admin-panel textarea:focus {
+                border-color: #4a7c59;
+                box-shadow: 0 0 0 2px rgba(74, 124, 89, 0.2);
+                outline: none;
+            }
+            
+            .admin-panel small {
+                color: #aaa;
+            }
+            
             .admin-panel table {
                 width: 100%;
                 border-collapse: collapse;
                 margin-bottom: 20px;
+                color: #e0e0e0;
             }
             
             .admin-panel th, .admin-panel td {
-                border: 1px solid #ddd;
+                border: 1px solid #444;
                 padding: 12px;
                 text-align: right;
             }
             
             .admin-panel th {
-                background-color: #f5f5f5;
+                background-color: #333;
                 font-weight: 600;
             }
             
             .admin-panel tr:nth-child(even) {
-                background-color: #f9f9f9;
+                background-color: #2a2a2a;
             }
             
             .admin-panel tr:hover {
-                background-color: #f1f1f1;
+                background-color: #3a3a3a;
             }
             
             .action-btn {
                 background: none;
                 border: none;
-                color: #3498db;
+                color: #4a7c59;
                 margin-right: 5px;
                 cursor: pointer;
             }
@@ -3101,7 +3238,7 @@ function addAdminStyles() {
             }
             
             .admin-btn {
-                background-color: #3498db;
+                background-color: #4a7c59;
                 color: white;
                 border: none;
                 padding: 10px 15px;
@@ -3112,7 +3249,7 @@ function addAdminStyles() {
             }
             
             .admin-btn:hover {
-                background-color: #2980b9;
+                background-color: #3a6c49;
             }
             
             .admin-tab h3 {
@@ -3133,13 +3270,15 @@ function addAdminStyles() {
                 margin-top: 20px;
             }
             
-            .loading, .empty, .error {
+            .loading, .empty {
                 text-align: center;
                 padding: 20px;
                 color: #888;
             }
             
             .error {
+                text-align: center;
+                padding: 20px;
                 color: #e74c3c;
             }
             
@@ -3153,17 +3292,59 @@ function addAdminStyles() {
                 bottom: 0;
                 z-index: 3100;
                 direction: rtl;
+                background-color: rgba(0,0,0,0.7);
             }
             
             .admin-modal.active {
                 display: block;
+            }
+            
+            .admin-modal-container {
+                background-color: #282828;
+                color: #e0e0e0;
+                border-radius: 8px;
+                border: 1px solid #444;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+                max-width: 800px;
+                max-height: 90vh;
+                margin: 5vh auto;
+                overflow-y: auto;
+            }
+            
+            .admin-modal-header {
+                background-color: #1a1a1a;
+                color: #fff;
+                border-bottom: 1px solid #333;
+                padding: 15px 20px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .admin-modal form {
+                padding: 20px;
+            }
+            
+            .close-admin-modal {
+                background: none;
+                border: none;
+                color: #fff;
+                font-size: 20px;
+                cursor: pointer;
+            }
+            
+            /* Make checkboxes more visible */
+            .admin-panel input[type="checkbox"] {
+                width: 18px;
+                height: 18px;
+                margin-left: 8px;
+                vertical-align: middle;
             }
         </style>
         `;
         $('head').append(adminStyles);
     }
 }
-
 // Add styles for product form
 function addProductFormStyles() {
     if ($('#product-form-styles').length === 0) {
@@ -3363,6 +3544,18 @@ function displayProductsInAdminPanel() {
 
 // FIXED: Improved product form that matches the admin panel style
 function showProductForm(productId = null) {
+    // Helper function to generate slug from name
+    function generateSlug(text) {
+        return text
+            .toString()
+            .toLowerCase()
+            .replace(/\s+/g, '-')       // Replace spaces with -
+            .replace(/[^\w\-]+/g, '')   // Remove all non-word chars
+            .replace(/\-\-+/g, '-')     // Replace multiple - with single -
+            .replace(/^-+/, '')         // Trim - from start of text
+            .replace(/-+$/, '');        // Trim - from end of text
+    }
+
     let product = null;
     
     if (productId) {
@@ -3373,6 +3566,7 @@ function showProductForm(productId = null) {
             return;
         }
     }
+    
     
     // Get all available categories from the ProductManager
     const categories = productManager.getAllCategories();
@@ -3435,6 +3629,28 @@ function showProductForm(productId = null) {
                     <label for="product-description">תיאור</label>
                     <textarea id="product-description">${product && product.description ? product.description : ''}</textarea>
                 </div>
+
+
+                <!-- שדות SEO חדשים -->
+<div class="form-group">
+    <label for="product-seo-title">כותרת SEO</label>
+    <input type="text" id="product-seo-title" value="${product && product.seoTitle ? product.seoTitle : ''}" placeholder="כותרת עבור מנועי חיפוש (עד 60 תווים)">
+    <small>כותרת מותאמת למנועי חיפוש. אם תשאיר ריק, ישתמשו בשם המוצר.</small>
+</div>
+<div class="form-group">
+    <label for="product-seo-description">תיאור SEO</label>
+    <textarea id="product-seo-description" placeholder="תיאור קצר למנועי חיפוש (עד 160 תווים)">${product && product.seoDescription ? product.seoDescription : ''}</textarea>
+</div>
+<div class="form-group">
+    <label for="product-seo-keywords">מילות מפתח SEO</label>
+    <input type="text" id="product-seo-keywords" value="${product && product.seoKeywords ? product.seoKeywords : ''}" placeholder="מילות מפתח מופרדות בפסיקים">
+    <small>מילות מפתח שיעזרו במציאת המוצר במנועי חיפוש.</small>
+</div>
+<div class="form-group">
+    <label for="product-badge">תגית</label>
+    <select id="product-badge">
+    
+
                 <div class="form-group">
                     <label for="product-badge">תגית</label>
                     <select id="product-badge">
@@ -3478,7 +3694,12 @@ function showProductForm(productId = null) {
             description: $('#product-description').val(),
             badge: $('#product-badge').val() || null,
             rating: product ? product.rating || 0 : 0,
-            ratingCount: product ? product.ratingCount || 0 : 0
+            ratingCount: product ? product.ratingCount || 0 : 0,
+            seoTitle: $('#product-seo-title').val() || '',
+            seoDescription: $('#product-seo-description').val() || '',
+            seoKeywords: $('#product-seo-keywords').val() || '',
+            slug: generateSlug($('#product-name').val()),
+            lastUpdated: new Date().toISOString()
         };
         
         try {
@@ -3875,6 +4096,18 @@ async function createVIPUserFile(userData) {
 
 // Setup sidebar toggles
 function setupSidebarToggles() {
+    // Hide sidebars by default on page load
+    $('.system-sidebar, .product-sidebar').addClass('closed');
+    
+    // Create toggle buttons if they don't exist
+    if ($('.sidebar-toggle-left').length === 0) {
+        $('body').append('<button class="sidebar-toggle sidebar-toggle-left"><i class="fas fa-bars"></i></button>');
+    }
+    
+    if ($('.sidebar-toggle-right').length === 0) {
+        $('body').append('<button class="sidebar-toggle sidebar-toggle-right"><i class="fas fa-list"></i></button>');
+    }
+    
     // Left sidebar toggle
     $('.sidebar-toggle-left').off('click').on('click', function() {
         $('.system-sidebar').toggleClass('active');
@@ -3916,26 +4149,90 @@ function displayCategoriesInMainMenu(categories) {
         return;
     }
     
-    // Sort categories by order if available, or by name
-    const sortedCategories = [...categories].sort((a, b) => {
+    // Group categories by parent
+    const categoryMap = {};
+    const rootCategories = [];
+    
+    // First pass: build the map
+    categories.forEach(category => {
+        if (!category || !category.id) return;
+        
+        // Create map entry for this category ID if it doesn't exist
+        if (!categoryMap[category.id]) {
+            categoryMap[category.id] = {
+                category: category,
+                children: []
+            };
+        } else {
+            // Update category data if entry exists (just has children)
+            categoryMap[category.id].category = category;
+        }
+        
+        // Sort root vs child categories
+        if (!category.parentId) {
+            rootCategories.push(category);
+        } else {
+            // Create parent entry if it doesn't exist
+            if (!categoryMap[category.parentId]) {
+                categoryMap[category.parentId] = {
+                    category: null,
+                    children: []
+                };
+            }
+            
+            // Add this category to its parent's children
+            categoryMap[category.parentId].children.push(category);
+        }
+    });
+    
+    // Sort root categories by order
+    rootCategories.sort((a, b) => {
         if (a.order !== undefined && b.order !== undefined) {
             return a.order - b.order;
         }
         return (a.name || '').localeCompare(b.name || '');
     });
     
-    // Add each category to the menu
-    sortedCategories.forEach(category => {
-        if (!category || !category.name) return;
-        
-        const categorySlug = category.slug || category.name.replace(/\s+/g, '-').toLowerCase();
-        
-        $categoriesMenu.append(`
-            <li class="dropdown-link">
-                <a href="category-${categorySlug}.html" class="dropdown-link-a">${category.name}</a>
-            </li>
-        `);
-    });
+    // Recursively build menu
+    function buildCategoryMenu(categories, $parent) {
+        categories.forEach(category => {
+            const categorySlug = category.slug || category.name.replace(/\s+/g, '-').toLowerCase();
+            const hasChildren = categoryMap[category.id] && categoryMap[category.id].children.length > 0;
+            
+            if (hasChildren) {
+                // Category with subcategories
+                const $item = $(`
+                    <li class="dropdown-link dropdown-link-has-inner">
+                        <a href="category-${categorySlug}.html" class="dropdown-link-a">${category.name}</a>
+                        <ul class="sub-dropdown"></ul>
+                    </li>
+                `);
+                
+                $parent.append($item);
+                
+                // Sort children by order
+                const children = categoryMap[category.id].children.sort((a, b) => {
+                    if (a.order !== undefined && b.order !== undefined) {
+                        return a.order - b.order;
+                    }
+                    return (a.name || '').localeCompare(b.name || '');
+                });
+                
+                // Recursively build submenu
+                buildCategoryMenu(children, $item.find('.sub-dropdown'));
+            } else {
+                // Regular category without subcategories
+                $parent.append(`
+                    <li class="dropdown-link">
+                        <a href="category-${categorySlug}.html" class="dropdown-link-a">${category.name}</a>
+                    </li>
+                `);
+            }
+        });
+    }
+    
+    // Build the menu starting with root categories
+    buildCategoryMenu(rootCategories, $categoriesMenu);
     
     // Log the final menu structure 
     console.log('Updated categories menu:', $categoriesMenu.html());
