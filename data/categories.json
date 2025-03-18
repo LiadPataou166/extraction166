@@ -15,23 +15,6 @@
     "createdAt": "2025-03-17T21:10:52.337Z"
   },
   {
-    "name": "ציוד גידול",
-    "description": "1",
-    "slug": "gidul1",
-    "icon": "fas fa-leaf",
-    "image": "/api/placeholder/400/300",
-    "bgColor": "#0063e6",
-    "textColor": "#e00000",
-    "order": 0,
-    "featured": true,
-    "vipOnly": true,
-    "columnLayout": "1",
-    "created": "2025-03-17T22:39:49.580Z",
-    "updated": "2025-03-17T22:39:49.580Z",
-    "id": "cat_174225118958051",
-    "createdAt": "2025-03-17T22:39:49.580Z"
-  },
-  {
     "name": "דד ד ד",
     "description": "111",
     "slug": "gidul1111",
