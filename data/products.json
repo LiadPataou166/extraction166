@@ -116,5 +116,23 @@
     "rating": 0,
     "ratingCount": 0,
     "id": "m8ek1w8e0qqo3c4sk2qc"
+  },
+  {
+    "name": "שדג",
+    "price": 1,
+    "oldPrice": 1,
+    "category": "ליעד",
+    "stock": 1,
+    "image": "1",
+    "description": "1",
+    "badge": null,
+    "rating": 0,
+    "ratingCount": 0,
+    "seoTitle": "1",
+    "seoDescription": "1",
+    "seoKeywords": "1",
+    "slug": "",
+    "lastUpdated": "2025-03-18T23:27:18.061Z",
+    "id": "m8f4ie5pgp4s18tzh2p"
   }
 ]
