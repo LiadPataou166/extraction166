@@ -64,5 +64,22 @@
     "updated": "2025-03-18T12:35:52.047Z",
     "id": "cat_1742301352047924",
     "createdAt": "2025-03-18T12:35:52.047Z"
+  },
+  {
+    "name": "cccc",
+    "description": "ccc",
+    "slug": "ccc",
+    "icon": "fas fa-fan",
+    "image": "/api/placeholder/400/300",
+    "bgColor": "#1a1d21",
+    "textColor": "#ffffff",
+    "order": 0,
+    "featured": true,
+    "vipOnly": false,
+    "columnLayout": "1",
+    "created": "2025-03-18T12:37:09.046Z",
+    "updated": "2025-03-18T12:37:09.046Z",
+    "id": "cat_1742301429046661",
+    "createdAt": "2025-03-18T12:37:09.046Z"
   }
 ]
