@@ -2621,8 +2621,8 @@ function createCategoryPageContent(categoryData, existingFile = null) {
                             <i class="fas fa-search"></i>
                         </div>
                         <div class="header-cart">
-                            <i class="fas fa-shopping-cart"></i>
-                            <span class="badge">0</span>
+                                <i class="fas fa-shopping-cart"></i>
+                                <span class="badge">0</span>
                         </div>
                         <div class="header-icon">
                             <i class="fas fa-user"></i>
@@ -2634,35 +2634,35 @@ function createCategoryPageContent(categoryData, existingFile = null) {
                         <button type="submit"><i class="fas fa-search"></i></button>
                     </form>
                     
-                    <div class="auth-links">
-                        <a href="#" class="show-login">התחברות</a>
-                        <a href="#" class="show-register">הרשמה</a>
+                            <div class="auth-links">
+                                <a href="#" class="show-login">התחברות</a>
+                                <a href="#" class="show-register">הרשמה</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        
-        <!-- Header Bottom with Improved Navigation -->
-        <div class="header-bottom">
-            <div class="container">
-                <nav class="improved-nav" aria-label="תפריט ראשי">
-                    <ul class="main-nav">
-                        <li class="menu-item"><a href="index.html">דף הבית</a></li>
+    
+    <!-- Header Bottom with Improved Navigation -->
+    <div class="header-bottom">
+        <div class="container">
+            <nav class="improved-nav" aria-label="תפריט ראשי">
+                <ul class="main-nav">
+                    <li class="menu-item"><a href="index.html">דף הבית</a></li>
                         <li class="menu-item menu-item-has-children">
                             <a href="#" class="has-submenu">קטגוריות<span class="drop-indicator"><i class="fas fa-caret-down"></i></span></a>
                             <ul class="sub-menu">
                                 <!-- Categories will be loaded dynamically -->
                             </ul>
                         </li>
-                        <li class="menu-item menu-item-has-children">
-                            <a href="#" class="has-submenu">גלגול<span class="drop-indicator"><i class="fas fa-caret-down"></i></span></a>
-                            <ul class="sub-menu">
-                                <li class="dropdown-link"><a href="#" class="dropdown-link-a">ניירות גלגול</a></li>
+                    <li class="menu-item menu-item-has-children">
+                        <a href="#" class="has-submenu">גלגול<span class="drop-indicator"><i class="fas fa-caret-down"></i></span></a>
+                        <ul class="sub-menu">
+                            <li class="dropdown-link"><a href="#" class="dropdown-link-a">ניירות גלגול</a></li>
                                 <li class="dropdown-link"><a href="#" class="dropdown-link-a">פילטרים</a></li>
                                 <li class="dropdown-link"><a href="#" class="dropdown-link-a">מגלגלות</a></li>
                                 <li class="dropdown-link"><a href="#" class="dropdown-link-a">ערכות גלגול</a></li>
-                            </ul>
-                        </li>
+                        </ul>
+                    </li>
                         <li class="menu-item"><a href="#">עלינו</a></li>
                         <li class="menu-item"><a href="#">צור קשר</a></li>
                         <li class="menu-item"><a href="#">המדריך השלם</a></li>
@@ -3761,7 +3761,7 @@ function displayCategoriesInMainMenu(categories) {
         // If categories menu doesn't exist, let's create it
         console.log('Categories dropdown not found, creating it');
         $('.main-nav').append(`
-            <li class="menu-item menu-item-has-children">
+                    <li class="menu-item menu-item-has-children">
                 <a href="#" class="has-submenu">קטגוריות<span class="drop-indicator"><i class="fas fa-caret-down"></i></span></a>
                 <ul class="sub-menu categories-submenu">
                 </ul>

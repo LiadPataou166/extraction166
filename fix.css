@@ -25,6 +25,8 @@ body {
     position: relative;
     overflow-y: auto !important;
     box-sizing: border-box !important;
+    animation: none !important; /* מנטרל אנימציות שיכולות לגרום להזזה */
+    transform: none !important; /* מנטרל טרנספורם שיכול לגרום להזזה */
 }
 
 /* פתרון קיצוני למניעת גלילה אופקית */
@@ -726,4 +728,43 @@ ul.navbar-nav li {
 
 .fixed-admin-btn:hover i {
     margin-left: 10px;
+}
+
+/* ============= מניעת אנימציות הגורמות להזזה ============= */
+.hero,
+.hero-slide,
+.slick-slide,
+.slick-track,
+.slick-list {
+    max-width: 100% !important;
+    overflow: hidden !important;
+    transform: none !important;
+}
+
+.slick-slider {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+}
+
+/* ============= תיקון פריסת קטגוריה ============= */
+.category-products-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 20px !important;
+    margin-top: 30px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+@media (max-width: 992px) {
+    .category-products-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .category-products-grid {
+        grid-template-columns: 1fr !important;
+    }
 } 
