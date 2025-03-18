@@ -437,7 +437,8 @@
     position: absolute;
     font-size: 24px;
     color: rgba(62, 255, 139, 0.15);
-    animation: float-slow 8s infinite ease-in-out;
+    /* Removing animation to prevent shifting */
+    /* animation: float-slow 8s infinite ease-in-out; */
     text-shadow: 0 0 10px rgba(62, 255, 139, 0.3);
   }
   
@@ -445,7 +446,8 @@
     position: absolute;
     font-size: 20px;
     color: rgba(131, 58, 255, 0.15);
-    animation: spin-slow 12s infinite linear;
+    /* Removing animation to prevent shifting */
+    /* animation: spin-slow 12s infinite linear; */
     text-shadow: 0 0 10px rgba(131, 58, 255, 0.3);
   }
   
@@ -453,7 +455,8 @@
     position: absolute;
     font-size: 18px;
     color: rgba(255, 62, 62, 0.15);
-    animation: pulse-slow 6s infinite ease-in-out;
+    /* Removing animation to prevent shifting */
+    /* animation: pulse-slow 6s infinite ease-in-out; */
     text-shadow: 0 0 10px rgba(255, 62, 62, 0.3);
   }
   
@@ -2923,8 +2926,9 @@
 }
 
 .puffiz-category-item {
-    animation: float 6s ease-in-out infinite;
-    animation-delay: calc(var(--i, 0) * 1s);
+    /* Remove the animation that's causing shifting */
+    /* animation: float 6s ease-in-out infinite; */
+    /* animation-delay: calc(var(--i, 0) * 1s); */
 }
 
 .puffiz-grid .puffiz-category-item:nth-child(1) { --i: 0; }
