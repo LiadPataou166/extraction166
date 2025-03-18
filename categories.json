@@ -1,0 +1,19 @@
+[
+  {
+    "name": "בדבד",
+    "description": "1",
+    "slug": "chec11",
+    "icon": "fas fa-flask",
+    "image": "/api/placeholder/400/300",
+    "bgColor": "#1a1d21",
+    "textColor": "#ffffff",
+    "order": 0,
+    "featured": true,
+    "vipOnly": false,
+    "columnLayout": "1",
+    "created": "2025-03-18T12:50:25.869Z",
+    "updated": "2025-03-18T12:50:25.869Z",
+    "id": "cat_1742302225869188",
+    "createdAt": "2025-03-18T12:50:25.869Z"
+  }
+]
