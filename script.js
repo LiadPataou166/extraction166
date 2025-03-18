@@ -574,72 +574,58 @@ $(document).ready(function(){
     function fixCategoriesMenu() {
         console.log('Fixing categories menu display');
         
-        // ודא שתפריט הקטגוריות מוצג כראוי
-        if ($('.mega-menu').length) {
-            $('.mega-menu').css({
-                'display': 'block',
-                'visibility': 'visible',
-                'opacity': '1'
-            });
-        }
-        
-        // טיפול במצב תפריט משובש
-        $('.main-nav').css({
-            'display': 'flex',
-            'visibility': 'visible',
-            'opacity': '1'
-        });
-        
-        // טיפול בתתי-תפריטים של קטגוריות
+        // Handle menu items with submenus
         $('.menu-item-has-children').each(function() {
-            $(this).on('mouseenter', function() {
-                $(this).find('.sub-menu').css({
-                    'display': 'block',
-                    'visibility': 'visible',
-                    'opacity': '1',
-                    'transform': 'translateY(0)'
-                });
-            });
+            // Remove previous event listeners to avoid duplicates
+            $(this).off('mouseenter mouseleave');
             
-            $(this).on('mouseleave', function() {
-                if (window.innerWidth > 768) {
+            // Add event listeners for desktop hover effect
+            if (window.innerWidth > 768) {
+                $(this).on('mouseenter', function() {
+                    $(this).find('.sub-menu').css({
+                        'visibility': 'visible',
+                        'opacity': '1',
+                        'transform': 'translateY(0)',
+                        'display': 'block'
+                    });
+                });
+                
+                $(this).on('mouseleave', function() {
                     $(this).find('.sub-menu').css({
                         'visibility': 'hidden',
                         'opacity': '0',
                         'transform': 'translateY(10px)'
                     });
-                }
-            });
-        });
-        
-        // תמיכה במכשירים ניידים
-        $('.has-submenu').on('click', function(e) {
-            if (window.innerWidth <= 768) {
-                e.preventDefault();
-                $(this).parent().toggleClass('active');
+                });
             }
         });
         
-        // יצירת כפתורי פתיחה לסרגלים אם אינם קיימים
-        if ($('.sidebar-toggle-left, .sidebar-toggle-right').length === 0) {
-            $('body').append(`
-                <button class="sidebar-toggle-right">
-                    <i class="fas fa-bars"></i>
-                </button>
-            `);
-            
-            $('.sidebar-toggle-right').on('click', function() {
-                $('.product-sidebar').toggleClass('active');
+        // Mobile menu toggle
+        $('.has-submenu').off('click').on('click', function(e) {
+            if (window.innerWidth <= 768) {
+                e.preventDefault();
+                $(this).parent().toggleClass('active');
+                $(this).parent().find('.sub-menu').slideToggle(300);
+            }
+        });
+        
+        // Display categories in menu - move here to ensure it happens after menu structure is fixed
+        if (productManager && productManager.categories) {
+            displayCategoriesInMainMenu(productManager.categories);
+        } else {
+            // Load categories if they're not already available
+            loadCategories().then(() => {
+                if (productManager && productManager.categories) {
+                    displayCategoriesInMainMenu(productManager.categories);
+                }
             });
         }
     }
 
     // הפעלת התיקון לאחר טעינה
     $(window).on('load', function() {
-        fixCategoriesMenu();
-        
-        // תיקון נוסף במקרה של דף שנטען דינמית
-        setTimeout(fixCategoriesMenu, 1000);
+        // Run menu fixes after a short delay to ensure all elements are loaded
+        setTimeout(fixCategoriesMenu, 500);
     });
 });
 
@@ -1743,6 +1729,19 @@ class ProductManager {
             return false;
         }
     }
+
+    // Get products by category name
+    getProductsByCategory(categoryName) {
+        if (!categoryName || !this.products || !this.products.length) {
+            return [];
+        }
+        
+        // Match by exact category name or slug
+        return this.products.filter(product => 
+            product.category === categoryName || 
+            (product.categorySlug && product.categorySlug === categoryName)
+        );
+    }
 }
 
 // Function to display products on homepage
@@ -2407,6 +2406,33 @@ async function createCategoryPage(categoryData) {
         const safeName = slug || name.replace(/\s+/g, '-').toLowerCase().replace(/[^\w\-]/g, '');
         const path = `category-${safeName}.html`;
         
+        // Check if file already exists to prevent duplicates
+        try {
+            const fileExists = await productManager.checkGitHubPath(path);
+            if (fileExists) {
+                console.log(`Category page already exists: ${path}, updating instead`);
+                // Get the SHA of existing file for update
+                const existingFile = await productManager.getGitHubFileSha(path);
+                if (existingFile) {
+                    // Generate updated content
+                    const content = createCategoryPageContent(categoryData);
+                    // Update existing file
+                    await productManager.updateGitHubFile(
+                        path,
+                        content,
+                        `Update category page for ${name}`,
+                        productManager.githubToken,
+                        existingFile
+                    );
+                    console.log(`Category page updated successfully: ${path}`);
+                    showNotification(`דף הקטגוריה "${name}" עודכן בהצלחה`, 'success');
+                    return true;
+                }
+            }
+        } catch (error) {
+            console.log('File does not exist yet, creating new one:', error);
+        }
+        
         // Generate the content using the helper function
         const content = createCategoryPageContent(categoryData);
         
@@ -2467,17 +2493,27 @@ async function updateCategoryPage(categoryData) {
 // Function to update the categories list file (for nav menus, etc.)
 async function updateCategoriesListFile(categoryData) {
     try {
-        const path = 'data/categories.json';
+        console.log('Updating categories list file with data:', categoryData);
+        const path = 'categories.json';
         let categories = [];
         
         // Try to get existing categories file
         try {
-            const existingFile = await productManager.getGitHubFile(path);
-            if (existingFile && existingFile.content) {
-                categories = JSON.parse(atob(existingFile.content));
+            const existingFile = await productManager.getGitHubFileSha(path);
+            if (existingFile) {
+                // Get the actual content
+                const fileContent = await productManager.base64ToUtf8(
+                    await fetch(`https://api.github.com/repos/${productManager.githubUsername}/${productManager.githubRepo}/contents/${path}?ref=${productManager.githubBranch}`)
+                    .then(res => res.json())
+                    .then(data => data.content)
+                );
+                if (fileContent) {
+                    categories = JSON.parse(fileContent);
+                    console.log('Loaded existing categories:', categories);
+                }
             }
         } catch (error) {
-            console.log('No existing categories file, creating new one');
+            console.log('No existing categories file or error loading it, creating new one:', error);
         }
         
         // Find if the category already exists
@@ -2495,15 +2531,45 @@ async function updateCategoriesListFile(categoryData) {
         categories.sort((a, b) => (a.order || 0) - (b.order || 0));
         
         // Save to GitHub
-        await productManager.createOrUpdateGitHubFile(
-            path,
-            JSON.stringify(categories, null, 2),
-            `Update categories list`,
-            productManager.githubToken
-        );
+        const content = JSON.stringify(categories, null, 2);
+        const message = `Update categories list`;
         
+        try {
+            const fileSha = await productManager.getGitHubFileSha(path);
+            if (fileSha) {
+                // Update existing file
+                await productManager.updateGitHubFile(
+                    path,
+                    content,
+                    message,
+                    productManager.githubToken,
+                    fileSha
+                );
+            } else {
+                // Create new file
+                await productManager.createGitHubFile(
+                    path,
+                    content,
+                    message,
+                    productManager.githubToken
+                );
+            }
+            console.log('Categories list file updated successfully');
+            
+            // Update the categories in the ProductManager object
+            productManager.categories = categories;
+            
+            // Force a reload of categories in the menu
+            displayCategoriesInMainMenu(categories);
+            
+            return true;
+        } catch (error) {
+            console.error('Error saving categories list:', error);
+            return false;
+        }
     } catch (error) {
         console.error('Error updating categories list:', error);
+        return false;
     }
 }
 
@@ -2559,173 +2625,100 @@ function createCategoryPageContent(categoryData, existingFile = null) {
         
         /* Products grid with fixed layout */
         .category-products-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
-            max-width: 100%;
-            padding: 0 20px;
-            box-sizing: border-box;
+            display: grid !important;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
+            gap: 20px !important;
+            margin-top: 30px !important;
+            max-width: 100% !important;
+            padding: 0 20px !important;
+            box-sizing: border-box !important;
         }
         
         .category-products-controls {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            padding: 0 20px;
+            display: flex !important;
+            justify-content: space-between !important;
+            margin-bottom: 20px !important;
+            flex-wrap: wrap !important;
+            padding: 0 20px !important;
         }
         
         .category-filters {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
+            display: flex !important;
+            gap: 10px !important;
+            margin-bottom: 15px !important;
         }
         
         .filter-btn {
-            padding: 8px 15px;
-            background: #2d3035;
-            border: none;
-            border-radius: 5px;
-            color: #e0e0e0;
-            cursor: pointer;
-            transition: all 0.3s;
+            padding: 8px 15px !important;
+            background: #2d3035 !important;
+            border: none !important;
+            border-radius: 5px !important;
+            color: #e0e0e0 !important;
+            cursor: pointer !important;
+            transition: all 0.3s !important;
         }
         
         .filter-btn.active, .filter-btn:hover {
-            background: #ff3a6b;
-            color: white;
+            background: #ff3a6b !important;
+            color: white !important;
         }
         
         .category-sorting {
-            display: flex;
-            align-items: center;
+            display: flex !important;
+            align-items: center !important;
         }
         
         .sort-select {
-            padding: 8px 15px;
-            background: #2d3035;
-            border: none;
-            border-radius: 5px;
-            color: #e0e0e0;
-            cursor: pointer;
+            padding: 8px 15px !important;
+            background: #2d3035 !important;
+            border: none !important;
+            border-radius: 5px !important;
+            color: #e0e0e0 !important;
+            cursor: pointer !important;
         }
         
         .empty-category {
-            text-align: center;
-            padding: 40px;
-            font-size: 1.2rem;
-            color: #666;
-            background: #f5f5f5;
-            border-radius: 10px;
+            text-align: center !important;
+            padding: 40px !important;
+            font-size: 1.2rem !important;
+            color: #666 !important;
+            background: #f5f5f5 !important;
+            border-radius: 10px !important;
         }
         
-        /* Product cards with reliable layout */
-        .product-card {
-            border-radius: 10px;
-            background: #1a1d21;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            border: 1px solid rgba(62, 255, 139, 0.15);
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            transition: transform 0.3s, box-shadow 0.3s;
-            max-width: 100%;
-            height: 100%;
+        /* Fix footer */
+        .footer-column {
+            margin-bottom: 20px !important;
         }
         
-        .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-        }
-        
-        .product-image {
-            height: 200px;
-            background-size: cover;
-            background-position: center;
-            background-color: #0a0a0a;
-        }
-        
-        .product-content {
-            padding: 15px;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .product-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-        
-        .product-description {
-            font-size: 0.9rem;
-            color: #cccccc;
-            margin-bottom: 15px;
-            flex-grow: 1;
-        }
-        
-        .product-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: auto;
-        }
-        
-        .product-price {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #3eff8b;
-        }
-        
-        .product-actions {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .product-btn {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            background: rgba(62, 255, 139, 0.15);
-            border: 1px solid rgba(62, 255, 139, 0.3);
-            color: #3eff8b;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .product-btn:hover {
-            background: rgba(62, 255, 139, 0.3);
-        }
-        
-        /* Responsive fixes */
+        /* Mobile Responsive */
         @media (max-width: 992px) {
             .category-products-grid {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(2, 1fr) !important;
             }
             
             .category-products-controls {
-                flex-direction: column;
+                flex-direction: column !important;
+                align-items: flex-start !important;
+            }
+            
+            .category-sorting {
+                margin-top: 15px !important;
             }
         }
         
         @media (max-width: 576px) {
             .category-products-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr !important;
             }
             
             .category-banner h1 {
-                font-size: 2rem;
+                font-size: 2rem !important;
             }
         }
     </style>
 </head>
-<body class="category-page" data-category="${safeName}">
+<body class="category-page" data-category="${safeName}" data-vip-only="${vipOnly ? 'true' : 'false'}">
     <!-- Header section - we include the header from index.html -->
     <!-- Top Bar -->
     <div class="top-bar">
@@ -2802,38 +2795,9 @@ function createCategoryPageContent(categoryData, existingFile = null) {
                                 <li class="dropdown-link"><a href="#" class="dropdown-link-a">ערכות גלגול</a></li>
                             </ul>
                         </li>
-                        
-                        <li class="menu-item menu-item-has-children">
-                            <a href="#" class="has-submenu">מוצרי עישון<span class="drop-indicator"><i class="fas fa-caret-down"></i></span></a>
-                            <ul class="sub-menu">
-                                <li class="dropdown-link"><a href="#" class="dropdown-link-a">מקטרות</a></li>
-                                <li class="dropdown-link"><a href="#" class="dropdown-link-a">באנגים</a></li>
-                                <li class="dropdown-link"><a href="#" class="dropdown-link-a">גריינדרים</a></li>
-                                <li class="dropdown-link"><a href="#" class="dropdown-link-a">מאפרות</a></li>
-                            </ul>
-                        </li>
-                        
-                        <li class="menu-item menu-item-has-children">
-                            <a href="#" class="has-submenu">ציוד גידול<span class="drop-indicator"><i class="fas fa-caret-down"></i></span></a>
-                            <ul class="sub-menu">
-                                <li class="dropdown-link"><a href="#" class="dropdown-link-a">ערכות גידול</a></li>
-                                <li class="dropdown-link"><a href="#" class="dropdown-link-a">מערכות תאורה לגידול</a></li>
-                            </ul>
-                        </li>
-                        
-                        <li class="menu-item menu-item-has-children">
-                            <a href="#" class="has-submenu">אחסון<span class="drop-indicator"><i class="fas fa-caret-down"></i></span></a>
-                            <ul class="sub-menu">
-                                <li class="dropdown-link"><a href="#" class="dropdown-link-a">קופסאות וצנצנות</a></li>
-                                <li class="dropdown-link"><a href="#" class="dropdown-link-a">שקיות אחסון</a></li>
-                                <li class="dropdown-link"><a href="#" class="dropdown-link-a">משקלים</a></li>
-                            </ul>
-                        </li>
-                        
-                        <li class="menu-item"><a href="page3.html">מוצרים חדשים</a></li>
-                        <li class="menu-item"><a href="#">מועדון VIP</a></li>
-                        <li class="menu-item"><a href="#">בלוג</a></li>
+                        <li class="menu-item"><a href="#">עלינו</a></li>
                         <li class="menu-item"><a href="#">צור קשר</a></li>
+                        <li class="menu-item"><a href="#">המדריך השלם</a></li>
                         <li class="menu-item" id="admin-menu-item" style="display: none;"><a href="#" class="admin-panel-btn">פאנל ניהול</a></li>
                     </ul>
                 </nav>
@@ -2849,282 +2813,245 @@ function createCategoryPageContent(categoryData, existingFile = null) {
             </div>
         </div>
         
-        <div class="container">
-            <div class="category-products-controls">
-                <div class="category-filters">
-                    <button class="filter-btn active">הכל</button>
-                    <button class="filter-btn">חדש</button>
-                    <button class="filter-btn">מבצע</button>
-                    <button class="filter-btn">פופולרי</button>
-                </div>
-                
-                <div class="category-sorting">
-                    <select class="sort-select">
-                        <option value="newest">חדש ביותר</option>
-                        <option value="price-asc">מחיר: נמוך לגבוה</option>
-                        <option value="price-desc">מחיר: גבוה לנמוך</option>
-                        <option value="name-asc">שם: א-ת</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="category-products-grid" id="products-container">
-                <!-- Products will be loaded dynamically -->
-                <div class="product-card">
-                    <div class="product-image" style="background-image: url('https://images.unsplash.com/photo-1587143602695-c980e283be9a?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=800&ixid=MnwxfDB8MXxyYW5kb218MHx8Y2FubmFiaXN8fHx8fHwxNjM0NTcyNDQw&ixlib=rb-1.2.1&q=80&utm_campaign=api-credit&utm_medium=referral&utm_source=unsplash_source&w=800');"></div>
-                    <div class="product-content">
-                        <div class="product-title">מוצר לדוגמא</div>
-                        <div class="product-description">תיאור המוצר יופיע כאן. תיאור קצר של המוצר ותכונותיו.</div>
-                        <div class="product-meta">
-                            <div class="product-price">₪120</div>
-                            <div class="product-actions">
-                                <button class="product-btn"><i class="fas fa-heart"></i></button>
-                                <button class="product-btn"><i class="fas fa-shopping-cart"></i></button>
-                            </div>
-                        </div>
+        <div class="category-products">
+            <div class="container">
+                <div class="category-products-controls">
+                    <div class="category-filters">
+                        <button class="filter-btn active" data-filter="all">הכל</button>
+                        <button class="filter-btn" data-filter="new">חדש</button>
+                        <button class="filter-btn" data-filter="sale">מבצע</button>
+                        
+                    </div>
+                    
+                    <div class="category-sorting">
+                        <select class="sort-select">
+                            <option value="recommended">מומלצים</option>
+                            <option value="price-low">מחיר: מהנמוך לגבוה</option>
+                            <option value="price-high">מחיר: מהגבוה לנמוך</option>
+                            <option value="newest">חדשים ביותר</option>
+                        </select>
                     </div>
                 </div>
                 
-                <div class="product-card">
-                    <div class="product-image" style="background-image: url('https://images.unsplash.com/photo-1589578527966-fdac0f44566c?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=800&ixid=MnwxfDB8MXxyYW5kb218MHx8Y2FubmFiaXN8fHx8fHwxNjM0NTcyNDQw&ixlib=rb-1.2.1&q=80&utm_campaign=api-credit&utm_medium=referral&utm_source=unsplash_source&w=800');"></div>
-                    <div class="product-content">
-                        <div class="product-title">מוצר לדוגמא 2</div>
-                        <div class="product-description">תיאור המוצר יופיע כאן. תיאור קצר של המוצר ותכונותיו.</div>
-                        <div class="product-meta">
-                            <div class="product-price">₪150</div>
-                            <div class="product-actions">
-                                <button class="product-btn"><i class="fas fa-heart"></i></button>
-                                <button class="product-btn"><i class="fas fa-shopping-cart"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="product-card">
-                    <div class="product-image" style="background-image: url('https://images.unsplash.com/photo-1603517343586-fb22c3bf1860?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=800&ixid=MnwxfDB8MXxyYW5kb218MHx8Y2FubmFiaXN8fHx8fHwxNjM0NTcyNDQw&ixlib=rb-1.2.1&q=80&utm_campaign=api-credit&utm_medium=referral&utm_source=unsplash_source&w=800');"></div>
-                    <div class="product-content">
-                        <div class="product-title">מוצר לדוגמא 3</div>
-                        <div class="product-description">תיאור המוצר יופיע כאן. תיאור קצר של המוצר ותכונותיו.</div>
-                        <div class="product-meta">
-                            <div class="product-price">₪200</div>
-                            <div class="product-actions">
-                                <button class="product-btn"><i class="fas fa-heart"></i></button>
-                                <button class="product-btn"><i class="fas fa-shopping-cart"></i></button>
-                            </div>
-                        </div>
-                    </div>
+                <div class="category-products-grid" id="category-products-container">
+                    <!-- Products will be loaded here via JavaScript -->
+                    <div class="empty-category">טוען מוצרים...</div>
                 </div>
             </div>
         </div>
     </main>
     
-    <!-- Footer -->
-    <footer class="main-footer">
+    <!-- Footer Section -->
+    <footer class="footer">
         <div class="container">
-            <div class="footer-widgets">
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="footer-widget">
-                            <div class="footer-logo">
-                                <img src="logo.png" alt="Doctor Instraction">
-                            </div>
-                            <p class="footer-text">רשת חנויות דוקטור אינסטרקשן מציעה מגוון רחב של מוצרים באיכות גבוהה במחירים אטרקטיביים.</p>
-                            <div class="footer-social">
-                                <a href="#"><i class="fab fa-facebook-f"></i></a>
-                                <a href="#"><i class="fab fa-instagram"></i></a>
-                                <a href="#"><i class="fab fa-telegram"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="footer-widget">
-                            <h4 class="footer-widget-title">קטגוריות פופולריות</h4>
-                            <ul class="footer-links">
-                                <li><a href="#">גלגול</a></li>
-                                <li><a href="#">מוצרי עישון</a></li>
-                                <li><a href="#">ציוד גידול</a></li>
-                                <li><a href="#">אחסון</a></li>
-                                <li><a href="#">מוצרים חדשים</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="footer-widget">
-                            <h4 class="footer-widget-title">צרו קשר</h4>
-                            <ul class="footer-contact">
-                                <li><i class="fas fa-map-marker-alt"></i> כתובת החנות, ישראל</li>
-                                <li><i class="fas fa-phone"></i> 050-1234567</li>
-                                <li><i class="fas fa-envelope"></i> info@doctor-instraction.com</li>
-                                <li><i class="far fa-clock"></i> א'-ה': 10:00-20:00, ו': 10:00-14:00</li>
-                            </ul>
-                        </div>
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>אודות</h3>
+                    <p>Doctor Instraction מציע מוצרים איכותיים מהארץ ומהעולם. המקום שלכם לחוויית קנייה מושלמת.</p>
+                    <div class="footer-social">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-telegram"></i></a>
                     </div>
                 </div>
+                
+                <div class="footer-column">
+                    <h3>ניווט מהיר</h3>
+                    <ul class="footer-links">
+                        <li><a href="index.html">דף הבית</a></li>
+                        <li><a href="#">מדריכים</a></li>
+                        <li><a href="#">בלוג</a></li>
+                        <li><a href="#">צור קשר</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>מדיניות</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">תנאי שימוש</a></li>
+                        <li><a href="#">מדיניות פרטיות</a></li>
+                        <li><a href="#">מדיניות משלוחים</a></li>
+                        <li><a href="#">תקנון החנות</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>צור קשר</h3>
+                    <ul class="footer-contact">
+                        <li><i class="fas fa-map-marker-alt"></i> רחוב הראשי 123, תל אביב</li>
+                        <li><i class="fas fa-phone"></i> 050-1234567</li>
+                        <li><i class="fas fa-envelope"></i> info@doctor-instraction.com</li>
+                        <li><i class="fas fa-clock"></i> א'-ה' 09:00-18:00</li>
+                    </ul>
+                </div>
             </div>
+            
             <div class="footer-bottom">
-                <p class="copyright">© 2023 כל הזכויות שמורות ל-Doctor Instraction. פיתוח ע"י <a href="#">מפתח האתר</a></p>
+                <p>© 2023 Doctor Instraction. כל הזכויות שמורות.</p>
+                <div class="payment-methods">
+                    <i class="fab fa-cc-visa"></i>
+                    <i class="fab fa-cc-mastercard"></i>
+                    <i class="fab fa-paypal"></i>
+                    <i class="fab fa-bitcoin"></i>
+                </div>
             </div>
         </div>
     </footer>
     
+    <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <script src="script.js"></script>
-    
     <script>
-        // Load and display products from this category
-        document.addEventListener('DOMContentLoaded', function() {
-            // Try to load products for this category
-            const categorySlug = document.body.getAttribute('data-category');
-            
-            if (window.productManager) {
-                const products = window.productManager.getProductsByCategory(categorySlug);
-                displayCategoryProducts(products, '#products-container');
-            } else {
-                console.log('Product manager not available');
+        $(document).ready(function() {
+            if (typeof productManager === 'undefined') {
+                window.productManager = new ProductManager();
             }
             
-            // Filter button click handler
-            const filterButtons = document.querySelectorAll('.filter-btn');
-            filterButtons.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    filterButtons.forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    // Filter logic would go here
-                });
+            // Check user login status
+            checkUserLogin();
+            
+            // Load products for this category
+            loadCategoryProducts("${name}");
+            
+            // Style registration button
+            styleRegisterButton();
+            
+            // Initialize product filters
+            $('.filter-btn').on('click', function() {
+                $('.filter-btn').removeClass('active');
+                $(this).addClass('active');
+                
+                const filter = $(this).data('filter');
+                // Here would go the actual filtering logic
+                // For demo purposes, we'll just reload products
+                loadCategoryProducts("${name}", filter);
             });
             
-            // Sort select change handler
-            const sortSelect = document.querySelector('.sort-select');
-            if (sortSelect) {
-                sortSelect.addEventListener('change', function() {
-                    // Sort logic would go here
-                });
+            // Initialize sorting
+            $('.sort-select').on('change', function() {
+                const sortValue = $(this).val();
+                loadCategoryProducts("${name}", $('.filter-btn.active').data('filter'), sortValue);
+            });
+            
+            // VIP protection
+            if (${vipOnly ? 'true' : 'false'}) {
+                const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+                if (!userData || !userData.isVIP) {
+                    // Redirect if not VIP
+                    window.location.href = 'index.html?error=vip_required';
+                }
             }
+            
+            // Load and display categories in main menu
+            loadCategories();
+            
+            // Fix categories dropdown menu
+            fixCategoriesMenu();
         });
         
-        // Function to display products in the container
-        function displayCategoryProducts(products, containerId) {
-            const container = document.querySelector(containerId);
+        // Function to load products for this category
+        function loadCategoryProducts(categoryName, filter = 'all', sort = 'recommended') {
+            console.log('Loading products for category:', categoryName, 'filter:', filter, 'sort:', sort);
             
-            if (!container) return;
-            
-            // Clear existing content
-            container.innerHTML = '';
+            productManager.loadProductsFromGitHub().then(success => {
+                if (success) {
+                    // Filter products by category
+                    let products = productManager.products.filter(p => p.category === categoryName);
+                    
+                    console.log('Found products:', products.length, products);
+                    
+                    // Apply additional filter if needed
+                    if (filter !== 'all') {
+                        if (filter === 'new') {
+                            products = products.filter(p => p.badge === 'new');
+                        } else if (filter === 'sale') {
+                            products = products.filter(p => p.badge === 'sale');
+                        } else if (filter === 'vip') {
+                            products = products.filter(p => p.vipOnly);
+                        }
+                    }
+                    
+                    // Sort products
+                    if (sort === 'price-low') {
+                        products.sort((a, b) => a.price - b.price);
+                    } else if (sort === 'price-high') {
+                        products.sort((a, b) => b.price - a.price);
+                    } else if (sort === 'newest') {
+                        products.sort((a, b) => new Date(b.created) - new Date(a.created));
+                    }
+                    
+                    // Display products
+                    displayCategoryProducts(products);
+                } else {
+                    $('#category-products-container').html('<div class="empty-category">שגיאה בטעינת מוצרים</div>');
+                }
+            });
+        }
+        
+        // Function to display products in the category page
+        function displayCategoryProducts(products) {
+            const $container = $('#category-products-container');
             
             if (!products || products.length === 0) {
-                container.innerHTML = '<div class="empty-category">אין מוצרים להצגה בקטגוריה זו כרגע.</div>';
+                $container.html('<div class="empty-category">אין מוצרים בקטגוריה זו עדיין</div>');
                 return;
             }
             
-            // Add all products
+            // Build HTML for products
+            let productsHTML = '';
+            
             products.forEach(product => {
-                const productCard = document.createElement('div');
-                productCard.className = 'product-card';
+                // Get the VIP price if available
+                const vipPrice = product.vipPrice || (product.price * 0.9);
+                const isVIP = JSON.parse(localStorage.getItem('userData') || '{}').isVIP;
                 
-                const imageUrl = product.image || 'https://via.placeholder.com/300';
+                // Determine which price to show
+                const displayPrice = isVIP ? vipPrice : product.price;
+                const oldPrice = isVIP ? product.price : null;
                 
-                productCard.innerHTML = 
-                    '<div class="product-image" style="background-image: url(\'' + imageUrl + '\');"></div>' +
-                    '<div class="product-content">' +
-                        '<div class="product-title">' + product.name + '</div>' +
-                        '<div class="product-description">' + (product.description || 'אין תיאור זמין למוצר זה.') + '</div>' +
-                        '<div class="product-meta">' +
-                            '<div class="product-price">₪' + product.price + '</div>' +
-                            '<div class="product-actions">' +
-                                '<button class="product-btn" data-id="' + product.id + '" data-action="favorite"><i class="far fa-heart"></i></button>' +
-                                '<button class="product-btn" data-id="' + product.id + '" data-action="cart"><i class="fas fa-shopping-cart"></i></button>' +
-                            '</div>' +
-                        '</div>' +
-                    '</div>';
-                
-                container.appendChild(productCard);
+                // Build the product card
+                productsHTML += \`
+                    <div class="product-card" data-id="\${product.id}">
+                        <div class="product-image" style="background-image: url('\${product.image || 'images/product-placeholder.jpg'}');">
+                            \${product.badge ? \`<span class="product-badge \${product.badge}">\${getBadgeText(product.badge)}</span>\` : ''}
+                            <div class="product-actions">
+                                <button class="action-btn quick-view-btn" data-id="\${product.id}">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="action-btn add-to-cart-btn" data-id="\${product.id}">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </button>
+                                <button class="action-btn add-to-wishlist-btn" data-id="\${product.id}">
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="product-content">
+                            <div class="product-category">\${product.category || 'כללי'}</div>
+                            <h3 class="product-title">
+                                <a href="product-\${product.slug}.html">\${product.name}</a>
+                            </h3>
+                            <div class="product-rating">
+                                \${getRatingStars(product.rating || 5)}
+                            </div>
+                            <div class="product-price">
+                                \${oldPrice ? \`<span class="old-price">\${oldPrice.toFixed(2)} ₪</span>\` : ''}
+                                <span class="current-price">\${displayPrice.toFixed(2)} ₪</span>
+                            </div>
+                        </div>
+                    </div>
+                \`;
             });
             
-            // Add event listeners for product actions
-            const actionButtons = container.querySelectorAll('.product-btn');
-            actionButtons.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const productId = this.getAttribute('data-id');
-                    const action = this.getAttribute('data-action');
-                    
-                    if (action === 'favorite') {
-                        // Toggle favorite icon
-                        const icon = this.querySelector('i');
-                        icon.classList.toggle('far');
-                        icon.classList.toggle('fas');
-                    } else if (action === 'cart') {
-                        // Add to cart logic
-                        if (window.productManager) {
-                            window.productManager.addToCart(productId);
-                        }
-                    }
-                });
-            });
+            // Add products to container
+            $container.html(productsHTML);
+            
+            // Attach event handlers to product card buttons
+            initializeProductCards();
         }
     </script>
-    
-    <style>
-    /* תיקון לתצוגת המוצרים ברשת */
-    .category-products-grid {
-        display: grid !important;
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
-        gap: 20px !important;
-        width: 100% !important;
-        margin: 0 auto !important;
-        padding: 20px 0 !important;
-    }
-    
-    .product-card {
-        margin-bottom: 0 !important;
-        height: 100% !important;
-        display: flex !important;
-        flex-direction: column !important;
-        background: var(--card-bg);
-        border-radius: 10px;
-        overflow: hidden;
-        transition: all 0.3s;
-        border: 1px solid var(--border-color);
-    }
-    
-    .product-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-        border-color: var(--primary-color);
-    }
-    
-    .product-image {
-        height: 200px !important;
-        background-size: cover !important;
-        background-position: center !important;
-    }
-    
-    .product-content {
-        padding: 15px !important;
-        display: flex !important;
-        flex-direction: column !important;
-        flex: 1;
-    }
-    
-    .product-meta {
-        margin-top: auto !important;
-        display: flex !important;
-        justify-content: space-between !important;
-        align-items: center !important;
-    }
-    
-    @media (max-width: 768px) {
-        .category-products-grid {
-            grid-template-columns: repeat(2, 1fr) !important;
-        }
-    }
-    
-    @media (max-width: 576px) {
-        .category-products-grid {
-            grid-template-columns: 1fr !important;
-        }
-    }
-    </style>
 </body>
 </html>
 `;
@@ -3449,6 +3376,7 @@ function showProductForm(productId = null) {
     
     // Get all available categories from the ProductManager
     const categories = productManager.getAllCategories();
+    console.log('Available categories for product form:', categories);
     
     // Build categories options HTML
     let categoriesOptionsHTML = '<option value="כללי" ' + (product && product.category === 'כללי' ? 'selected' : '') + '>כללי</option>';
@@ -3464,11 +3392,10 @@ function showProductForm(productId = null) {
             <option value="אלקטרוניקה" ${product && product.category === 'אלקטרוניקה' ? 'selected' : ''}>אלקטרוניקה</option>
             <option value="אופנה" ${product && product.category === 'אופנה' ? 'selected' : ''}>אופנה</option>
             <option value="בית וגן" ${product && product.category === 'בית וגן' ? 'selected' : ''}>בית וגן</option>
-            <option value="טיפוח ויופי" ${product && product.category === 'טיפוח ויופי' ? 'selected' : ''}>טיפוח ויופי</option>
         `;
     }
     
-    // Create a form for adding/editing products using the admin modal style
+    // Create the form modal HTML
     const formHTML = `
     <div id="product-form-modal" class="admin-modal active">
         <div class="admin-modal-bg"></div>
@@ -3477,9 +3404,9 @@ function showProductForm(productId = null) {
                 <h3>${product ? 'עריכת מוצר' : 'הוספת מוצר חדש'}</h3>
                 <button class="close-admin-modal"><i class="fas fa-times"></i></button>
             </div>
-            <form id="product-form">
+            <form id="product-form" class="admin-form">
                 <div class="form-group">
-                    <label for="product-name">שם המוצר</label>
+                    <label for="product-name">שם המוצר*</label>
                     <input type="text" id="product-name" value="${product ? product.name : ''}" required>
                 </div>
                 <div class="form-group">
@@ -3972,11 +3899,11 @@ function displayCategoriesInMainMenu(categories) {
         $('.main-nav').append(`
             <li class="menu-item menu-item-has-children">
                 <a href="#" class="has-submenu">קטגוריות<span class="drop-indicator"><i class="fas fa-caret-down"></i></span></a>
-                <ul class="sub-menu categories-submenu">
+                <ul class="sub-menu">
                 </ul>
             </li>
         `);
-        $categoriesMenu = $('.categories-submenu');
+        $categoriesMenu = $('.categories-submenu, .main-nav .menu-item-has-children:has(a:contains("קטגוריות")) .sub-menu');
     } else {
         console.log('Categories dropdown found');
     }
@@ -3984,18 +3911,34 @@ function displayCategoriesInMainMenu(categories) {
     // Clear existing categories
     $categoriesMenu.empty();
     
-    if (categories.length === 0) {
+    if (!categories || categories.length === 0) {
         $categoriesMenu.append('<li class="dropdown-link"><a href="#" class="dropdown-link-a">אין קטגוריות להצגה</a></li>');
-    } else {
-        // Add each category to the menu
-        categories.forEach(category => {
-            $categoriesMenu.append(`
-                <li class="dropdown-link">
-                    <a href="category-${category.slug}.html" class="dropdown-link-a">${category.name}</a>
-                </li>
-            `);
-        });
+        return;
     }
+    
+    // Sort categories by order if available, or by name
+    const sortedCategories = [...categories].sort((a, b) => {
+        if (a.order !== undefined && b.order !== undefined) {
+            return a.order - b.order;
+        }
+        return (a.name || '').localeCompare(b.name || '');
+    });
+    
+    // Add each category to the menu
+    sortedCategories.forEach(category => {
+        if (!category || !category.name) return;
+        
+        const categorySlug = category.slug || category.name.replace(/\s+/g, '-').toLowerCase();
+        
+        $categoriesMenu.append(`
+            <li class="dropdown-link">
+                <a href="category-${categorySlug}.html" class="dropdown-link-a">${category.name}</a>
+            </li>
+        `);
+    });
+    
+    // Log the final menu structure 
+    console.log('Updated categories menu:', $categoriesMenu.html());
 }
 
 // Function to load and display products on homepage

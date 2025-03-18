@@ -911,71 +911,95 @@ iframe,
 
 .main-nav {
     display: flex !important;
-    flex-direction: row !important;
-    justify-content: space-between !important;
+    align-items: center !important;
+    list-style: none !important;
     padding: 0 !important;
     margin: 0 !important;
-    width: 100% !important;
 }
 
 .main-nav .menu-item {
-    position: relative;
-    margin: 0 5px;
+    position: relative !important;
+    margin: 0 10px !important;
 }
 
 .main-nav .menu-item a {
-    padding: 15px 20px;
-    display: block;
-    color: var(--text-color);
-    text-decoration: none;
-    font-weight: 500;
-    font-size: 15px;
-    transition: all 0.3s;
+    display: block !important;
+    padding: 15px !important;
+    color: var(--text-color) !important;
+    text-decoration: none !important;
+    transition: color 0.3s !important;
 }
 
 .main-nav .menu-item a:hover {
-    color: var(--primary-color);
+    color: var(--primary-color) !important;
 }
 
-.main-nav .sub-menu {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    width: 220px;
-    background: var(--darker-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-    padding: 10px 0;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(10px);
-    transition: all 0.3s;
-    z-index: 100;
+.main-nav .menu-item-has-children {
+    position: relative !important;
+}
+
+.main-nav .menu-item-has-children .sub-menu {
+    position: absolute !important;
+    top: 100% !important;
+    right: 0 !important;
+    z-index: 999 !important;
+    min-width: 200px !important;
+    background-color: var(--darker-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 5px !important;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2) !important;
+    padding: 10px 0 !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    transform: translateY(10px) !important;
+    transition: all 0.3s ease !important;
 }
 
 .main-nav .menu-item-has-children:hover .sub-menu {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
+    visibility: visible !important;
+    opacity: 1 !important;
+    transform: translateY(0) !important;
 }
 
 .main-nav .sub-menu .dropdown-link {
-    display: block;
-    padding: 0;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 .main-nav .sub-menu .dropdown-link-a {
-    padding: 10px 20px;
-    display: block;
-    color: var(--text-color);
-    font-size: 14px;
-    transition: all 0.3s;
+    padding: 10px 20px !important;
+    display: block !important;
+    font-size: 14px !important;
+    transition: all 0.3s !important;
 }
 
 .main-nav .sub-menu .dropdown-link-a:hover {
-    background: rgba(62, 255, 139, 0.1);
-    color: var(--primary-color);
+    background-color: rgba(62, 255, 139, 0.1) !important;
+    color: var(--primary-color) !important;
+}
+
+/* Mobile menu */
+@media (max-width: 768px) {
+    .main-nav {
+        flex-direction: column !important;
+    }
+    
+    .main-nav .menu-item-has-children .sub-menu {
+        position: static !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        transform: none !important;
+        display: none !important;
+        box-shadow: none !important;
+        border: none !important;
+        border-radius: 0 !important;
+        background-color: rgba(0, 0, 0, 0.1) !important;
+        padding-right: 20px !important;
+    }
+    
+    .main-nav .menu-item-has-children.active .sub-menu {
+        display: block !important;
+    }
 }
 
 /* ============= תיקון רשת מוצרים בקטגוריה ============= */
