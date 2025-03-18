@@ -132,5 +132,26 @@
     "id": "cat_1742342319424854",
     "createdAt": "2025-03-18T23:58:39.424Z",
     "updatedAt": "2025-03-18T23:59:19.631Z"
+  },
+  {
+    "name": "ccx",
+    "description": "11",
+    "slug": "c",
+    "icon": null,
+    "image": "/api/placeholder/400/300",
+    "bgColor": "#1a1d21",
+    "textColor": "#ffffff",
+    "order": 0,
+    "featured": true,
+    "vipOnly": false,
+    "columnLayout": "1",
+    "seoTitle": "1",
+    "seoDescription": "1",
+    "seoKeywords": "1",
+    "parentId": "",
+    "created": "2025-03-18T23:59:42.697Z",
+    "updated": "2025-03-18T23:59:42.697Z",
+    "id": "cat_1742342382697169",
+    "createdAt": "2025-03-18T23:59:42.697Z"
   }
 ]
