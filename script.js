@@ -4020,6 +4020,1406 @@ function displayProductsOnHomepage(products) {
             </div>
         `;
     });
+
+// 1. תיקון סגנון פאנל המנהל - הופך רקע לבן לרקע כהה מתאים
+function addImprovedAdminStyles() {
+    // בדוק אם הסגנונות כבר קיימים
+    if ($('#improved-admin-styles').length === 0) {
+        const adminStyles = `
+        <style id="improved-admin-styles">
+            /* סגנונות משופרים לפאנל המנהל בעיצוב כהה */
+            .admin-panel {
+                position: fixed;
+                top: 0;
+                right: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 3000;
+                display: none;
+                direction: rtl;
+            }
+
+            .admin-panel.active {
+                display: block;
+            }
+
+            .admin-panel-bg {
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.7);
+                backdrop-filter: blur(5px);
+                -webkit-backdrop-filter: blur(5px);
+            }
+
+            .admin-panel-container {
+                position: absolute;
+                top: 50%;
+                right: 50%;
+                transform: translate(50%, -50%);
+                width: 90%;
+                max-width: 1200px;
+                height: 80%;
+                background-color: #1a1d21;
+                border-radius: 10px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+                border: 1px solid var(--primary-color);
+            }
+
+            .admin-panel-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 15px 20px;
+                background-color: #111111;
+                color: #fff;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            .admin-panel-header h2 {
+                margin: 0;
+                font-size: 1.5rem;
+                color: var(--primary-color);
+            }
+
+            .close-admin-panel {
+                background: none;
+                border: none;
+                color: #fff;
+                font-size: 1.2rem;
+                cursor: pointer;
+                padding: 5px;
+                transition: all 0.3s ease;
+            }
+            
+            .close-admin-panel:hover {
+                color: var(--primary-color);
+                transform: rotate(90deg);
+            }
+
+            .admin-panel-sidebar {
+                width: 220px;
+                background-color: #0a0a0a;
+                color: #fff;
+                position: absolute;
+                top: 63px;
+                right: 0;
+                bottom: 0;
+                overflow-y: auto;
+                border-left: 1px solid var(--border-color);
+            }
+
+            .admin-panel-sidebar ul {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+
+            .admin-panel-sidebar .admin-menu-item {
+                padding: 15px 20px;
+                cursor: pointer;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                transition: background-color 0.3s;
+                color: var(--text-color);
+            }
+
+            .admin-panel-sidebar .admin-menu-item:hover {
+                background-color: rgba(74, 124, 89, 0.2);
+                color: var(--primary-color);
+            }
+
+            .admin-panel-sidebar .admin-menu-item.active {
+                background-color: rgba(74, 124, 89, 0.3);
+                border-right: 3px solid var(--primary-color);
+                color: var(--primary-color);
+            }
+
+            .admin-panel-content {
+                flex: 1;
+                padding: 20px;
+                overflow-y: auto;
+                margin-right: 220px;
+                background-color: #1a1d21;
+                color: var(--text-color);
+            }
+
+            .admin-tab {
+                display: none;
+            }
+
+            .admin-tab.active {
+                display: block;
+            }
+            
+            .admin-tab h3 {
+                color: var(--primary-color);
+                margin-bottom: 20px;
+                padding-bottom: 10px;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            .admin-actions {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 20px;
+            }
+
+            .admin-btn {
+                background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+                color: #0a0a0a;
+                border: none;
+                padding: 10px 15px;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                font-weight: 600;
+            }
+
+            .admin-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(74, 124, 89, 0.3);
+            }
+            
+            .cancel-btn {
+                background: #333;
+                color: var(--text-color);
+            }
+            
+            .cancel-btn:hover {
+                background: #444;
+            }
+
+            /* סגנון טבלאות */
+            .admin-panel table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 20px;
+                background-color: #1c1c1c;
+                border: 1px solid var(--border-color);
+                color: var(--text-color);
+            }
+
+            .admin-panel th, .admin-panel td {
+                border: 1px solid var(--border-color);
+                padding: 12px;
+                text-align: right;
+            }
+
+            .admin-panel th {
+                background-color: #0a0a0a;
+                font-weight: 600;
+                color: var(--primary-color);
+            }
+
+            .admin-panel tr:nth-child(even) {
+                background-color: #222;
+            }
+
+            .admin-panel tr:hover {
+                background-color: #2a2a2a;
+            }
+
+            .action-btn {
+                background: none;
+                border: none;
+                color: var(--primary-color);
+                margin-right: 5px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+            
+            .action-btn:hover {
+                transform: scale(1.2);
+            }
+
+            .delete-btn {
+                color: #cb3b3b;
+            }
+            
+            .delete-btn:hover {
+                color: #ff5252;
+            }
+            
+            /* מודאל טפסים */
+            .admin-modal {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.7);
+                backdrop-filter: blur(5px);
+                -webkit-backdrop-filter: blur(5px);
+                z-index: 3100;
+                display: none;
+                direction: rtl;
+            }
+
+            .admin-modal.active {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .admin-modal-container {
+                width: 90%;
+                max-width: 600px;
+                background-color: #1a1d21;
+                border-radius: 8px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                overflow: hidden;
+                border: 1px solid var(--primary-color);
+            }
+
+            .admin-modal-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 15px 20px;
+                background-color: #111111;
+                color: #fff;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            .admin-modal-header h3 {
+                margin: 0;
+                color: var(--primary-color);
+            }
+
+            .close-admin-modal {
+                background: none;
+                border: none;
+                color: #fff;
+                font-size: 1.2rem;
+                cursor: pointer;
+                padding: 5px;
+                transition: all 0.3s ease;
+            }
+            
+            .close-admin-modal:hover {
+                color: var(--primary-color);
+                transform: rotate(90deg);
+            }
+
+            .admin-form {
+                padding: 20px;
+                color: var(--text-color);
+            }
+
+            .form-group {
+                margin-bottom: 20px;
+            }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 8px;
+                font-weight: 500;
+                color: var(--text-color);
+            }
+
+            .form-group input[type="text"],
+            .form-group input[type="number"],
+            .form-group input[type="file"],
+            .form-group input[type="email"],
+            .form-group input[type="url"],
+            .form-group input[type="password"],
+            .form-group select,
+            .form-group textarea {
+                width: 100%;
+                padding: 10px;
+                border: 1px solid var(--border-color);
+                border-radius: 4px;
+                font-size: 1rem;
+                background-color: #222;
+                color: var(--text-color);
+                transition: all 0.3s ease;
+            }
+            
+            .form-group input:focus,
+            .form-group select:focus,
+            .form-group textarea:focus {
+                outline: none;
+                border-color: var(--primary-color);
+                box-shadow: 0 0 0 2px rgba(74, 124, 89, 0.2);
+            }
+
+            .form-group textarea {
+                min-height: 100px;
+                resize: vertical;
+            }
+            
+            .form-group small {
+                display: block;
+                margin-top: 5px;
+                color: #888;
+                font-size: 0.85rem;
+            }
+            
+            .form-group input[type="checkbox"] {
+                margin-left: 10px;
+                vertical-align: middle;
+            }
+            
+            .form-group input[type="color"] {
+                height: 40px;
+                width: 100px;
+            }
+
+            /* לטפסים עם מספר עמודות */
+            .form-row {
+                display: flex;
+                gap: 20px;
+                margin-bottom: 20px;
+            }
+            
+            .form-col {
+                flex: 1;
+            }
+            
+            /* לטעינה, שגיאות ומצבים ריקים */
+            .loading, .empty, .error {
+                text-align: center;
+                padding: 30px;
+                color: #888;
+                background-color: rgba(30, 30, 30, 0.5);
+                border-radius: 8px;
+                margin: 20px 0;
+            }
+
+            .error {
+                color: #e74c3c;
+                border-right: 3px solid #e74c3c;
+                background-color: rgba(231, 76, 60, 0.1);
+            }
+            
+            .empty {
+                color: #888;
+                border-right: 3px solid #888;
+                background-color: rgba(136, 136, 136, 0.1);
+            }
+        </style>
+        `;
+        
+        $('head').append(adminStyles);
+        console.log('נוספו סגנונות משופרים לפאנל המנהל');
+    }
+}
+
+// 2. סגירת הסרגלים הצדדיים כברירת מחדל
+function setupSidePanelsClosedByDefault() {
+    // סגירת הסרגלים הצדדיים כברירת מחדל
+    const systemSidebar = $('.system-sidebar');
+    const productSidebar = $('.product-sidebar');
+    
+    // הוספת כפתורי פתיחה וסגירה
+    if ($('.sidebar-toggle-left').length === 0) {
+        $('body').append(`
+            <button class="sidebar-toggle sidebar-toggle-left">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+        `);
+    }
+    
+    if ($('.sidebar-toggle-right').length === 0) {
+        $('body').append(`
+            <button class="sidebar-toggle sidebar-toggle-right">
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        `);
+    }
+    
+    // סגנונות לסרגלים סגורים
+    const sidebarStyles = `
+    <style id="sidebar-toggle-styles">
+        /* סגנונות לסרגלים הצדדיים */
+        .system-sidebar {
+            transform: translateX(-100%);
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        .system-sidebar.active {
+            transform: translateX(0);
+        }
+        
+        .product-sidebar {
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        .product-sidebar.active {
+            transform: translateX(0);
+        }
+        
+        /* סגנונות לכפתורי פתיחה וסגירה */
+        .sidebar-toggle {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--dark-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 999;
+            box-shadow: 0 0 10px rgba(62, 255, 139, 0.3);
+            border: none;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(62, 255, 139, 0.5);
+        }
+        
+        .sidebar-toggle-left {
+            top: 80px;
+            left: 20px;
+        }
+        
+        .sidebar-toggle-right {
+            top: 80px;
+            right: 20px;
+        }
+        
+        /* התאמת תוכן מרכזי */
+        .main-content {
+            margin: 0 !important;
+            max-width: 100% !important;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        .content-with-left-sidebar {
+            margin-left: 300px !important;
+        }
+        
+        .content-with-right-sidebar {
+            margin-right: 300px !important;
+        }
+        
+        /* סגנון עבור סרגלים פעילים */
+        .system-sidebar.active, .product-sidebar.active {
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* התאמה למסכים קטנים */
+        @media (max-width: 768px) {
+            .content-with-left-sidebar,
+            .content-with-right-sidebar {
+                margin: 0 !important;
+            }
+            
+            .system-sidebar.active,
+            .product-sidebar.active {
+                width: 80%;
+                max-width: 300px;
+            }
+        }
+    </style>
+    `;
+    
+    // הוספת הסגנונות אם הם לא קיימים
+    if ($('#sidebar-toggle-styles').length === 0) {
+        $('head').append(sidebarStyles);
+    }
+    
+    // מינוי מחדש של אירועי הלחיצה
+    $('.sidebar-toggle-left').off('click').on('click', function() {
+        systemSidebar.toggleClass('active');
+        $('.main-content').toggleClass('content-with-left-sidebar');
+        
+        // שינוי הכיוון של האייקון
+        const icon = $(this).find('i');
+        if (systemSidebar.hasClass('active')) {
+            icon.removeClass('fa-arrow-left').addClass('fa-arrow-right');
+        } else {
+            icon.removeClass('fa-arrow-right').addClass('fa-arrow-left');
+        }
+    });
+    
+    $('.sidebar-toggle-right').off('click').on('click', function() {
+        productSidebar.toggleClass('active');
+        $('.main-content').toggleClass('content-with-right-sidebar');
+        
+        // שינוי הכיוון של האייקון
+        const icon = $(this).find('i');
+        if (productSidebar.hasClass('active')) {
+            icon.removeClass('fa-arrow-right').addClass('fa-arrow-left');
+        } else {
+            icon.removeClass('fa-arrow-left').addClass('fa-arrow-right');
+        }
+    });
+    
+    console.log('הסרגלים הצדדיים הוגדרו כסגורים כברירת מחדל');
+}
+
+// 3. שיפור מערכת הקטגוריות - הוספת תמיכה בתת-קטגוריות
+function enhanceCategoryManagement() {
+    // הרחבת המחלקה ProductManager לתמיכה בתת-קטגוריות
+    if (typeof window.productManager !== 'undefined') {
+        // הוספת שדות לקטגוריה בטופס יצירת/עדכון קטגוריה
+        // הגדרת פונקציה שמחליפה את showCategoryForm המקורית
+        window.showCategoryForm = function(categoryId = null) {
+            let category = null;
+            
+            if (categoryId) {
+                // עריכת קטגוריה קיימת
+                category = productManager.getCategory(categoryId);
+                if (!category) {
+                    showNotification('הקטגוריה לא נמצאה', 'error');
+                    return;
+                }
+            }
+            
+            // קבלת כל הקטגוריות הזמינות מ-ProductManager
+            const categories = productManager.getAllCategories();
+            
+            // בניית אפשרויות קטגוריות-אב
+            let parentCategoryOptions = '<option value="">קטגוריה ראשית</option>';
+            
+            // הוספת כל הקטגוריות הזמינות כאפשרויות לקטגוריית-אב
+            if (categories && categories.length > 0) {
+                categories.forEach(cat => {
+                    // דילוג על הקטגוריה הנוכחית (לא ניתן לבחור את עצמך כהורה)
+                    if (category && cat.id === category.id) return;
+                    
+                    parentCategoryOptions += `<option value="${cat.id}" ${category && category.parentId === cat.id ? 'selected' : ''}>${cat.name}</option>`;
+                });
+            }
+            
+            // יצירת HTML של טופס מודאל
+            const formHTML = `
+            <div id="category-form-modal" class="admin-modal active">
+                <div class="admin-modal-bg"></div>
+                <div class="admin-modal-container">
+                    <div class="admin-modal-header">
+                        <h3>${category ? 'עריכת קטגוריה' : 'הוספת קטגוריה חדשה'}</h3>
+                        <button class="close-admin-modal"><i class="fas fa-times"></i></button>
+                    </div>
+                    <form id="category-form" class="admin-form">
+                        <div class="form-row">
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="category-name">שם הקטגוריה*</label>
+                                    <input type="text" id="category-name" value="${category ? category.name : ''}" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="category-parent">קטגוריית אב</label>
+                                    <select id="category-parent">
+                                        ${parentCategoryOptions}
+                                    </select>
+                                    <small>השאר ריק אם זו קטגוריה ראשית</small>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="category-slug">מזהה בכתובת URL (slug)</label>
+                                    <input type="text" id="category-slug" value="${category && category.slug ? category.slug : ''}" placeholder="לדוגמה: electronic-products">
+                                    <small>אותיות לטיניות ומקפים בלבד, ללא רווחים</small>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="category-description">תיאור הקטגוריה</label>
+                                    <textarea id="category-description" rows="3">${category && category.description ? category.description : ''}</textarea>
+                                </div>
+                            </div>
+                            
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="category-icon">אייקון</label>
+                                    <select id="category-icon">
+                                        <option value="fas fa-leaf" ${category && category.icon === 'fas fa-leaf' ? 'selected' : ''}>צמח</option>
+                                        <option value="fas fa-seedling" ${category && category.icon === 'fas fa-seedling' ? 'selected' : ''}>שתיל</option>
+                                        <option value="fas fa-smoking" ${category && category.icon === 'fas fa-smoking' ? 'selected' : ''}>עישון</option>
+                                        <option value="fas fa-pipe" ${category && category.icon === 'fas fa-pipe' ? 'selected' : ''}>מקטרת</option>
+                                        <option value="fas fa-box" ${category && category.icon === 'fas fa-box' ? 'selected' : ''}>אחסון</option>
+                                        <option value="fas fa-tools" ${category && category.icon === 'fas fa-tools' ? 'selected' : ''}>אביזרים</option>
+                                        <option value="fas fa-lightbulb" ${category && category.icon === 'fas fa-lightbulb' ? 'selected' : ''}>תאורה</option>
+                                        <option value="fas fa-fan" ${category && category.icon === 'fas fa-fan' ? 'selected' : ''}>מאווררים</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="category-image">תמונת רקע לקטגוריה (URL)</label>
+                                    <input type="text" id="category-image" value="${category && category.image ? category.image : ''}" placeholder="כתובת URL של תמונה">
+                                    <small>השאר ריק לשימוש בתמונת ברירת מחדל</small>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="category-order">סדר הצגה</label>
+                                    <input type="number" id="category-order" value="${category && category.order ? category.order : '0'}">
+                                    <small>קטגוריות עם מספר נמוך יותר יוצגו קודם</small>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="category-featured">
+                                        <input type="checkbox" id="category-featured" ${category && category.featured ? 'checked' : ''}>
+                                        הצג בעמוד הבית
+                                    </label>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="category-vip-only">
+                                        <input type="checkbox" id="category-vip-only" ${category && category.vipOnly ? 'checked' : ''}>
+                                        קטגוריה בלעדית לחברי VIP
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>תגיות SEO (מופרדות בפסיקים)</label>
+                            <input type="text" id="category-tags" value="${category && category.tags ? category.tags : ''}" placeholder="למשל: מוצרי עישון, גלגול, קנאביס">
+                            <small>תגיות יסייעו במציאת הקטגוריה במנועי חיפוש</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="category-meta-description">תיאור Meta לקידום במנועי חיפוש</label>
+                            <textarea id="category-meta-description" rows="2">${category && category.metaDescription ? category.metaDescription : ''}</textarea>
+                            <small>תיאור קצר (עד 160 תווים) שיופיע בתוצאות החיפוש</small>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="admin-btn">${category ? 'עדכן קטגוריה' : 'הוסף קטגוריה'}</button>
+                            <button type="button" class="admin-btn cancel-btn">ביטול</button>
+                        </div>
+                        ${category ? `<input type="hidden" id="category-id" value="${category.id}">` : ''}
+                    </form>
+                </div>
+            </div>
+            `;
+            
+            $('body').append(formHTML);
+            
+            // יצירת slug אוטומטית מהשם
+            $('#category-name').on('input', function() {
+                const name = $(this).val();
+                if (!name) return;
+                
+                // יצירת slug אוטומטית רק אם שדה ה-slug ריק או שלא נערך ידנית
+                const currentSlug = $('#category-slug').val();
+                if (!currentSlug || currentSlug === generateSlug($(this).val())) {
+                    $('#category-slug').val(generateSlug(name));
+                }
+            });
+            
+            // פונקציית עזר ליצירת slug
+            function generateSlug(text) {
+                return text
+                    .toString()
+                    .toLowerCase()
+                    .replace(/\s+/g, '-')       // החלפת רווחים ב-
+                    .replace(/[^\w\-]+/g, '')   // הסרת כל התווים שאינם מילים
+                    .replace(/\-\-+/g, '-')     // החלפת מספר - ב- אחד
+                    .replace(/^-+/, '')         // חיתוך - מתחילת הטקסט
+                    .replace(/-+$/, '');        // חיתוך - מסוף הטקסט
+            }
+            
+            // מינוי אירועי לחיצה
+            $('.close-admin-modal, .cancel-btn').on('click', function() {
+                $('#category-form-modal').remove();
+            });
+            
+            $('#category-form').on('submit', function(e) {
+                e.preventDefault();
+                
+                const name = $('#category-name').val();
+                const parentId = $('#category-parent').val() || null;
+                const description = $('#category-description').val();
+                const slug = $('#category-slug').val() || generateSlug(name);
+                const icon = $('#category-icon').val();
+                const image = $('#category-image').val();
+                const order = parseInt($('#category-order').val()) || 0;
+                const featured = $('#category-featured').is(':checked');
+                const vipOnly = $('#category-vip-only').is(':checked');
+                const tags = $('#category-tags').val();
+                const metaDescription = $('#category-meta-description').val();
+                
+                const categoryData = {
+                    name,
+                    parentId,
+                    description,
+                    slug,
+                    icon,
+                    image,
+                    order,
+                    featured,
+                    vipOnly,
+                    tags,
+                    metaDescription,
+                    hasChildren: category ? (category.hasChildren || false) : false,
+                    updated: new Date().toISOString()
+                };
+                
+                if (category) {
+                    // עדכון קטגוריה קיימת
+                    categoryData.id = category.id;
+                    categoryData.created = category.created; // שמירה על תאריך היצירה המקורי
+                    
+                    productManager.updateCategory(category.id, categoryData).then(success => {
+                        if (success) {
+                            showNotification(`הקטגוריה "${name}" עודכנה בהצלחה`, 'success');
+                            loadCategories(); // טעינה מחדש של רשימת הקטגוריות ועדכון התפריט
+                            
+                            // עדכון דף הקטגוריה ב-GitHub
+                            updateCategoryPage(categoryData).then(() => {
+                                // עדכון מחדש של הקטגוריות בתפריט הראשי
+                                displayCategoriesInMainMenu(productManager.getAllCategories());
+                            });
+                        } else {
+                            showNotification('שגיאה בעדכון הקטגוריה', 'error');
+                        }
+                    });
+                } else {
+                    // הוספת קטגוריה חדשה
+                    // יצירת מזהה ייחודי
+                    categoryData.id = 'cat_' + Date.now() + Math.floor(Math.random() * 1000);
+                    categoryData.created = new Date().toISOString();
+                    
+                    productManager.addCategory(categoryData).then(success => {
+                        if (success) {
+                            showNotification(`הקטגוריה "${name}" נוספה בהצלחה`, 'success');
+                            loadCategories(); // טעינה מחדש של רשימת הקטגוריות ועדכון התפריט
+                            
+                            // יצירת דף קטגוריה ב-GitHub
+                            createCategoryPage(categoryData).then(() => {
+                                // עדכון מחדש של הקטגוריות בתפריט הראשי
+                                displayCategoriesInMainMenu(productManager.getAllCategories());
+                            });
+                        } else {
+                            showNotification('שגיאה בהוספת הקטגוריה', 'error');
+                        }
+                    });
+                }
+                
+                $('#category-form-modal').remove();
+            });
+        };
+        
+        // הרחבת הפונקציה displayCategories להצגת מבנה היררכי
+        window.displayCategories = function(categories) {
+            let categoriesHTML = '';
+            
+            if (categories.length === 0) {
+                categoriesHTML = '<tr><td colspan="4" class="empty">אין קטגוריות להצגה</td></tr>';
+            } else {
+                // יצירת מפה של קטגוריות אב וילדים
+                const categoryMap = {};
+                const rootCategories = [];
+                
+                // מיון הקטגוריות לפי אב וילדים
+                categories.forEach(category => {
+                    if (!category) return; // דילוג על undefined
+                    
+                    // הוספה למפה
+                    categoryMap[category.id] = category;
+                    
+                    // אם אין parentId, זו קטגוריה ראשית
+                    if (!category.parentId) {
+                        rootCategories.push(category);
+                    }
+                });
+                
+                // מיון לפי שדה order
+                rootCategories.sort((a, b) => (a.order || 0) - (b.order || 0));
+                
+                // פונקציה רקורסיבית להצגת קטגוריות
+                function renderCategory(category, level = 0) {
+                    if (!category) return '';
+                    
+                    // חישוב מספר המוצרים בקטגוריה
+                    const productsInCategory = productManager.products.filter(
+                        product => product.category === category.name || product.categoryId === category.id
+                    ).length;
+                    
+                    // חישוב מספר תת-הקטגוריות
+                    const childCategories = categories.filter(cat => cat && cat.parentId === category.id);
+                    const hasChildren = childCategories.length > 0;
+                    
+                    // עדכון hasChildren במקרה שהשתנה
+                    if (hasChildren !== category.hasChildren) {
+                        category.hasChildren = hasChildren;
+                        productManager.updateCategory(category.id, { hasChildren });
+                    }
+                    
+                    let html = `
+                        <tr data-id="${category.id}" class="category-row level-${level}">
+                            <td>
+                                ${'&nbsp;'.repeat(level * 4)}
+                                ${level > 0 ? '<i class="fas fa-level-down-alt fa-rotate-90 ml-2"></i> ' : ''}
+                                <i class="${category.icon || 'fas fa-folder'}"></i> 
+                                ${category.name}
+                                ${category.vipOnly ? ' <span class="vip-badge">VIP</span>' : ''}
+                            </td>
+                            <td>
+                                ${category.parentId ? (categoryMap[category.parentId] ? categoryMap[category.parentId].name : '-') : 'קטגוריה ראשית'}
+                            </td>
+                            <td>
+                                ${productsInCategory}
+                                ${hasChildren ? ` <span title="כולל ${childCategories.length} תת-קטגוריות">+</span>` : ''}
+                            </td>
+                            <td>
+                                <button class="action-btn edit-category-btn" data-id="${category.id}" title="ערוך קטגוריה">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="action-btn add-subcategory-btn" data-id="${category.id}" title="הוסף תת-קטגוריה">
+                                    <i class="fas fa-folder-plus"></i>
+                                </button>
+                                <button class="action-btn delete-btn delete-category-btn" data-id="${category.id}" title="מחק קטגוריה">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    
+                    // הוספת תת-קטגוריות
+                    if (hasChildren) {
+                        // מיון תת-קטגוריות לפי order
+                        childCategories.sort((a, b) => (a.order || 0) - (b.order || 0));
+                        
+                        // הוספת כל תת-קטגוריה
+                        childCategories.forEach(childCategory => {
+                            html += renderCategory(childCategory, level + 1);
+                        });
+                    }
+                    
+                    return html;
+                }
+                
+                // הצגת כל הקטגוריות הראשיות עם תת-הקטגוריות שלהן
+                rootCategories.forEach(rootCategory => {
+                    categoriesHTML += renderCategory(rootCategory);
+                });
+            }
+            
+            $('#categories-table-body').html(categoriesHTML);
+            
+            // מינוי אירועים לכפתורים
+            $('.edit-category-btn').off('click').on('click', function() {
+                const categoryId = $(this).data('id');
+                editCategory(categoryId);
+            });
+            
+            $('.add-subcategory-btn').off('click').on('click', function() {
+                const parentId = $(this).data('id');
+                const parentCategory = productManager.getCategory(parentId);
+                
+                // יצירת טופס חדש עם parent מוגדר מראש
+                showCategoryForm();
+                
+                // הגדרת הקטגוריה ההורה בטופס
+                setTimeout(() => {
+                    $('#category-parent').val(parentId);
+                }, 100);
+            });
+            
+            $('.delete-category-btn').off('click').on('click', function() {
+                const categoryId = $(this).data('id');
+                const category = productManager.getCategory(categoryId);
+                
+                // בדיקה אם יש תת-קטגוריות
+                const hasChildren = categories.some(cat => cat && cat.parentId === categoryId);
+                
+                if (hasChildren) {
+                    if (!confirm(`האם אתה בטוח שברצונך למחוק את הקטגוריה "${category.name}" וכל תת-הקטגוריות שלה?`)) {
+                        return;
+                    }
+                    
+                    // מחיקת כל תת-הקטגוריות
+                    const childCategories = categories.filter(cat => cat && cat.parentId === categoryId);
+                    
+                    // מחיקת הקטגוריות ברקורסיה
+                    function deleteChildCategories(childIds) {
+                        childIds.forEach(id => {
+                            // מציאת ילדים נוספים
+                            const grandchildren = categories.filter(cat => cat && cat.parentId === id)
+                                                          .map(cat => cat.id);
+                            
+                            if (grandchildren.length > 0) {
+                                deleteChildCategories(grandchildren);
+                            }
+                            
+                            // מחיקת הקטגוריה הנוכחית
+                            productManager.deleteCategory(id);
+                        });
+                    }
+                    
+                    // התחלת מחיקת תת-קטגוריות
+                    deleteChildCategories(childCategories.map(cat => cat.id));
+                } else {
+                    if (!confirm(`האם אתה בטוח שברצונך למחוק את הקטגוריה "${category.name}"?`)) {
+                        return;
+                    }
+                }
+                
+                // מחיקת הקטגוריה עצמה
+                deleteCategory(categoryId);
+            });
+        };
+        
+        // עדכון הטאבלה של קטגוריות בפאנל הניהול
+        const categoriesTableHeader = `
+            <thead>
+                <tr>
+                    <th>שם קטגוריה</th>
+                    <th>קטגוריית אב</th>
+                    <th>מספר מוצרים</th>
+                    <th>פעולות</th>
+                </tr>
+            </thead>
+        `;
+        
+        $('#categories-tab table').html(categoriesTableHeader + '<tbody id="categories-table-body"><tr><td colspan="4" class="loading">טוען קטגוריות...</td></tr></tbody>');
+        
+        // פונקציה ליצירת תת-קטגוריה
+        window.addSubcategory = function(parentId) {
+            const parentCategory = productManager.getCategory(parentId);
+            if (!parentCategory) {
+                showNotification('הקטגוריה ההורה לא נמצאה', 'error');
+                return;
+            }
+            
+            // פתיחת טופס קטגוריה חדשה עם הורה מוגדר מראש
+            showCategoryForm();
+            
+            // הגדרת ערכים מהקטגוריה ההורה
+            setTimeout(() => {
+                $('#category-parent').val(parentId);
+            }, 100);
+        };
+        
+        // 4. הוספת שדות תגיות SEO לטופס המוצר
+        window.showProductForm = function(productId = null) {
+            let product = null;
+            
+            if (productId) {
+                // עריכת מוצר קיים
+                product = productManager.getProduct(productId);
+                if (!product) {
+                    showNotification('המוצר לא נמצא', 'error');
+                    return;
+                }
+            }
+            
+            // קבלת כל הקטגוריות הזמינות מה-ProductManager
+            const categories = productManager.getAllCategories();
+            
+            // בניית אפשרויות קטגוריות
+            let categoriesOptionsHTML = '';
+            
+            // בנייה רקורסיבית של אפשרויות הקטגוריות כדי להציג מבנה היררכי
+            function buildCategoryOptions(categories, parentId = null, level = 0) {
+                const relevantCategories = categories.filter(cat => cat && cat.parentId === parentId);
+                
+                // מיון הקטגוריות לפי סדר
+                relevantCategories.sort((a, b) => (a.order || 0) - (b.order || 0));
+                
+                relevantCategories.forEach(category => {
+                    // הצגת הקטגוריה עם רמת ההיררכיה
+                    const indentation = '&nbsp;'.repeat(level * 4);
+                    categoriesOptionsHTML += `<option value="${category.id}" ${product && product.categoryId === category.id ? 'selected' : ''}>${indentation}${level > 0 ? '↳ ' : ''}${category.name}</option>`;
+                    
+                    // הצגת תת-קטגוריות
+                    buildCategoryOptions(categories, category.id, level + 1);
+                });
+            }
+            
+            // בניית כל אפשרויות הקטגוריות
+            buildCategoryOptions(categories);
+            
+            // במקרה שאין קטגוריות או שיש בעיה, הוספת אפשרות ברירת מחדל
+            if (!categoriesOptionsHTML) {
+                categoriesOptionsHTML = '<option value="general">כללי</option>';
+            }
+            
+            // יצירת HTML של טופס המודאל
+            const formHTML = `
+            <div id="product-form-modal" class="admin-modal active">
+                <div class="admin-modal-bg"></div>
+                <div class="admin-modal-container">
+                    <div class="admin-modal-header">
+                        <h3>${product ? 'עריכת מוצר' : 'הוספת מוצר חדש'}</h3>
+                        <button class="close-admin-modal"><i class="fas fa-times"></i></button>
+                    </div>
+                    <form id="product-form" class="admin-form">
+                        <div class="form-row">
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="product-name">שם המוצר*</label>
+                                    <input type="text" id="product-name" value="${product ? product.name : ''}" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="product-category">קטגוריה*</label>
+                                    <select id="product-category" required>
+                                        ${categoriesOptionsHTML}
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="product-slug">מזהה בכתובת URL (slug)</label>
+                                    <input type="text" id="product-slug" value="${product && product.slug ? product.slug : ''}" placeholder="לדוגמה: product-name">
+                                    <small>אותיות לטיניות ומקפים בלבד, ללא רווחים</small>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="product-description">תיאור המוצר</label>
+                                    <textarea id="product-description" rows="3">${product && product.description ? product.description : ''}</textarea>
+                                </div>
+                            </div>
+                            
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="product-price">מחיר*</label>
+                                    <input type="number" id="product-price" min="0" step="0.01" value="${product ? product.price : ''}" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="product-old-price">מחיר קודם (למבצע)</label>
+                                    <input type="number" id="product-old-price" min="0" step="0.01" value="${product && product.oldPrice ? product.oldPrice : ''}">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="product-stock">מלאי</label>
+                                    <input type="number" id="product-stock" min="0" value="${product && product.stock !== undefined ? product.stock : ''}">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="product-image">תמונה (URL)</label>
+                                    <input type="text" id="product-image" value="${product && product.image ? product.image : ''}">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="product-badge">תגית הצגה</label>
+                            <select id="product-badge">
+                                <option value="" ${!product || !product.badge ? 'selected' : ''}>אין</option>
+                                <option value="new" ${product && product.badge === 'new' ? 'selected' : ''}>חדש</option>
+                                <option value="sale" ${product && product.badge === 'sale' ? 'selected' : ''}>מבצע</option>
+                                <option value="hot" ${product && product.badge === 'hot' ? 'selected' : ''}>חם</option>
+                                <option value="vip" ${product && product.badge === 'vip' ? 'selected' : ''}>VIP</option>
+                                <option value="out-of-stock" ${product && product.badge === 'out-of-stock' ? 'selected' : ''}>אזל מהמלאי</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="product-tags">תגיות SEO (מופרדות בפסיקים)</label>
+                            <input type="text" id="product-tags" value="${product && product.tags ? product.tags : ''}" placeholder="למשל: גריינדר, מוצרי עישון, קנאביס">
+                            <small>תגיות יסייעו במציאת המוצר במנועי חיפוש</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="product-meta-description">תיאור Meta לקידום במנועי חיפוש</label>
+                            <textarea id="product-meta-description" rows="2">${product && product.metaDescription ? product.metaDescription : ''}</textarea>
+                            <small>תיאור קצר (עד 160 תווים) שיופיע בתוצאות החיפוש</small>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="admin-btn">${product ? 'עדכן מוצר' : 'הוסף מוצר'}</button>
+                            <button type="button" class="admin-btn cancel-btn">ביטול</button>
+                        </div>
+                        ${product ? `<input type="hidden" id="product-id" value="${product.id}">` : ''}
+                    </form>
+                </div>
+            </div>
+            `;
+            
+            $('body').append(formHTML);
+            
+            // יצירת slug אוטומטית מהשם
+            $('#product-name').on('input', function() {
+                const name = $(this).val();
+                if (!name) return;
+                
+                // יצירת slug אוטומטית רק אם שדה ה-slug ריק או שלא נערך ידנית
+                const currentSlug = $('#product-slug').val();
+                if (!currentSlug || currentSlug === generateSlug($(this).val())) {
+                    $('#product-slug').val(generateSlug(name));
+                }
+            });
+            
+            // פונקציית עזר ליצירת slug
+            function generateSlug(text) {
+                return text
+                    .toString()
+                    .toLowerCase()
+                    .replace(/\s+/g, '-')       // החלפת רווחים ב-
+                    .replace(/[^\w\-]+/g, '')   // הסרת כל התווים שאינם מילים
+                    .replace(/\-\-+/g, '-')     // החלפת מספר - ב- אחד
+                    .replace(/^-+/, '')         // חיתוך - מתחילת הטקסט
+                    .replace(/-+$/, '');        // חיתוך - מסוף הטקסט
+            }
+            
+            // מינוי אירועי לחיצה
+            $('.close-admin-modal, .cancel-btn').on('click', function() {
+                $('#product-form-modal').remove();
+            });
+            
+            $('#product-form').on('submit', async function(e) {
+                e.preventDefault();
+                
+                // קבלת נתוני הטופס
+                const name = $('#product-name').val();
+                const categoryId = $('#product-category').val();
+                const slug = $('#product-slug').val() || generateSlug(name);
+                const description = $('#product-description').val();
+                const price = parseFloat($('#product-price').val());
+                const oldPrice = $('#product-old-price').val() ? parseFloat($('#product-old-price').val()) : null;
+                const stock = $('#product-stock').val() ? parseInt($('#product-stock').val()) : null;
+                const image = $('#product-image').val();
+                const badge = $('#product-badge').val() || null;
+                const tags = $('#product-tags').val();
+                const metaDescription = $('#product-meta-description').val();
+                
+                // קבלת שם הקטגוריה
+                const selectedCategory = productManager.getCategory(categoryId);
+                const categoryName = selectedCategory ? selectedCategory.name : 'כללי';
+                
+                const formData = {
+                    name,
+                    categoryId,
+                    category: categoryName,  // שמירת שם הקטגוריה לתצוגה
+                    slug,
+                    description,
+                    price,
+                    oldPrice,
+                    stock,
+                    image,
+                    badge,
+                    tags,
+                    metaDescription,
+                    rating: product ? product.rating || 0 : 0,
+                    ratingCount: product ? product.ratingCount || 0 : 0,
+                    updated: new Date().toISOString()
+                };
+                
+                try {
+                    if (product) {
+                        // עדכון מוצר קיים
+                        formData.id = product.id;
+                        formData.created = product.created; // שמירת תאריך היצירה המקורי
+                        
+                        const success = await productManager.updateProduct(product.id, formData);
+                        if (success) {
+                            showNotification('המוצר עודכן בהצלחה', 'success');
+                            $('#product-form-modal').remove();
+                            displayProductsInAdminPanel();
+                            
+                            // אם בעמוד הבית, עדכון תצוגת המוצרים גם שם
+                            if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+                                displayProductsOnHomepage();
+                            }
+                        }
+                    } else {
+                        // הוספת מוצר חדש
+                        formData.created = new Date().toISOString();
+                        
+                        const newProductId = await productManager.addProduct(formData);
+                        if (newProductId) {
+                            showNotification('המוצר נוסף בהצלחה', 'success');
+                            $('#product-form-modal').remove();
+                            displayProductsInAdminPanel();
+                            
+                            // אם בעמוד הבית, עדכון תצוגת המוצרים גם שם
+                            if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+                                displayProductsOnHomepage();
+                            }
+                        }
+                    }
+                } catch (error) {
+                    showNotification(`שגיאה: ${error.message}`, 'error');
+                }
+            });
+        };
+        
+        // 5. הצגת מבנה קטגוריות היררכי בתפריט הניווט
+        window.displayCategoriesInMainMenu = function(categories) {
+            console.log('הצגת קטגוריות בתפריט ראשי:', categories);
+            
+            // מציאת תפריט הקטגוריות
+            const $mainNav = $('.main-nav');
+            
+            // יצירת תפריט חדש אם לא קיים
+            if ($mainNav.find('.menu-item-has-children:has(a:contains("קטגוריות"))').length === 0) {
+                $mainNav.prepend(`
+                    <li class="menu-item menu-item-has-children">
+                        <a href="#" class="has-submenu">קטגוריות<span class="drop-indicator"><i class="fas fa-caret-down"></i></span></a>
+                        <ul class="sub-menu categories-menu">
+                            <!-- כאן יוצגו הקטגוריות -->
+                        </ul>
+                    </li>
+                `);
+            }
+            
+            // איתור תפריט הקטגוריות
+            const $categoriesMenu = $('.main-nav .menu-item-has-children:has(a:contains("קטגוריות")) .sub-menu');
+            
+            // ניקוי התפריט הקיים
+            $categoriesMenu.empty();
+            
+            if (!categories || categories.length === 0) {
+                $categoriesMenu.append('<li class="dropdown-link"><a href="#" class="dropdown-link-a">אין קטגוריות להצגה</a></li>');
+                return;
+            }
+            
+            // יצירת מפה של קטגוריות אב וילדים
+            const categoryMap = {};
+            const rootCategories = [];
+            
+            // מיון הקטגוריות לפי אב וילדים
+            categories.forEach(category => {
+                if (!category) return; // דילוג על undefined
+                
+                // הוספה למפה
+                categoryMap[category.id] = category;
+                
+                // אם אין parentId, זו קטגוריה ראשית
+                if (!category.parentId) {
+                    rootCategories.push(category);
+                }
+            });
+            
+            // מיון לפי שדה order
+            rootCategories.sort((a, b) => (a.order || 0) - (b.order || 0));
+            
+            // פונקציה רקורסיבית להצגת קטגוריות בתפריט
+            function renderCategoryMenuItem(category) {
+                if (!category) return '';
+                
+                // האם יש תת-קטגוריות?
+                const childCategories = categories.filter(cat => cat && cat.parentId === category.id);
+                const hasChildren = childCategories.length > 0;
+                
+                // יצירת URL לקטגוריה
+                const categorySlug = category.slug || category.name.replace(/\s+/g, '-').toLowerCase();
+                const categoryUrl = `category-${categorySlug}.html`;
+                
+                if (hasChildren) {
+                    // מיון תת-קטגוריות
+                    childCategories.sort((a, b) => (a.order || 0) - (b.order || 0));
+                    
+                    // יצירת תת-תפריט עם ילדים
+                    let submenuHtml = `
+                        <li class="dropdown-link dropdown-link-has-children">
+                            <a href="${categoryUrl}" class="dropdown-link-a">
+                                <i class="${category.icon || 'fas fa-folder'}"></i>
+                                ${category.name}
+                                ${category.vipOnly ? ' <span class="vip-badge">VIP</span>' : ''}
+                                <i class="fas fa-chevron-left dropdown-icon"></i>
+                            </a>
+                            <ul class="sub-dropdown">
+                    `;
+                    
+                    // הוספת כל תת-קטגוריה
+                    childCategories.forEach(child => {
+                        submenuHtml += renderCategoryMenuItem(child);
+                    });
+                    
+                    submenuHtml += `
+                            </ul>
+                        </li>
+                    `;
+                    
+                    return submenuHtml;
+                } else {
+                    // קטגוריה רגילה ללא ילדים
+                    return `
+                        <li class="dropdown-link">
+                            <a href="${categoryUrl}" class="dropdown-link-a">
+                                <i class="${category.icon || 'fas fa-folder'}"></i> 
+                                ${category.name}
+                                ${category.vipOnly ? ' <span class="vip-badge">VIP</span>' : ''}
+                            </a>
+                        </li>
+                    `;
+                }
+            }
+            
+            // הצגת כל הקטגוריות הראשיות בתפריט
+            rootCategories.forEach(rootCategory => {
+                $categoriesMenu.append(renderCategoryMenuItem(rootCategory));
+            });
+            
+            // הוספת אייקון חץ לקטגוריות עם תת-קטגוריות וטיפול בהן נכון
+            $('.dropdown-link-has-children').each(function() {
+                const $link = $(this);
+                
+                // חיבור אירוע לחיצה לקטגוריות עם תת-קטגוריות
+                $link.find('> a').on('click', function(e) {
+                    // במחשב נייד נאפשר לחיצה להרחבת תת-תפריט
+                    if (window.innerWidth <= 768) {
+                        e.preventDefault();
+                        $link.toggleClass('active');
+                        $link.find('.sub-dropdown').slideToggle(300);
+                    }
+                    // במחשב שולחני נאפשר מעבר לדף הקטגוריה עצמה
+                });
+                
+                // וידוא שתת-התפריטים מוסתרים במצב מובייל
+                if (window.innerWidth <= 768) {
+                    $link.find('.sub-dropdown').hide();
+                }
+            });
+            
+            console.log('סיום עדכון תפריט הקטגוריות');
+        };
+        
+        console.log('מערכת הקטגוריות שודרגה בהצלחה');
+    } else {
+        console.warn('לא נמצא אובייקט productManager - לא ניתן לשדרג את מערכת הקטגוריות');
+    }
+}
+
+// פונקציה מרכזית שמפעילה את כל השיפורים
+function applyAllImprovements() {
+    // 1. תיקון סגנון פאנל ניהול
+    addImprovedAdminStyles();
+    
+    // 2. סגירת הסרגלים הצדדיים כברירת מחדל
+    setupSidePanelsClosedByDefault();
+    
+    // 3. שיפור מערכת הקטגוריות
+    enhanceCategoryManagement();
+    
+    console.log('כל השיפורים הוחלו בהצלחה!');
+}
+
+// פונקציה שמבטיחה שהסקריפט פועל רק לאחר טעינת הדף
+$(document).ready(function() {
+    console.log('מיישם שיפורים ותיקונים באתר Doctor Instraction...');
+    
+    // הפעלת כל השיפורים
+    applyAllImprovements();
+    
+    // רענון הצגת הקטגוריות בתפריט הניווט אם productManager זמין
+    if (typeof window.productManager !== 'undefined') {
+        setTimeout(() => {
+            productManager.loadCategoriesFromGitHub().then(success => {
+                if (success) {
+                    displayCategoriesInMainMenu(productManager.getAllCategories());
+                }
+            });
+        }, 1000);
+    }
+    
+    // מינוי אירועי חלון שנשארים יציבים גם לאחר ניווט בדף
+    $(window).on('resize', function() {
+        // התאמת תצוגת תת-תפריטים
+        if (window.innerWidth > 768) {
+            $('.dropdown-link-has-children .sub-dropdown').show();
+        } else {
+            $('.dropdown-link-has-children:not(.active) .sub-dropdown').hide();
+        }
+    });
+});
+
     
     productsHTML += '</div>';
     
