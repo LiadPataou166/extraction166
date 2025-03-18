@@ -1923,27 +1923,28 @@ function addAdminPanelToDOM() {
                     <h3>ניהול משתמשים</h3>
                     <p>פונקציונליות זו תהיה זמינה בקרוב.</p>
                 </div>
-                <div id="categories-tab" class="admin-tab">
-                    <h3>ניהול קטגוריות</h3>
-                    <div class="admin-actions">
-                        <button id="add-category-btn" class="admin-btn">הוסף קטגוריה חדשה</button>
-                        <button id="refresh-categories-btn" class="admin-btn">רענן קטגוריות</button>
-                    </div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>שם קטגוריה</th>
-                                <th>מספר מוצרים</th>
-                                <th>פעולות</th>
-                            </tr>
-                        </thead>
-                        <tbody id="categories-table-body">
-                            <tr>
-                                <td colspan="3" class="loading">טוען קטגוריות...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+<div id="categories-tab" class="admin-tab">
+    <h3>ניהול קטגוריות</h3>
+    <div class="admin-actions">
+        <button id="add-category-btn" class="admin-btn">הוסף קטגוריה חדשה</button>
+        <button id="refresh-categories-btn" class="admin-btn">רענן קטגוריות</button>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>שם קטגוריה</th>
+                <th>קטגוריית אב</th>
+                <th>מספר מוצרים</th>
+                <th>פעולות</th>
+            </tr>
+        </thead>
+        <tbody id="categories-table-body">
+            <tr>
+                <td colspan="4" class="loading">טוען קטגוריות...</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
                 <div id="settings-tab" class="admin-tab">
                     <h3>הגדרות האתר</h3>
                     <div class="form-group">
@@ -2137,22 +2138,195 @@ function loadCategories() {
         }
     });
 }
+
+// Custom function to organize categories specifically for the main navigation
+function organizeMainMenuCategories() {
+    console.log('מארגן קטגוריות תפריט ראשי');
+    
+    // Check if the product manager and categories exist
+    if (!productManager || !productManager.categories || productManager.categories.length === 0) {
+        console.warn('No categories available to organize menu');
+        return;
+    }
+    
+    // Find the smoking products category if it exists
+    let smokingCategory = productManager.categories.find(cat => 
+        cat.name === 'מוצרי עישון' || cat.slug === 'smoking-products'
+    );
+    
+    // If smoking category doesn't exist, create it
+    if (!smokingCategory) {
+        console.log('Creating smoking products main category');
+        
+        // Prepare new category
+        const smokingCategoryData = {
+            id: 'cat_smoking_' + Date.now(),
+            name: 'מוצרי עישון',
+            slug: 'smoking-products',
+            description: 'כל מוצרי העישון שלנו במקום אחד',
+            icon: 'fas fa-smoking',
+            order: 10,
+            created: new Date().toISOString(),
+            updated: new Date().toISOString()
+        };
+        
+        // Add to product manager categories array directly
+        productManager.categories.push(smokingCategoryData);
+        smokingCategory = smokingCategoryData;
+        
+        // Save to GitHub if possible
+        try {
+            productManager.saveCategoriesToGitHub()
+                .then(success => {
+                    if (success) {
+                        console.log('Successfully created and saved smoking products category');
+                    }
+                });
+        } catch (error) {
+            console.error('Error saving smoking category:', error);
+        }
+        
+        // Now handle rolling category
+        setupRollingCategory(smokingCategory.id);
+    } else {
+        // Smoking category exists, now handle rolling category
+        setupRollingCategory(smokingCategory.id);
+    }
+    
+    function setupRollingCategory(smokingCategoryId) {
+        // Find rolling category
+        let rollingCategory = productManager.categories.find(cat => 
+            cat.name === 'גלגול' || cat.slug === 'rolling'
+        );
+        
+        // If rolling category exists, make sure it's a subcategory of smoking
+        if (rollingCategory) {
+            console.log('קטגורית גלגול קיימת, משייך אותה למוצרי עישון');
+            
+            // Update if needed
+            if (rollingCategory.parentId !== smokingCategoryId) {
+                rollingCategory.parentId = smokingCategoryId;
+                rollingCategory.updated = new Date().toISOString();
+                
+                // עדכון ישיר של מערך הקטגוריות
+                const index = productManager.categories.findIndex(c => c.id === rollingCategory.id);
+                if (index !== -1) {
+                    productManager.categories[index] = rollingCategory;
+                }
+                
+                // שמירה ל-GitHub
+                try {
+                    productManager.saveCategoriesToGitHub()
+                        .then(success => {
+                            if (success) {
+                                console.log('Updated rolling category to be under smoking products');
+                                // רענון התצוגה
+                                displayCategoriesInMainMenu(productManager.categories);
+                            }
+                        });
+                } catch (error) {
+                    console.error('Error updating rolling category:', error);
+                }
+            }
+        } else {
+            // Create rolling category as a subcategory
+            console.log('יוצר קטגורית גלגול חדשה תחת מוצרי עישון');
+            
+            const rollingCategoryData = {
+                id: 'cat_rolling_' + Date.now(),
+                name: 'גלגול',
+                slug: 'rolling',
+                description: 'מוצרי גלגול איכותיים',
+                icon: 'fas fa-scroll',
+                parentId: smokingCategoryId,
+                order: 10,
+                created: new Date().toISOString(),
+                updated: new Date().toISOString()
+            };
+            
+            // הוספה ישירה למערך הקטגוריות
+            productManager.categories.push(rollingCategoryData);
+            
+            // שמירה ל-GitHub
+            try {
+                productManager.saveCategoriesToGitHub()
+                    .then(success => {
+                        if (success) {
+                            console.log('Successfully created rolling subcategory');
+                            
+                            // Create sub-subcategories for rolling
+                            const rollingSubcategories = [
+                                {name: 'ניירות גלגול', slug: 'rolling-papers', icon: 'fas fa-file'},
+                                {name: 'פילטרים', slug: 'filters', icon: 'fas fa-filter'},
+                                {name: 'מכונות גלגול', slug: 'rolling-machines', icon: 'fas fa-cogs'},
+                                {name: 'קססוניות ומגשי גלגול', slug: 'rolling-trays', icon: 'fas fa-tray'}
+                            ];
+                            
+                            // הוסף את תת-הקטגוריות למערך
+                            rollingSubcategories.forEach((subcat, index) => {
+                                const subcatData = {
+                                    id: `cat_rolling_${subcat.slug}_${Date.now() + index}`,
+                                    name: subcat.name,
+                                    slug: subcat.slug,
+                                    description: `${subcat.name} איכותיים`,
+                                    icon: subcat.icon,
+                                    parentId: rollingCategoryData.id,
+                                    order: index * 10,
+                                    created: new Date().toISOString(),
+                                    updated: new Date().toISOString()
+                                };
+                                
+                                productManager.categories.push(subcatData);
+                            });
+                            
+                            // שמירה מרוכזת של כל תת-הקטגוריות
+                            productManager.saveCategoriesToGitHub()
+                                .then(success => {
+                                    if (success) {
+                                        console.log('נוצרו תת-קטגוריות גלגול בהצלחה');
+                                        // רענון התצוגה
+                                        displayCategoriesInMainMenu(productManager.categories);
+                                    }
+                                });
+                        }
+                    });
+            } catch (error) {
+                console.error('Error creating rolling subcategories:', error);
+            }
+        }
+    }
+    
+    // רענון תצוגת התפריט
+    displayCategoriesInMainMenu(productManager.categories);
+}
+
 // Function to display categories in the admin panel
 function displayCategories(categories) {
+    console.log('Displaying categories in admin panel:', categories);
     let categoriesHTML = '';
     
-    if (categories.length === 0) {
+    if (!categories || categories.length === 0) {
         categoriesHTML = '<tr><td colspan="3" class="empty">אין קטגוריות להצגה</td></tr>';
     } else {
         categories.forEach(category => {
+            // וידוא שיש ID תקין לקטגוריה
+            if (!category || !category.id) {
+                console.warn('קטגוריה ללא ID נמצאה:', category);
+                return;
+            }
+            
             // Count products in this category
-            const productsInCategory = productManager.products.filter(
-                product => product.category === category.name
-            ).length;
+            const productsInCategory = productManager.products && productManager.products.filter ?
+                productManager.products.filter(product => product.category === category.name).length : 0;
+            
+            // בדיקה אם זו קטגוריית אב או תת-קטגוריה
+            const parentName = category.parentId ? 
+                (productManager.getCategory(category.parentId)?.name || 'לא ידוע') : 'קטגוריה ראשית';
             
             categoriesHTML += `
-                <tr>
-                    <td>${category.name}</td>
+                <tr data-id="${category.id}">
+                    <td>${category.name || 'ללא שם'}</td>
+                    <td>${parentName}</td>
                     <td>${productsInCategory}</td>
                     <td>
                         <button class="action-btn edit-category-btn" data-id="${category.id}">
@@ -2167,7 +2341,13 @@ function displayCategories(categories) {
         });
     }
     
+    console.log('עדכון טבלת הקטגוריות עם:', categoriesHTML.substring(0, 100) + '...');
     $('#categories-table-body').html(categoriesHTML);
+    
+    // וידוא שהטבלה מוצגת כראוי
+    if (!$('#categories-table-body').html()) {
+        console.error('שגיאה: לא ניתן לעדכן את טבלת הקטגוריות');
+    }
     
     // Attach handlers to the category action buttons
     $('.edit-category-btn').off('click').on('click', function() {
@@ -2178,11 +2358,12 @@ function displayCategories(categories) {
     $('.delete-category-btn').off('click').on('click', function() {
         const categoryId = $(this).data('id');
         const category = productManager.getCategory(categoryId);
-        if (confirm(`האם אתה בטוח שברצונך למחוק את הקטגוריה "${category.name}"?`)) {
+        if (confirm(`האם אתה בטוח שברצונך למחוק את הקטגוריה "${category?.name || categoryId}"?`)) {
             deleteCategory(categoryId);
         }
     });
 }
+
 
 // Function to show category form
 function showCategoryForm(categoryId = null) {
@@ -2986,9 +3167,15 @@ function createCategoryPageContent(categoryData, existingFile = null) {
     <script src="script.js"></script>
     <script>
         $(document).ready(function() {
+            console.log('דף נטען. מתחיל אתחול...');
             if (typeof productManager === 'undefined') {
                 window.productManager = new ProductManager();
             }
+                    // Load and display categories in main menu
+    loadCategories().then(() => {
+        // קריאה לארגון הקטגוריות בתפריט
+        organizeMainMenuCategories();
+    });
             
             // Check user login status
             checkUserLogin();
@@ -3137,149 +3324,157 @@ function createCategoryPageContent(categoryData, existingFile = null) {
 </html>
 `;
 }
-
-// Add admin styles if not already in the document
 function addAdminStyles() {
     if ($('#admin-styles').length === 0) {
         const adminStyles = `
         <style id="admin-styles">
-            /* Admin panel custom styles (beyond what's in HTML) */
+            /* Admin panel custom styles - with complete dark theme */
             .admin-panel {
-                color: #f0f0f0;
+                color: #f0f0f0 !important;
+            }
+            
+            .admin-panel-container {
+                background-color: #222 !important;
             }
             
             .admin-panel-header {
-                background-color: #1a1a1a;
-                color: #fff;
-                border-bottom: 1px solid #333;
+                background-color: #1a1a1a !important;
+                color: #fff !important;
+                border-bottom: 1px solid #333 !important;
             }
             
             .admin-panel-sidebar {
-                background-color: #222;
+                background-color: #222 !important;
             }
             
             .admin-panel-content {
-                background-color: #282828;
+                background-color: #282828 !important;
+            }
+            
+            .admin-tab {
+                background-color: #282828 !important;
             }
             
             .admin-menu-item {
-                color: #e0e0e0;
-                background-color: #333;
-                margin-bottom: 5px;
-                border-radius: 4px;
-                transition: all 0.3s ease;
+                color: #e0e0e0 !important;
+                background-color: #333 !important;
+                margin-bottom: 5px !important;
+                border-radius: 4px !important;
+                transition: all 0.3s ease !important;
             }
             
             .admin-menu-item:hover, .admin-menu-item.active {
-                background-color: #4a7c59;
-                color: #fff;
+                background-color: #4a7c59 !important;
+                color: #fff !important;
             }
             
             .admin-panel h3 {
-                color: #4a7c59;
+                color: #4a7c59 !important;
             }
             
             .admin-panel label {
-                color: #e0e0e0;
+                color: #e0e0e0 !important;
             }
             
             .admin-panel input, .admin-panel select, .admin-panel textarea {
-                background-color: #333;
-                color: #fff;
-                border: 1px solid #444;
+                background-color: #333 !important;
+                color: #fff !important;
+                border: 1px solid #444 !important;
             }
             
             .admin-panel input:focus, .admin-panel select:focus, .admin-panel textarea:focus {
-                border-color: #4a7c59;
-                box-shadow: 0 0 0 2px rgba(74, 124, 89, 0.2);
-                outline: none;
+                border-color: #4a7c59 !important;
+                box-shadow: 0 0 0 2px rgba(74, 124, 89, 0.2) !important;
+                outline: none !important;
             }
             
             .admin-panel small {
-                color: #aaa;
+                color: #aaa !important;
             }
             
             .admin-panel table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-bottom: 20px;
-                color: #e0e0e0;
+                width: 100% !important;
+                border-collapse: collapse !important;
+                margin-bottom: 20px !important;
+                color: #e0e0e0 !important;
             }
             
             .admin-panel th, .admin-panel td {
-                border: 1px solid #444;
-                padding: 12px;
-                text-align: right;
+                border: 1px solid #444 !important;
+                padding: 12px !important;
+                text-align: right !important;
+                color: #e0e0e0 !important;
+                background-color: transparent !important;
             }
             
             .admin-panel th {
-                background-color: #333;
-                font-weight: 600;
+                background-color: #333 !important;
+                font-weight: 600 !important;
             }
             
             .admin-panel tr:nth-child(even) {
-                background-color: #2a2a2a;
+                background-color: #2a2a2a !important;
             }
             
             .admin-panel tr:hover {
-                background-color: #3a3a3a;
+                background-color: #3a3a3a !important;
             }
             
             .action-btn {
-                background: none;
-                border: none;
-                color: #4a7c59;
-                margin-right: 5px;
-                cursor: pointer;
+                background: none !important;
+                border: none !important;
+                color: #4a7c59 !important;
+                margin-right: 5px !important;
+                cursor: pointer !important;
             }
             
             .delete-btn {
-                color: #e74c3c;
+                color: #e74c3c !important;
             }
             
             .admin-btn {
-                background-color: #4a7c59;
-                color: white;
-                border: none;
-                padding: 10px 15px;
-                border-radius: 4px;
-                cursor: pointer;
-                transition: background-color 0.3s;
-                margin-right: 5px;
+                background-color: #4a7c59 !important;
+                color: white !important;
+                border: none !important;
+                padding: 10px 15px !important;
+                border-radius: 4px !important;
+                cursor: pointer !important;
+                transition: background-color 0.3s !important;
+                margin-right: 5px !important;
             }
             
             .admin-btn:hover {
-                background-color: #3a6c49;
+                background-color: #3a6c49 !important;
             }
             
             .admin-tab h3 {
-                margin-top: 0;
-                margin-bottom: 20px;
+                margin-top: 0 !important;
+                margin-bottom: 20px !important;
             }
             
             .admin-actions {
-                margin-bottom: 20px;
-                display: flex;
-                gap: 10px;
+                margin-bottom: 20px !important;
+                display: flex !important;
+                gap: 10px !important;
             }
             
             .form-actions {
-                display: flex;
-                justify-content: flex-end;
-                gap: 10px;
-                margin-top: 20px;
+                display: flex !important;
+                justify-content: flex-end !important;
+                gap: 10px !important;
+                margin-top: 20px !important;
             }
             
             .loading, .empty {
-                text-align: center;
-                padding: 20px;
-                color: #888;
+                text-align: center !important;
+                padding: 20px !important;
+                color: #888 !important;
             }
             
             .error {
-                text-align: center;
-                padding: 20px;
-                color: #e74c3c;
+                text-align: center !important;
+                padding: 20px !important;
+                color: #e74c3c !important;
             }
             
             /* Admin modal styles */
@@ -3292,7 +3487,7 @@ function addAdminStyles() {
                 bottom: 0;
                 z-index: 3100;
                 direction: rtl;
-                background-color: rgba(0,0,0,0.7);
+                background-color: rgba(0,0,0,0.7) !important;
             }
             
             .admin-modal.active {
@@ -3300,45 +3495,64 @@ function addAdminStyles() {
             }
             
             .admin-modal-container {
-                background-color: #282828;
-                color: #e0e0e0;
-                border-radius: 8px;
-                border: 1px solid #444;
-                box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-                max-width: 800px;
-                max-height: 90vh;
-                margin: 5vh auto;
-                overflow-y: auto;
+                background-color: #282828 !important;
+                color: #e0e0e0 !important;
+                border-radius: 8px !important;
+                border: 1px solid #444 !important;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.5) !important;
+                max-width: 800px !important;
+                max-height: 90vh !important;
+                margin: 5vh auto !important;
+                overflow-y: auto !important;
             }
             
             .admin-modal-header {
-                background-color: #1a1a1a;
-                color: #fff;
-                border-bottom: 1px solid #333;
-                padding: 15px 20px;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
+                background-color: #1a1a1a !important;
+                color: #fff !important;
+                border-bottom: 1px solid #333 !important;
+                padding: 15px 20px !important;
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
             }
             
             .admin-modal form {
-                padding: 20px;
+                padding: 20px !important;
+                background-color: #282828 !important;
+                color: #e0e0e0 !important;
             }
             
             .close-admin-modal {
-                background: none;
-                border: none;
-                color: #fff;
-                font-size: 20px;
-                cursor: pointer;
+                background: none !important;
+                border: none !important;
+                color: #fff !important;
+                font-size: 20px !important;
+                cursor: pointer !important;
             }
             
             /* Make checkboxes more visible */
             .admin-panel input[type="checkbox"] {
-                width: 18px;
-                height: 18px;
-                margin-left: 8px;
-                vertical-align: middle;
+                width: 18px !important;
+                height: 18px !important;
+                margin-left: 8px !important;
+                vertical-align: middle !important;
+            }
+            
+            /* פיקס נוסף לכל האלמנטים בתוך המודל */
+            .admin-modal * {
+                color: #e0e0e0 !important;
+                background-color: transparent !important;
+            }
+            
+            .admin-modal input, .admin-modal select, .admin-modal textarea {
+                background-color: #333 !important;
+                color: #fff !important;
+                border: 1px solid #444 !important;
+            }
+            
+            /* צבע כותרות */
+            .admin-modal h3 {
+                color: #4a7c59 !important;
             }
         </style>
         `;
@@ -3466,6 +3680,32 @@ function loadAndDisplayAdminProducts() {
             console.error('Error in loadProductsFromGitHub:', error);
             $('#products-table-body').html(`<tr><td colspan="6" class="error">שגיאה בטעינת מוצרים: ${error.message}</td></tr>`);
         });
+}
+
+// Function to load categories with promise
+function loadCategories() {
+    console.log('Loading categories...');
+    
+    return new Promise((resolve) => {
+        // Use the ProductManager to load categories from GitHub
+        productManager.loadCategoriesFromGitHub().then(success => {
+            if (success) {
+                console.log('קטגוריות נטענו בהצלחה');
+                // Update both admin panel and site menu
+                displayCategories(productManager.getAllCategories());
+                displayCategoriesInMainMenu(productManager.getAllCategories());
+                resolve(true);
+            } else {
+                showNotification('שגיאה בטעינת קטגוריות', 'error');
+                // Display empty categories list
+                displayCategories([]);
+                resolve(false);
+            }
+        }).catch(error => {
+            console.error('שגיאה בטעינת קטגוריות:', error);
+            resolve(false);
+        });
+    });
 }
 
 // Function to display products in admin panel
@@ -4096,10 +4336,14 @@ async function createVIPUserFile(userData) {
 
 // Setup sidebar toggles
 function setupSidebarToggles() {
-    // Hide sidebars by default on page load
-    $('.system-sidebar, .product-sidebar').addClass('closed');
+    console.log('מגדיר פאנלים צדדיים');
     
-    // Create toggle buttons if they don't exist
+    // וידוא שהפאנלים סגורים בברירת מחדל
+    $('.system-sidebar, .product-sidebar').css({
+        'transform': 'translateX(-100%)'
+    });
+    
+    // וידוא שכפתורי ההפעלה קיימים
     if ($('.sidebar-toggle-left').length === 0) {
         $('body').append('<button class="sidebar-toggle sidebar-toggle-left"><i class="fas fa-bars"></i></button>');
     }
@@ -4108,13 +4352,14 @@ function setupSidebarToggles() {
         $('body').append('<button class="sidebar-toggle sidebar-toggle-right"><i class="fas fa-list"></i></button>');
     }
     
-    // Left sidebar toggle
+    // אירועי לחיצה על הכפתורים
     $('.sidebar-toggle-left').off('click').on('click', function() {
+        console.log('לחיצה על כפתור פאנל שמאלי');
         $('.system-sidebar').toggleClass('active');
     });
     
-    // Right sidebar toggle
     $('.sidebar-toggle-right').off('click').on('click', function() {
+        console.log('לחיצה על כפתור פאנל ימני');
         $('.product-sidebar').toggleClass('active');
     });
 }
