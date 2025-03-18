@@ -119,5 +119,26 @@
     "updated": "2025-03-18T23:24:53.662Z",
     "id": "cat_1742340293662557",
     "createdAt": "2025-03-18T23:24:53.662Z"
+  },
+  {
+    "id": "cat_smoking_1742340346374",
+    "name": "מוצרי עישון",
+    "slug": "smoking-products",
+    "description": "כל מוצרי העישון שלנו במקום אחד",
+    "icon": "fas fa-smoking",
+    "order": 10,
+    "created": "2025-03-18T23:25:46.374Z",
+    "updated": "2025-03-18T23:25:46.375Z"
+  },
+  {
+    "id": "cat_rolling_1742340346376",
+    "name": "גלגול",
+    "slug": "rolling",
+    "description": "מוצרי גלגול איכותיים",
+    "icon": "fas fa-scroll",
+    "parentId": "cat_smoking_1742340346374",
+    "order": 10,
+    "created": "2025-03-18T23:25:46.376Z",
+    "updated": "2025-03-18T23:25:46.376Z"
   }
 ]
