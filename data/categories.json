@@ -110,5 +110,26 @@
     "updated": "2025-03-18T23:53:44.808Z",
     "id": "cat_1742342024808176",
     "createdAt": "2025-03-18T23:53:44.808Z"
+  },
+  {
+    "name": "111",
+    "description": "111",
+    "slug": "1",
+    "icon": null,
+    "image": "/api/placeholder/400/300",
+    "bgColor": "#1a1d21",
+    "textColor": "#ffffff",
+    "order": 0,
+    "featured": true,
+    "vipOnly": false,
+    "columnLayout": "1",
+    "seoTitle": "1",
+    "seoDescription": "1",
+    "seoKeywords": "1",
+    "parentId": "",
+    "created": "2025-03-18T23:58:39.424Z",
+    "updated": "2025-03-18T23:58:39.424Z",
+    "id": "cat_1742342319424854",
+    "createdAt": "2025-03-18T23:58:39.424Z"
   }
 ]
