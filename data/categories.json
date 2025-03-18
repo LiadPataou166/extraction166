@@ -15,23 +15,6 @@
     "createdAt": "2025-03-17T21:10:52.337Z"
   },
   {
-    "name": "דד ד ד",
-    "description": "111",
-    "slug": "gidul1111",
-    "icon": "fas fa-water",
-    "image": "/api/placeholder/400/300",
-    "bgColor": "#0a53b2",
-    "textColor": "#d11010",
-    "order": 0,
-    "featured": true,
-    "vipOnly": false,
-    "columnLayout": "1",
-    "created": "2025-03-17T23:00:53.472Z",
-    "updated": "2025-03-17T23:00:53.472Z",
-    "id": "cat_1742252453472881",
-    "createdAt": "2025-03-17T23:00:53.472Z"
-  },
-  {
     "name": "בדיקה1",
     "description": "1",
     "slug": "chec",
