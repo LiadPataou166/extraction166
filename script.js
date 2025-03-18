@@ -572,6 +572,9 @@ $(document).ready(function(){
 
     // תיקון לפריסת תפריט קטגוריות פתוח
     function fixCategoriesMenu() {
+        console.log('Fixing categories menu display');
+        
+        // ודא שתפריט הקטגוריות מוצג כראוי
         if ($('.mega-menu').length) {
             $('.mega-menu').css({
                 'display': 'block',
@@ -579,6 +582,43 @@ $(document).ready(function(){
                 'opacity': '1'
             });
         }
+        
+        // טיפול במצב תפריט משובש
+        $('.main-nav').css({
+            'display': 'flex',
+            'visibility': 'visible',
+            'opacity': '1'
+        });
+        
+        // טיפול בתתי-תפריטים של קטגוריות
+        $('.menu-item-has-children').each(function() {
+            $(this).on('mouseenter', function() {
+                $(this).find('.sub-menu').css({
+                    'display': 'block',
+                    'visibility': 'visible',
+                    'opacity': '1',
+                    'transform': 'translateY(0)'
+                });
+            });
+            
+            $(this).on('mouseleave', function() {
+                if (window.innerWidth > 768) {
+                    $(this).find('.sub-menu').css({
+                        'visibility': 'hidden',
+                        'opacity': '0',
+                        'transform': 'translateY(10px)'
+                    });
+                }
+            });
+        });
+        
+        // תמיכה במכשירים ניידים
+        $('.has-submenu').on('click', function(e) {
+            if (window.innerWidth <= 768) {
+                e.preventDefault();
+                $(this).parent().toggleClass('active');
+            }
+        });
         
         // יצירת כפתורי פתיחה לסרגלים אם אינם קיימים
         if ($('.sidebar-toggle-left, .sidebar-toggle-right').length === 0) {
@@ -3023,6 +3063,68 @@ function createCategoryPageContent(categoryData, existingFile = null) {
             });
         }
     </script>
+    
+    <style>
+    /* תיקון לתצוגת המוצרים ברשת */
+    .category-products-grid {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
+        gap: 20px !important;
+        width: 100% !important;
+        margin: 0 auto !important;
+        padding: 20px 0 !important;
+    }
+    
+    .product-card {
+        margin-bottom: 0 !important;
+        height: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        background: var(--card-bg);
+        border-radius: 10px;
+        overflow: hidden;
+        transition: all 0.3s;
+        border: 1px solid var(--border-color);
+    }
+    
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        border-color: var(--primary-color);
+    }
+    
+    .product-image {
+        height: 200px !important;
+        background-size: cover !important;
+        background-position: center !important;
+    }
+    
+    .product-content {
+        padding: 15px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        flex: 1;
+    }
+    
+    .product-meta {
+        margin-top: auto !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+    }
+    
+    @media (max-width: 768px) {
+        .category-products-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .category-products-grid {
+            grid-template-columns: 1fr !important;
+        }
+    }
+    </style>
 </body>
 </html>
 `;
