@@ -1,23 +1,23 @@
 [
   {
-    "name": "ליעד",
-    "description": "ליעד11",
-    "slug": "gidul11111",
+    "name": "צצצצצ",
+    "description": "1",
+    "slug": "gidul111113",
     "icon": null,
     "image": "/api/placeholder/400/300",
     "bgColor": "#1a1d21",
     "textColor": "#ffffff",
     "order": 0,
-    "featured": false,
+    "featured": true,
     "vipOnly": false,
     "columnLayout": "1",
-    "seoTitle": "ציוד גידול אדיר",
-    "seoDescription": "וואו מטורף",
-    "seoKeywords": "ליעד תותח",
-    "parentId": "cat_1742306012195365",
-    "created": "2025-03-18T23:24:53.649Z",
-    "updated": "2025-03-18T23:24:53.662Z",
-    "id": "cat_1742340293662557",
-    "createdAt": "2025-03-18T23:24:53.662Z"
+    "seoTitle": "1",
+    "seoDescription": "1",
+    "seoKeywords": "1",
+    "parentId": "",
+    "created": "2025-03-18T23:53:44.808Z",
+    "updated": "2025-03-18T23:53:44.808Z",
+    "id": "cat_1742342024808176",
+    "createdAt": "2025-03-18T23:53:44.808Z"
   }
 ]
