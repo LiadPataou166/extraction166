@@ -226,7 +226,7 @@
     "createdAt": "2025-03-19T01:08:46.419Z"
   },
   {
-    "name": "bbb",
+    "name": "bbb123",
     "description": "b",
     "slug": "b",
     "icon": null,
@@ -242,9 +242,10 @@
     "seoKeywords": "b",
     "parentId": "",
     "created": "2025-03-19T07:44:01.583Z",
-    "updated": "2025-03-19T07:44:01.583Z",
+    "updated": "2025-03-19T08:04:27.158Z",
     "id": "cat_1742370241583117",
-    "createdAt": "2025-03-19T07:44:01.583Z"
+    "createdAt": "2025-03-19T07:44:01.583Z",
+    "updatedAt": "2025-03-19T08:04:27.158Z"
   },
   {
     "name": "f",
