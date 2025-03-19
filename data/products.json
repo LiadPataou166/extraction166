@@ -152,5 +152,23 @@
     "slug": "123",
     "lastUpdated": "2025-03-19T00:06:58.769Z",
     "id": "m8f5xf4i94i0qed6yt"
+  },
+  {
+    "name": "khg",
+    "price": 12,
+    "oldPrice": 12,
+    "category": "ccx",
+    "stock": 1,
+    "image": "1",
+    "description": "1",
+    "badge": null,
+    "rating": 0,
+    "ratingCount": 0,
+    "seoTitle": "1",
+    "seoDescription": "1",
+    "seoKeywords": "1",
+    "slug": "khg",
+    "lastUpdated": "2025-03-19T00:08:07.700Z",
+    "id": "m8f5ywb83gy7ckzs5pd"
   }
 ]
