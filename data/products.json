@@ -35,14 +35,19 @@
     "name": "a",
     "price": 1,
     "oldPrice": 1,
-    "category": "בית וגן",
+    "category": "ccx",
     "stock": 1,
     "image": "1",
     "description": "1",
     "badge": null,
     "rating": 0,
     "ratingCount": 0,
-    "id": "m8dloukii5vehxfo20n"
+    "id": "m8dloukii5vehxfo20n",
+    "seoTitle": "",
+    "seoDescription": "",
+    "seoKeywords": "",
+    "slug": "a",
+    "lastUpdated": "2025-03-19T00:45:59.258Z"
   },
   {
     "name": "ש",
