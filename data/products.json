@@ -1,17 +1,22 @@
 [
   {
     "name": "מנורת גידול",
-    "category": "דד ד ד",
+    "category": "ש",
     "price": 155,
     "oldPrice": 155,
     "stock": 15,
-    "badge": "new",
+    "badge": null,
     "description": "1",
     "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqSf3L3cQ1FlHb2uUyV2rs5MHKFxSH7jKdOg&s",
     "createdAt": "2025-03-16T14:35:36.598Z",
     "id": "m8bqmxhyupuei0wv8q",
     "rating": 0,
-    "ratingCount": 0
+    "ratingCount": 0,
+    "seoTitle": "",
+    "seoDescription": "",
+    "seoKeywords": "",
+    "slug": "",
+    "lastUpdated": "2025-03-19T00:45:33.304Z"
   },
   {
     "name": "בדיקה11116",
