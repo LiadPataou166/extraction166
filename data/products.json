@@ -71,14 +71,19 @@
     "name": "בד",
     "price": 1,
     "oldPrice": 1,
-    "category": "דד ד ד",
+    "category": "bbb",
     "stock": 1,
     "image": "1",
     "description": "1",
     "badge": null,
     "rating": 0,
     "ratingCount": 0,
-    "id": "m8doj6rcaraupu31h1c"
+    "id": "m8doj6rcaraupu31h1c",
+    "seoTitle": "",
+    "seoDescription": "",
+    "seoKeywords": "",
+    "slug": "",
+    "lastUpdated": "2025-03-19T07:44:16.187Z"
   },
   {
     "name": "מנורת גידול11",
