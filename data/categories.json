@@ -245,5 +245,26 @@
     "updated": "2025-03-19T07:44:01.583Z",
     "id": "cat_1742370241583117",
     "createdAt": "2025-03-19T07:44:01.583Z"
+  },
+  {
+    "name": "f",
+    "description": "f",
+    "slug": "f",
+    "icon": null,
+    "image": "/api/placeholder/400/300",
+    "bgColor": "#1a1d21",
+    "textColor": "#ffffff",
+    "order": 0,
+    "featured": false,
+    "vipOnly": false,
+    "columnLayout": "1",
+    "seoTitle": "f",
+    "seoDescription": "f",
+    "seoKeywords": "",
+    "parentId": "cat_1742370241583117",
+    "created": "2025-03-19T07:46:30.108Z",
+    "updated": "2025-03-19T07:46:30.108Z",
+    "id": "cat_1742370390108284",
+    "createdAt": "2025-03-19T07:46:30.108Z"
   }
 ]
