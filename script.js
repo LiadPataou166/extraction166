@@ -600,8 +600,7 @@ $(document).ready(function(){
             }
         });
         
-
-        // תיקון להתנהגות התפריט
+// תיקון להתנהגות התפריט
 $(document).ready(function() {
     // מנקה כל אירועי לחיצה קודמים מהתפריט
     $('.menu-item-has-children > a').off('click');
@@ -630,15 +629,6 @@ $(document).ready(function() {
         }
     });
 });
-        
-        // Mobile menu toggle
-        $('.has-submenu').off('click').on('click', function(e) {
-            if (window.innerWidth <= 768) {
-                e.preventDefault();
-                $(this).parent().toggleClass('active');
-                $(this).parent().find('.sub-menu').slideToggle(300);
-            }
-        });
         
         // Display categories in menu - move here to ensure it happens after menu structure is fixed
         if (productManager && productManager.categories) {
