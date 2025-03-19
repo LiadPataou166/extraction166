@@ -203,5 +203,26 @@
     "updated": "2025-03-19T01:01:37.039Z",
     "id": "cat_1742346097039318",
     "createdAt": "2025-03-19T01:01:37.039Z"
+  },
+  {
+    "name": "dd",
+    "description": "",
+    "slug": "d",
+    "icon": null,
+    "image": "/api/placeholder/400/300",
+    "bgColor": "#1a1d21",
+    "textColor": "#ffffff",
+    "order": 0,
+    "featured": true,
+    "vipOnly": false,
+    "columnLayout": "1",
+    "seoTitle": "dd",
+    "seoDescription": "",
+    "seoKeywords": "",
+    "parentId": "",
+    "created": "2025-03-19T01:08:46.419Z",
+    "updated": "2025-03-19T01:08:46.419Z",
+    "id": "cat_1742346526419132",
+    "createdAt": "2025-03-19T01:08:46.419Z"
   }
 ]
