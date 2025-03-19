@@ -22,14 +22,19 @@
     "name": "בדיקה11116",
     "price": 15,
     "oldPrice": 15,
-    "category": "דד ד ד",
+    "category": "aa",
     "stock": 11,
     "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqSf3L3cQ1FlHb2uUyV2rs5MHKFxSH7jKdOg&s",
     "description": "",
     "badge": null,
     "rating": 0,
     "ratingCount": 0,
-    "id": "m8by9w5yv3a5omds817"
+    "id": "m8by9w5yv3a5omds817",
+    "seoTitle": "",
+    "seoDescription": "",
+    "seoKeywords": "",
+    "slug": "11116",
+    "lastUpdated": "2025-03-19T00:49:57.674Z"
   },
   {
     "name": "a",
