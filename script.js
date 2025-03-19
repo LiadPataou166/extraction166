@@ -3390,6 +3390,339 @@ async function createCategoryPage(categoryData) {
         }
     </script>
 </body>
+
+<body class="category-page" data-category="${safeName}" data-vip-only="${vipOnly ? 'true' : 'false'}">
+    <!-- Header section - we include the header from index.html -->
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="container">
+            <div class="top-bar-content">
+                <div class="contact-info">
+                    <a href="tel:+972501234567"><i class="fas fa-phone-alt"></i> 050-1234567</a>
+                    <a href="mailto:info@doctor-instraction.com"><i class="fas fa-envelope"></i> info@doctor-instraction.com</a>
+                </div>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-telegram"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Header -->
+    <header class="main-header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <a href="index.html">
+                        <img src="logo.png" alt="Doctor Instraction">
+                    </a>
+                </div>
+                
+                <div class="header-right">
+                    <div class="header-actions">
+                        <div class="header-search">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <div class="header-cart">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="badge">0</span>
+                        </div>
+                        <div class="header-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    </div>
+                    
+                    <form class="search-form">
+                        <input type="text" placeholder="חיפוש מוצרים...">
+                        <button type="submit"><i class="fas fa-search"></i></button>
+                    </form>
+                    
+                    <div class="auth-links">
+                        <a href="#" class="show-login">התחברות</a>
+                        <a href="#" class="show-register">הרשמה</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Header Bottom with Improved Navigation -->
+        <div class="header-bottom">
+            <div class="container">
+                <nav class="improved-nav" aria-label="תפריט ראשי">
+                    <ul class="main-nav">
+                        <li class="menu-item"><a href="index.html">דף הבית</a></li>
+                        <li class="menu-item menu-item-has-children">
+                            <a href="#" class="has-submenu">קטגוריות<span class="drop-indicator"><i class="fas fa-caret-down"></i></span></a>
+                            <ul class="sub-menu">
+                                <!-- Categories will be loaded dynamically -->
+                            </ul>
+                        </li>
+                        <li class="menu-item menu-item-has-children">
+                            <a href="#" class="has-submenu">גלגול<span class="drop-indicator"><i class="fas fa-caret-down"></i></span></a>
+                            <ul class="sub-menu">
+                                <li class="dropdown-link"><a href="#" class="dropdown-link-a">ניירות גלגול</a></li>
+                                <li class="dropdown-link"><a href="#" class="dropdown-link-a">פילטרים</a></li>
+                                <li class="dropdown-link"><a href="#" class="dropdown-link-a">מגלגלות</a></li>
+                                <li class="dropdown-link"><a href="#" class="dropdown-link-a">ערכות גלגול</a></li>
+                            </ul>
+                        </li>
+                        <li class="menu-item"><a href="#">עלינו</a></li>
+                        <li class="menu-item"><a href="#">צור קשר</a></li>
+                        <li class="menu-item"><a href="#">המדריך השלם</a></li>
+                        <li class="menu-item" id="admin-menu-item" style="display: none;"><a href="#" class="admin-panel-btn">פאנל ניהול</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+    
+    <main>
+        <div class="category-banner">
+            <div class="container">
+                <h1><i class="${icon || 'fas fa-leaf'}"></i> ${name}</h1>
+                <p>${description || `ברוכים הבאים לקטגוריית ${name}`}</p>
+            </div>
+        </div>
+        
+        <div class="category-products">
+            <div class="container">
+                <div class="category-products-controls">
+                    <div class="category-filters">
+                        <button class="filter-btn active" data-filter="all">הכל</button>
+                        <button class="filter-btn" data-filter="new">חדש</button>
+                        <button class="filter-btn" data-filter="sale">מבצע</button>
+                        
+                    </div>
+                    
+                    <div class="category-sorting">
+                        <select class="sort-select">
+                            <option value="recommended">מומלצים</option>
+                            <option value="price-low">מחיר: מהנמוך לגבוה</option>
+                            <option value="price-high">מחיר: מהגבוה לנמוך</option>
+                            <option value="newest">חדשים ביותר</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="category-products-grid" id="category-products-container">
+                    <!-- Products will be loaded here via JavaScript -->
+                    <div class="empty-category">טוען מוצרים...</div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer Section -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>אודות</h3>
+                    <p>Doctor Instraction מציע מוצרים איכותיים מהארץ ומהעולם. המקום שלכם לחוויית קנייה מושלמת.</p>
+                    <div class="footer-social">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-telegram"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>ניווט מהיר</h3>
+                    <ul class="footer-links">
+                        <li><a href="index.html">דף הבית</a></li>
+                        <li><a href="#">מדריכים</a></li>
+                        <li><a href="#">בלוג</a></li>
+                        <li><a href="#">צור קשר</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>מדיניות</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">תנאי שימוש</a></li>
+                        <li><a href="#">מדיניות פרטיות</a></li>
+                        <li><a href="#">מדיניות משלוחים</a></li>
+                        <li><a href="#">תקנון החנות</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>צור קשר</h3>
+                    <ul class="footer-contact">
+                        <li><i class="fas fa-map-marker-alt"></i> רחוב הראשי 123, תל אביב</li>
+                        <li><i class="fas fa-phone"></i> 050-1234567</li>
+                        <li><i class="fas fa-envelope"></i> info@doctor-instraction.com</li>
+                        <li><i class="fas fa-clock"></i> א'-ה' 09:00-18:00</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>© ${new Date().getFullYear()} Doctor Instraction. כל הזכויות שמורות.</p>
+                <div class="payment-methods">
+                    <i class="fab fa-cc-visa"></i>
+                    <i class="fab fa-cc-mastercard"></i>
+                    <i class="fab fa-paypal"></i>
+                    <i class="fab fa-bitcoin"></i>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- JavaScript Libraries -->
+    <script src="script.js"></script>
+    <script>
+        $(document).ready(function() {
+            if (typeof productManager === 'undefined') {
+                window.productManager = new ProductManager();
+            }
+            
+            // Check user login status
+            checkUserLogin();
+            
+            // Load products for this category
+            loadCategoryProducts("${name}");
+            
+            // Style registration button
+            styleRegisterButton();
+            
+            // Initialize product filters
+            $('.filter-btn').on('click', function() {
+                $('.filter-btn').removeClass('active');
+                $(this).addClass('active');
+                
+                const filter = $(this).data('filter');
+                // Here would go the actual filtering logic
+                // For demo purposes, we'll just reload products
+                loadCategoryProducts("${name}", filter);
+            });
+            
+            // Initialize sorting
+            $('.sort-select').on('change', function() {
+                const sortValue = $(this).val();
+                loadCategoryProducts("${name}", $('.filter-btn.active').data('filter'), sortValue);
+            });
+            
+            // VIP protection
+            if (${vipOnly ? 'true' : 'false'}) {
+                const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+                if (!userData || !userData.isVIP) {
+                    // Redirect if not VIP
+                    window.location.href = 'index.html?error=vip_required';
+                }
+            }
+            
+            // Load and display categories in main menu
+            loadCategories();
+            
+            // Fix categories dropdown menu
+            fixCategoriesMenu();
+        });
+        
+        // Function to load products for this category
+        function loadCategoryProducts(categoryName, filter = 'all', sort = 'recommended') {
+            console.log('Loading products for category:', categoryName, 'filter:', filter, 'sort:', sort);
+            
+            productManager.loadProductsFromGitHub().then(success => {
+                if (success) {
+                    // Filter products by category
+                    let products = productManager.products.filter(p => p.category === categoryName);
+                    
+                    console.log('Found products:', products.length, products);
+                    
+                    // Apply additional filter if needed
+                    if (filter !== 'all') {
+                        if (filter === 'new') {
+                            products = products.filter(p => p.badge === 'new');
+                        } else if (filter === 'sale') {
+                            products = products.filter(p => p.badge === 'sale');
+                        } else if (filter === 'vip') {
+                            products = products.filter(p => p.vipOnly);
+                        }
+                    }
+                    
+                    // Sort products
+                    if (sort === 'price-low') {
+                        products.sort((a, b) => a.price - b.price);
+                    } else if (sort === 'price-high') {
+                        products.sort((a, b) => b.price - a.price);
+                    } else if (sort === 'newest') {
+                        products.sort((a, b) => new Date(b.created) - new Date(a.created));
+                    }
+                    
+                    // Display products
+                    displayCategoryProducts(products);
+                } else {
+                    $('#category-products-container').html('<div class="empty-category">שגיאה בטעינת מוצרים</div>');
+                }
+            });
+        }
+        
+        // Function to display products in the category page
+        function displayCategoryProducts(products) {
+            const $container = $('#category-products-container');
+            
+            if (!products || products.length === 0) {
+                $container.html('<div class="empty-category">אין מוצרים בקטגוריה זו עדיין</div>');
+                return;
+            }
+            
+            // Build HTML for products
+            let productsHTML = '';
+            
+            products.forEach(product => {
+                // Get the VIP price if available
+                const vipPrice = product.vipPrice || (product.price * 0.9);
+                const isVIP = JSON.parse(localStorage.getItem('userData') || '{}').isVIP;
+                
+                // Determine which price to show
+                const displayPrice = isVIP ? vipPrice : product.price;
+                const oldPrice = isVIP ? product.price : null;
+                
+                // Build the product card
+                productsHTML += \`
+                    <div class="product-card" data-id="\${product.id}">
+                        <div class="product-image" style="background-image: url('\${product.image || 'images/product-placeholder.jpg'}');">
+                            \${product.badge ? \`<span class="product-badge \${product.badge}">\${getBadgeText(product.badge)}</span>\` : ''}
+                            <div class="product-actions">
+                                <button class="action-btn quick-view-btn" data-id="\${product.id}">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="action-btn add-to-cart-btn" data-id="\${product.id}">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </button>
+                                <button class="action-btn add-to-wishlist-btn" data-id="\${product.id}">
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="product-content">
+                            <div class="product-category">\${product.category || 'כללי'}</div>
+                            <h3 class="product-title">
+                                <a href="product-\${product.slug || product.id}.html">\${product.name}</a>
+                            </h3>
+                            <div class="product-rating">
+                                \${getRatingStars(product.rating || 5)}
+                            </div>
+                            <div class="product-price">
+                                \${oldPrice ? \`<span class="old-price">\${oldPrice.toFixed(2)} ₪</span>\` : ''}
+                                <span class="current-price">\${displayPrice.toFixed(2)} ₪</span>
+                            </div>
+                        </div>
+                    </div>
+                \`;
+            });
+            
+            // Add products to container
+            $container.html(productsHTML);
+            
+            // Attach event handlers to product card buttons
+            initializeProductCards();
+        }
+    </script>
+</body>
 </html>
         `;
         
