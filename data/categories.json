@@ -161,5 +161,26 @@
     "updated": "2025-03-19T00:49:32.094Z",
     "id": "cat_1742345372094504",
     "createdAt": "2025-03-19T00:49:32.094Z"
+  },
+  {
+    "name": "bb",
+    "description": "b",
+    "slug": "b",
+    "icon": null,
+    "image": "/api/placeholder/400/300",
+    "bgColor": "#1a1d21",
+    "textColor": "#ffffff",
+    "order": 0,
+    "featured": true,
+    "vipOnly": false,
+    "columnLayout": "1",
+    "seoTitle": "bb",
+    "seoDescription": "b",
+    "seoKeywords": "",
+    "parentId": "",
+    "created": "2025-03-19T01:00:03.669Z",
+    "updated": "2025-03-19T01:00:03.669Z",
+    "id": "cat_1742346003669824",
+    "createdAt": "2025-03-19T01:00:03.669Z"
   }
 ]
