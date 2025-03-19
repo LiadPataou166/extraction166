@@ -182,5 +182,26 @@
     "updated": "2025-03-19T01:00:03.669Z",
     "id": "cat_1742346003669824",
     "createdAt": "2025-03-19T01:00:03.669Z"
+  },
+  {
+    "name": "qq",
+    "description": "",
+    "slug": "q",
+    "icon": null,
+    "image": "/api/placeholder/400/300",
+    "bgColor": "#1a1d21",
+    "textColor": "#ffffff",
+    "order": 0,
+    "featured": true,
+    "vipOnly": false,
+    "columnLayout": "1",
+    "seoTitle": "qq",
+    "seoDescription": "",
+    "seoKeywords": "",
+    "parentId": "",
+    "created": "2025-03-19T01:01:37.039Z",
+    "updated": "2025-03-19T01:01:37.039Z",
+    "id": "cat_1742346097039318",
+    "createdAt": "2025-03-19T01:01:37.039Z"
   }
 ]
