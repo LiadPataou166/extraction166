@@ -600,35 +600,14 @@ $(document).ready(function(){
             }
         });
         
-// תיקון להתנהגות התפריט
-$(document).ready(function() {
-    // מנקה כל אירועי לחיצה קודמים מהתפריט
-    $('.menu-item-has-children > a').off('click');
-    
-    // מוסיף התנהגות נכונה לתפריט בהתאם לגודל המסך
-    if (window.innerWidth <= 768) {
-        // במובייל - פתיחה בלחיצה
-        $('.menu-item-has-children > a').on('click', function(e) {
-            e.preventDefault();
-            $(this).parent().toggleClass('active');
-            $(this).next('.sub-menu').slideToggle(300);
+        // Mobile menu toggle
+        $('.has-submenu').off('click').on('click', function(e) {
+            if (window.innerWidth <= 768) {
+                e.preventDefault();
+                $(this).parent().toggleClass('active');
+                $(this).parent().find('.sub-menu').slideToggle(300);
+            }
         });
-    } else {
-        // בדסקטופ - פתיחה במעבר עכבר
-        $('.menu-item-has-children').on('mouseenter', function() {
-            $(this).find('.sub-menu').stop(true, true).slideDown(300);
-        }).on('mouseleave', function() {
-            $(this).find('.sub-menu').stop(true, true).slideUp(300);
-        });
-    }
-    
-    // חוסם את ברירת המחדל של קישורים בתתי-תפריטים
-    $('.dropdown-link-has-inner > a').on('click', function(e) {
-        if ($(this).siblings('.sub-dropdown').length) {
-            e.preventDefault();
-        }
-    });
-});
         
         // Display categories in menu - move here to ensure it happens after menu structure is fixed
         if (productManager && productManager.categories) {
