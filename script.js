@@ -4051,37 +4051,67 @@ function createCategoryPageContent(categoryData, existingFile = null) {
                 </div>
             </div>
         </div>
-        
-        <!-- Header Bottom with Improved Navigation -->
-        <div class="header-bottom">
-            <div class="container">
-                <nav class="improved-nav" aria-label="תפריט ראשי">
-                    <ul class="main-nav">
-                        <li class="menu-item"><a href="index.html">דף הבית</a></li>
-                        <li class="menu-item menu-item-has-children">
-                            <a href="#" class="has-submenu">קטגוריות<span class="drop-indicator"><i class="fas fa-caret-down"></i></span></a>
-                            <ul class="sub-menu">
-                                <!-- Categories will be loaded dynamically -->
-                            </ul>
-                        </li>
-                        <li class="menu-item menu-item-has-children">
-                            <a href="#" class="has-submenu">גלגול<span class="drop-indicator"><i class="fas fa-caret-down"></i></span></a>
-                            <ul class="sub-menu">
-                                <li class="dropdown-link"><a href="#" class="dropdown-link-a">ניירות גלגול</a></li>
-                                <li class="dropdown-link"><a href="#" class="dropdown-link-a">פילטרים</a></li>
-                                <li class="dropdown-link"><a href="#" class="dropdown-link-a">מגלגלות</a></li>
-                                <li class="dropdown-link"><a href="#" class="dropdown-link-a">ערכות גלגול</a></li>
-                            </ul>
-                        </li>
-                        <li class="menu-item"><a href="#">עלינו</a></li>
-                        <li class="menu-item"><a href="#">צור קשר</a></li>
-                        <li class="menu-item"><a href="#">המדריך השלם</a></li>
-                        <li class="menu-item" id="admin-menu-item" style="display: none;"><a href="#" class="admin-panel-btn">פאנל ניהול</a></li>
+   <!-- Header Bottom with Improved Navigation -->
+<div class="header-bottom">
+    <div class="container">
+        <nav class="improved-nav" aria-label="תפריט ראשי">
+            <ul class="main-nav">
+                <li class="menu-item"><a href="index.html" class="active">דף הבית</a></li>
+                
+                <li class="menu-item menu-item-has-children">
+                    <a href="#" class="has-submenu">גלגול<span class="drop-indicator"><i class="fas fa-caret-down"></i></span></a>
+                    <ul class="sub-menu">
+                        <li class="dropdown-link"><a href="#" class="dropdown-link-a">ניירות גלגול</a></li>
+                        <li class="dropdown-link"><a href="#" class="dropdown-link-a">קונוסים</a></li>
+                        <li class="dropdown-link"><a href="#" class="dropdown-link-a">פילטרים לגלגול</a></li>
+                        <li class="dropdown-link"><a href="#" class="dropdown-link-a">מכונות גלגול</a></li>
+                        <li class="dropdown-link"><a href="#" class="dropdown-link-a">קססוניות ומגשי גלגול</a></li>
                     </ul>
-                </nav>
-            </div>
-        </div>
-    </header>
+                </li>
+                
+                <li class="menu-item menu-item-has-children">
+                    <a href="#" class="has-submenu">מוצרי עישון<span class="drop-indicator"><i class="fas fa-caret-down"></i></span></a>
+                    <ul class="sub-menu">
+                        <li class="dropdown-link"><a href="#" class="dropdown-link-a">מקטרות</a></li>
+                        <li class="dropdown-link"><a href="#" class="dropdown-link-a">באנגים</a></li>
+                        <li class="dropdown-link"><a href="#" class="dropdown-link-a">גריינדרים</a></li>
+                        <li class="dropdown-link"><a href="#" class="dropdown-link-a">מאפרות</a></li>
+                    </ul>
+                </li>
+                
+                <li class="menu-item menu-item-has-children">
+                    <a href="#" class="has-submenu">ציוד גידול<span class="drop-indicator"><i class="fas fa-caret-down"></i></span></a>
+                    <ul class="sub-menu">
+                        <li class="dropdown-link"><a href="#" class="dropdown-link-a">ערכות גידול</a></li>
+                        <li class="dropdown-link"><a href="#" class="dropdown-link-a">מערכות תאורה לגידול</a></li>
+                    </ul>
+                </li>
+                
+                <li class="menu-item menu-item-has-children">
+                    <a href="#" class="has-submenu">אחסון<span class="drop-indicator"><i class="fas fa-caret-down"></i></span></a>
+                    <ul class="sub-menu">
+                        <li class="dropdown-link"><a href="#" class="dropdown-link-a">קופסאות וצנצנות</a></li>
+                        <li class="dropdown-link"><a href="#" class="dropdown-link-a">שקיות אחסון</a></li>
+                        <li class="dropdown-link"><a href="#" class="dropdown-link-a">משקלים</a></li>
+                    </ul>
+                </li>
+                
+                <li class="menu-item"><a href="page3.html">מוצרים חדשים</a></li>
+                <li class="menu-item"><a href="#">מועדון VIP</a></li>
+                <li class="menu-item"><a href="#">בלוג</a></li>
+                <li class="menu-item"><a href="#">צור קשר</a></li>
+                <li class="menu-item" id="admin-menu-item" style="display: none;"><a href="#" class="admin-panel-btn">פאנל ניהול</a></li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<!-- Admin Panel Button (Fixed Position) -->
+<div id="fixed-admin-button" style="display: none;">
+    <button class="fixed-admin-btn admin-panel-btn">
+        <i class="fas fa-cog"></i> פאנל ניהול
+    </button>
+</div>
     
     <main>
         <div class="category-banner">
