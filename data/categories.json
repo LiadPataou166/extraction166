@@ -15,27 +15,6 @@
     "createdAt": "2025-03-17T21:10:52.337Z"
   },
   {
-    "name": "ליעד",
-    "description": "ליעד11",
-    "slug": "gidul11111",
-    "icon": null,
-    "image": "/api/placeholder/400/300",
-    "bgColor": "#1a1d21",
-    "textColor": "#ffffff",
-    "order": 0,
-    "featured": false,
-    "vipOnly": false,
-    "columnLayout": "1",
-    "seoTitle": "ציוד גידול אדיר",
-    "seoDescription": "וואו מטורף",
-    "seoKeywords": "ליעד תותח",
-    "parentId": "cat_1742306012195365",
-    "created": "2025-03-18T23:24:53.649Z",
-    "updated": "2025-03-18T23:24:53.662Z",
-    "id": "cat_1742340293662557",
-    "createdAt": "2025-03-18T23:24:53.662Z"
-  },
-  {
     "id": "cat_smoking_1742340346374",
     "name": "מוצרי עישון",
     "slug": "smoking-products",
