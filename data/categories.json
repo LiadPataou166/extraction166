@@ -119,5 +119,26 @@
     "updated": "2025-03-19T00:44:56.527Z",
     "id": "cat_174234509652722",
     "createdAt": "2025-03-19T00:44:56.527Z"
+  },
+  {
+    "name": "a",
+    "description": "a",
+    "slug": "a",
+    "icon": null,
+    "image": "/api/placeholder/400/300",
+    "bgColor": "#1a1d21",
+    "textColor": "#ffffff",
+    "order": 0,
+    "featured": true,
+    "vipOnly": false,
+    "columnLayout": "1",
+    "seoTitle": "a",
+    "seoDescription": "a",
+    "seoKeywords": "",
+    "parentId": "",
+    "created": "2025-03-19T00:47:33.350Z",
+    "updated": "2025-03-19T00:47:33.350Z",
+    "id": "cat_1742345253350323",
+    "createdAt": "2025-03-19T00:47:33.350Z"
   }
 ]
